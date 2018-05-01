@@ -7,7 +7,7 @@ arc.run(['$rootScope', function($rootScope) {
         description: "This plugin adds the users and groups administration page.",
         author: "Cubewise",
         url: "https://github.com/cubewise-code/arc-plugins",
-        version: "0.1.0"
+        version: "0.2.0"
     });
 
 }]);
