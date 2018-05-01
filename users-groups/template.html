@@ -8,6 +8,10 @@
       <i class="fa fa-sitemap"></i> {{instance | uppercase}}:<span translate="Manage User and Group Accounts"></span>
     </label>
     
+    <button class="btn btn-warning" ng-if="message"><!-- if there is an error with a $http call, show message -->
+        <span class="fa fa-warning" aria-hidden="true"></span> <span>{{message}}</span>
+    </button>
+
   </div>
   
   <!-- USER TABLE -->
@@ -18,7 +22,8 @@
           <div class="row"><!-- USERS TAB:selections-->
             <div class="col-4">
               <div class="input-group">
-                  <label style="padding-right: 10px;">Name</label><!-- search input -->
+                  <!-- search input -->
+                  <!-- <label style="padding-right: 10px;">Name</label> -->
                   <input type="text" ng-model="selections.filter" placeholder="{{'SEARCH' | translate}}" class="form-control" style="display:inline; width: 100px;" />
 
                   <span class="input-group-append"><!-- search clear -->
@@ -32,7 +37,7 @@
 
             <div class="col-8">
                 <button class="btn btn-secondary" ng-class="{'btn-active': activeOnly}" title="{{'Add or remove a user' | translate}}" ng-click="toggleActiveOnly()">
-                  Add / Remove
+                  Add
                   <i class="fa fa-fw fa-cogs"></i>
                 </button>
             </div>
@@ -48,20 +53,33 @@
                     <table class="table table-hover table-sm">
                       <thead>
                         <tr>
-                          <th style="width: 40px;" translate="Principal Name"></th>
-                          <th translate="Alias" ></th>
+                          <th style="width: 40px;" translate="Name"></th>
+                          <th translate="FriendlyName" ></th>
+                          <th translate="Type" ></th>
+                          <th translate="IsActive" ></th>
                           <th translate="Groups" ></th>
-                          <th translate="User Level" ></th>
+                          <th translate="Edit" ></th>
+                          <th translate="Select" ></th>
+
 
                         </tr>
                       </thead>
                       <tbody>
                         <tr ng-repeat="user in users | filter:listFilter track by $index">
                         <!-- <tr ng-repeat="user in users | filter:listFilter track by item.ID"> -->
-                          <td style="width: 40px;">{{user.principalName}}</td>
-                          <td>{{user.alias}}</td>
-                          <td>{{user.groups}}</td>
-                          <td>{{user.userLevel}}</td>
+                          <td style="width: 40px;">{{user.Name}}</td>
+                          <td>{{user.FriendlyName}}</td>
+                          <td>{{user.Type}}</td>
+                          <td>{{user.IsActive}}</td>
+                          <td>{{user.Groups}}</td>
+                          <td>
+                            <button class="btn btn-secondary" ng-class="{'btn-active': activeOnly}" title="" ng-click="editUserModal()">
+                              <i class="fa fa-edit"></i>
+                            </button>
+                          </td>
+                          <td>
+                            
+                          </td>
                         </tr>
                       </tbody>
                     </table>
