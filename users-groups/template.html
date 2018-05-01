@@ -7,10 +7,79 @@
     <label class="page-title">
       <i class="fa fa-sitemap"></i> {{instance | uppercase}}:<span translate="Manage User and Group Accounts"></span>
     </label>
+    
   </div>
   
   <!-- USER TABLE -->
+  <div>
+    <form name="outerForm" class="">
+      <uib-tabset active="activeForm">
+        <uib-tab index="0" heading="Users"><!-- USERS TAB-->
+          <div class="row"><!-- USERS TAB:selections-->
+            <div class="col-4">
+              <div class="input-group">
+                  <label style="padding-right: 10px;">Name</label><!-- search input -->
+                  <input type="text" ng-model="selections.filter" placeholder="{{'SEARCH' | translate}}" class="form-control" style="display:inline; width: 100px;" />
 
+                  <span class="input-group-append"><!-- search clear -->
+                    <button ng-disabled="!selections.filter.length" class="btn btn-secondary" title="{{'CLEAR' | translate}}" ng-click="selections.filter = ''">
+                      <i class="fa fa-fw fa-remove"></i>
+                    </button>
+                  </span>
+
+              </div>
+            </div>
+
+            <div class="col-8">
+                <button class="btn btn-secondary" ng-class="{'btn-active': activeOnly}" title="{{'Add or remove a user' | translate}}" ng-click="toggleActiveOnly()">
+                  Add / Remove
+                  <i class="fa fa-fw fa-cogs"></i>
+                </button>
+            </div>
+
+
+          </div>
+
+          <div class="row" style="padding-left: 10px; padding-top: 10px;"><!-- USERS TAB: table -->
+              <!-- {{users}} -->
+              <auto-height>
+                <div class="card">
+                  <div class="card-body">
+                    <table class="table table-hover table-sm">
+                      <thead>
+                        <tr>
+                          <th style="width: 40px;" translate="Principal Name"></th>
+                          <th translate="Alias" ></th>
+                          <th translate="Groups" ></th>
+                          <th translate="User Level" ></th>
+
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr ng-repeat="user in users | filter:listFilter track by $index">
+                        <!-- <tr ng-repeat="user in users | filter:listFilter track by item.ID"> -->
+                          <td style="width: 40px;">{{user.principalName}}</td>
+                          <td>{{user.alias}}</td>
+                          <td>{{user.groups}}</td>
+                          <td>{{user.userLevel}}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </auto-height>
+
+          </div>
+        </uib-tab>
+
+
+
+        <uib-tab index="1" heading="Groups"><!-- GROUPS TAB -->
+          Groups information...
+        </uib-tab>
+      </uib-tabset>
+    </form>
+  </div>
 
 </div>
 

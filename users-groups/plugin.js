@@ -27,10 +27,107 @@ arc.directive("usersGroups", function () {
 
             // CHECK
             $log.log('testing123');
-            $log.log($rootScope);
-            $log.log($scope);
+            // $log.log($rootScope);
+            // $log.log($scope);
 
-            //CLOSE TAB
+            //OBJECTS
+            $scope.selections = {
+                filter: ""
+            };
+
+            //test users object
+            $scope.users = [
+                {
+                    principalName:'testUser1',
+                    alias:'Mr Black',
+                    groups:'testGroup1',
+                    userLevel:'testLevel1'
+                },
+                {
+                    principalName:'testUser2',
+                    alias:'Mr Pink',
+                    groups:'testGroup2',
+                    userLevel:'testLevel2'
+                },
+                {
+                    principalName:'testUser3',
+                    alias:'Mr White',
+                    groups:'testGroup3',
+                    userLevel:'testLevel3'
+                },
+                {
+                    principalName:'testUser4',
+                    alias:'Mr Orange',
+                    groups:'testGroup4',
+                    userLevel:'testLevel4'
+                },
+
+            ];
+
+            //LOAD USER DATA
+            // var load = function(){
+                // $scope.reload = false;
+                // Loads the thread information from TM1
+                // First part of URL is the encoded instance name and then REST API URL (excluding api/v1/)
+                // $http.get(encodeURIComponent($scope.instance) + "/Threads").then(function(success, error) {
+                    // if(success.status == 401){
+                        // Set reload to true to refresh after the user logs in
+                        // $scope.reload = true;
+                        // return;
+                    // }
+                    // else if(success.status < 400){	
+                        // Set the threads data		
+                        // $scope.now = new Date();
+                        // $scope.threads = success.data.value;
+                        // _.each($scope.threads, function(item){
+                            // item.canCancel = item.State != "Idle";
+                            // item.ElapsedTimeS = $helper.timespanToSeconds(item.ElapsedTime);
+                            // item.WaitTimeS = $helper.timespanToSeconds(item.WaitTime);
+                        // })
+                        // if(!$scope.isPaused){
+                            // If the page is active retrieve the data again in 1 second
+                            // $scope.loadTimeout = setTimeout(function(){
+                                // load();
+                            // }, $rootScope.uiPrefs.sessionInterval);
+                        // }         
+                    // } else {
+                        // Error to display
+                        // if(success.data && success.data.error && success.data.error.message){
+                            // $scope.message = success.data.error.message;
+                        // }
+                        // else {
+                            // $scope.message = success.data;
+                        // }
+                        // $timeout(function(){
+                            // $scope.message = null;
+                        // }, 5000);
+                    // }
+                // });
+            // };
+
+            // Load the threads the first time
+            // load();
+
+
+            //FILTER USER TABLE
+            $scope.listFilter = function(user) {
+                // Check text filter
+                if(!$scope.selections.filter || !$scope.selections.filter.length){
+                    return true;
+                }
+
+                //Check for Match
+                var filter = $scope.selections.filter.toLowerCase();
+                if(user.principalName.toLowerCase().indexOf(filter) !== -1
+                    || user.alias.toLowerCase().indexOf(filter) !== -1 ){
+                    return true;
+                }
+                return false;
+                
+            };
+
+
+            //CLOSE USERS AND GROUPS TAB
             $scope.$on("close-tab", function(event, args) {
 
                 $log.log('in close tab function');
