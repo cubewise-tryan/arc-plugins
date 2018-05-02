@@ -1,6 +1,6 @@
 
 <!-- <div class="tm1-usersGroups"> -->
-<div>
+<div class="tm1-usersGroups">
 
   <!-- SECTION: TOOLBAR -->
   <div class="toolbar">
@@ -36,9 +36,13 @@
             </div>
 
             <div class="col-8">
-                <button class="btn btn-secondary" ng-class="{'btn-active': activeOnly}" title="{{'Add or remove a user' | translate}}" ng-click="toggleActiveOnly()">
+                <button class="btn btn-secondary" ng-class="{'btn-active': activeOnly}" title="{{'Add or remove a user' | translate}}" ng-click="addUser()">
+                  <i class="fa fa-plus"></i>
                   Add
-                  <i class="fa fa-fw fa-cogs"></i>
+                </button>
+                <button class="btn btn-secondary" ng-class="{'btn-active': activeOnly}" title="{{'Add or remove a user' | translate}}" ng-click="">
+                  <i class="fa fa-minus"></i>
+                  Remove
                 </button>
             </div>
 

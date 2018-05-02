@@ -7,7 +7,7 @@ arc.run(['$rootScope', function($rootScope) {
         description: "This plugin adds the users and groups administration page.",
         author: "Cubewise",
         url: "https://github.com/cubewise-code/arc-plugins",
-        version: "0.2.0"
+        version: "0.3.0"
     });
 
 }]);
@@ -26,7 +26,7 @@ arc.directive("usersGroups", function () {
         controller: ["$scope", "$rootScope", "$http", "$timeout", "$tm1", "$dialogs", "$helper","$log","$q","$uibModal", function ($scope, $rootScope, $http, $timeout, $tm1, $dialogs, $helper,$log,$q,$uibModal) {
 
             // CHECK
-            $log.log('testing123');
+            $log.log('usersGroups Controller triggered');
             // $log.log($rootScope);
             // $log.log($scope);
 
@@ -75,16 +75,16 @@ arc.directive("usersGroups", function () {
                 // First part of URL is the encoded instance name and then REST API URL (excluding api/v1/)
 
                 //check
-                $log.log('in load function>>>');
+                // $log.log('in load function>>>');
 
                 //set reaload flag
                 $scope.reload = false;
 
                 //TM1 REST API QUERY
-                var odataQuery = "/Users";
+                var odataQueryGetUsers = "/Users";
 
                 //MAIN FUNCTION
-                $http.get(encodeURIComponent($scope.instance) + odataQuery)
+                $http.get(encodeURIComponent($scope.instance) + odataQueryGetUsers)
                     .then(success)
                     .catch(error);
 
@@ -93,8 +93,8 @@ arc.directive("usersGroups", function () {
                         //review status
                         if(response.status < 400){
                             //check
-                            $log.log('success');
-                            $log.log(response.data.value);
+                            // $log.log('success');
+                            // $log.log(response.data.value);
 
                             //build user object........
                             buildUsers(response.data.value);
@@ -106,9 +106,11 @@ arc.directive("usersGroups", function () {
 
                         //construct user object
                         function buildUsers(usersArray){
-
+                            //add starting users
                             $scope.users = usersArray;
-                            $log.log($scope.users);
+                            // $log.log($scope.users);
+
+                            //add additional properties to users object
                             // angular.forEach(usersArray, function(value,key){
                                 // $log.log(value);
                                 // $log.log(key);
@@ -117,7 +119,7 @@ arc.directive("usersGroups", function () {
 
                     }
 
-                    //ERRORHANDLER
+                    //error handler pull users
                     function error(response){
                         //check
                         $log.log('error');
@@ -146,30 +148,161 @@ arc.directive("usersGroups", function () {
                     }
 
             };
-
             // Load the users the first time
             load();
 
 
-            //EDIT USER
-            var $ctrl = this;
-            $ctrl.items = ['item1', 'item2', 'item3'];
-            
-            $scope.editUserModal = function(){
-                //check
-                $log.log('editUser');
+            //ADD USER
+            $scope.addUser = function(){
+                //main
+                buildParameters()
+                    .then(createUser)
+                    .catch(errorHandlerUserCreate);
 
-                var modalInstance = $uibModal.open({
-                    animation: $ctrl.animationsEnabled,
-                    component: 'modalComponent',
-                    resolve: {
-                        items: function () {
-                            return $ctrl.items;
+                //create parameters
+                function buildParameters(){
+
+                    //create defered object
+                    var deferred = $q.defer();
+
+                    //default
+                    var parameters = {
+                        data:'',
+                        url:''
+                    };
+    
+                    //create dataObject parameter
+                    var data = {};
+    
+                    var setData = function (userName, userGroups){
+                        var data = {
+                            "Name" : "",
+                            "Groups@odata.bind":[]
+                        }
+    
+                        //groups format
+                        //>>>add multiple group logic later....
+                        var userGroupsAdj = "Groups('" + userGroups + "')";
+                        
+                        //populate
+                        data.Name = userName;
+                        data['Groups@odata.bind'].push(userGroupsAdj);
+    
+                        //return
+                        return data;
+                    };
+    
+                    //assign TEST data
+                    var userName = 'mrGreen';
+                    var userGroup = 'North America';
+                    data = setData(userName,userGroup);
+    
+                    //assign url
+                    var url = encodeURIComponent($scope.instance) + "/Users";
+    
+    
+                    parameters.url = url;
+                    parameters.data = data;
+    
+                    //check
+                    $log.log('Parameters>>>>');
+                    $log.log(data);
+                    $log.log(url);
+                    $log.log(parameters);
+                    
+                    
+                    //resolve/reject
+                    if(parameters.url!=='' && parameters.data !== null ){
+                        deferred.resolve(parameters);    
+                    }else{
+                        deferred.reject;
+                    }
+                    
+                    // return
+                    return deferred.promise;
+    
+                }
+        
+                //add new user
+                function createUser(parameters){
+                    //check
+                    // $log.log('in createUser');
+                    // $log.log(parameters);
+
+                    var url = parameters.url;
+                    var data = parameters.data;
+
+                    //main
+                    return $http.post(url, data)
+                        .then(success);
+
+                    //success
+                    function success(response){
+                        if(response.status < 400){
+                            $log.log('addUser:SUCCESS');
+                            $log.log(response);
+                            $log.log('user added...');
+
+                        }else{
+                            return $q.reject(response);
                         }
                     }
-                });
 
-            }
+                };
+
+                //error handler new user
+                function errorHandlerUserCreate(response){
+                    $log.log('addUser:ERROR');
+                    $log.log(response);
+
+                    if(response == 400){
+                        // Set reload to true to refresh after the user logs in
+                        // $scope.reload = true;
+                        $scope.message = "User Exists";
+                        return;
+
+                    }else{
+                        // Error to display on page
+                        if(response.data && response.data.error && response.data.error.message){
+                            $scope.message = response.data.error.message;
+                            // $scope.message = "User add error";
+                        }
+                        else {
+                            // $scope.message = success.data;
+                        }
+                        $timeout(function(){
+                            $scope.message = null;
+                        }, 5000);
+
+                    }
+
+                }
+
+
+            };
+            
+
+
+
+
+            //SHOW EDIT USER
+            // var $ctrl = this;
+            // $ctrl.items = ['item1', 'item2', 'item3'];
+            
+            // $scope.editUserModal = function(){
+                //check
+                // $log.log('editUser');
+
+                // var modalInstance = $uibModal.open({
+                    // animation: $ctrl.animationsEnabled,
+                    // component: 'modalComponent',
+                    // resolve: {
+                        // items: function () {
+                            // return $ctrl.items;
+                        // }
+                    // }
+                // });
+            // }
 
             //RELOAD FOR SESSION TIME OUTS
             // Event to reload the page, normally after the session has timed out
