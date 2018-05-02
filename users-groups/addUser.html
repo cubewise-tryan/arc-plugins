@@ -1,0 +1,57 @@
+<div class="tm1-editUset">
+   <div class="modal-header text-white bg-code">
+      <span>
+         <i class="fa fa-info fa-fw"></i>
+         <span translate="ADDUSER"></span>
+      </span>
+   </div>
+
+   <div class="modal-body">
+      <div class="container-fluid">
+         <div class="col-md-12">
+            <div class="panel panel-default">
+               <div class="panel-body">
+                  <table class="table table-hover table-sm">
+                     <thead>
+                     </thead>
+                     <tbody>
+                        <tr>
+                           <td translate="ADDUSERINPUTNAME"></td>
+                           <td>
+                              <input type="text" ng-model="userName">
+                           </td>
+                        </tr>
+                        <tr>
+                           <td translate="ADDUSERINPUTALIAS"></td>
+                           <td>
+                              <input type="text" ng-model="userAlias">
+                           </td>
+                        </tr>
+                        <tr>
+                           <td translate="ADDUSERINPUTPASSWORD"></td>
+                           <td>
+                              <input type="text" ng-model="userPassword">
+                           </td>
+                        </tr>
+                        <tr>
+                           <td translate="ADDUSERINPUTGROUP"></td>
+                           <td>
+                              <input type="text" ng-model="userPassword">
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+
+      </div>
+   </div>
+   
+   <div class="modal-footer">
+      <button class="btn action ng-scope" ng-click="closeThisDialog()" translate="CANCELEDITUSER">Cancel</button>
+      <button class="btn btn-primary action ng-scope" ng-click="createUser() &amp;&amp; closeThisDialog()" translate="SAVEUSERCHANGES">Save</button>
+   </div>
+
+
+</div>
