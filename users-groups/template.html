@@ -1,109 +1,90 @@
-
-<!-- <div class="tm1-usersGroups"> -->
 <div class="tm1-usersGroups">
+   <div class="tm1-usersGroups-Heading">
+      <div class="toolbar">
+         <label class="page-title">
+            <i class="fa fa-sitemap"></i> {{instance | uppercase}}:<span translate="MANAGEUAG"></span>
+         </label>
+         <button class="btn btn-warning" ng-if="message">
+            <span class="fa fa-warning" aria-hidden="true"></span><span>{{message}}</span>
+         </button>
+      </div>
+   </div>
 
-  <!-- SECTION: TOOLBAR -->
-  <div class="toolbar">
-    <label class="page-title">
-      <i class="fa fa-sitemap"></i> {{instance | uppercase}}:<span translate="Manage User and Group Accounts"></span>
-    </label>
-    
-    <button class="btn btn-warning" ng-if="message"><!-- if there is an error with a $http call, show message -->
-        <span class="fa fa-warning" aria-hidden="true"></span> <span>{{message}}</span>
-    </button>
+   <div class="tm1-usersGroups-Body">
+      <uib-tabset>
+         <uib-tab index="0" heading="{{'TABUSERS' | translate}}" class="tm1-usersTab">
+            <div class="row" class="tm1-usersTab-Tools">
+               <div class="col-4">
+                  <div class="input-group">
+                     <input type="text" ng-model="selections.filter" placeholder="{{'SEARCHUAG' | translate}}" class="form-control" style="display:inline; width: 100px;" />
 
-  </div>
-  
-  <!-- USER TABLE -->
-  <div>
-    <form name="outerForm" class="">
-      <uib-tabset active="activeForm">
-        <uib-tab index="0" heading="Users"><!-- USERS TAB-->
-          <div class="row"><!-- USERS TAB:selections-->
-            <div class="col-4">
-              <div class="input-group">
-                  <!-- search input -->
-                  <!-- <label style="padding-right: 10px;">Name</label> -->
-                  <input type="text" ng-model="selections.filter" placeholder="{{'SEARCH' | translate}}" class="form-control" style="display:inline; width: 100px;" />
+                     <span class="input-group-append"><!-- search clear -->
+                        <button ng-disabled="!selections.filter.length" class="btn btn-secondary" title="{{'CLEARUAG' | translate}}" ng-click="selections.filter = ''">
+                           <i class="fa fa-fw fa-remove"></i>
+                        </button>
+                     </span>
 
-                  <span class="input-group-append"><!-- search clear -->
-                    <button ng-disabled="!selections.filter.length" class="btn btn-secondary" title="{{'CLEAR' | translate}}" ng-click="selections.filter = ''">
-                      <i class="fa fa-fw fa-remove"></i>
-                    </button>
-                  </span>
-
-              </div>
-            </div>
-
-            <div class="col-8">
-                <button class="btn btn-secondary" ng-class="{'btn-active': activeOnly}" title="{{'Add or remove a user' | translate}}" ng-click="addUser()">
-                  <i class="fa fa-plus"></i>
-                  Add
-                </button>
-                <button class="btn btn-secondary" ng-class="{'btn-active': activeOnly}" title="{{'Add or remove a user' | translate}}" ng-click="">
-                  <i class="fa fa-minus"></i>
-                  Remove
-                </button>
-            </div>
-
-
-          </div>
-
-          <div class="row" style="padding-left: 10px; padding-top: 10px;"><!-- USERS TAB: table -->
-              <!-- {{users}} -->
-              <auto-height>
-                <div class="card">
-                  <div class="card-body">
-                    <table class="table table-hover table-sm">
-                      <thead>
-                        <tr>
-                          <th style="width: 40px;" translate="Name"></th>
-                          <th translate="FriendlyName" ></th>
-                          <th translate="Type" ></th>
-                          <th translate="IsActive" ></th>
-                          <th translate="Groups" ></th>
-                          <th translate="Edit" ></th>
-                          <th translate="Select" ></th>
-
-
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr ng-repeat="user in users | filter:listFilter track by $index">
-                        <!-- <tr ng-repeat="user in users | filter:listFilter track by item.ID"> -->
-                          <td style="width: 40px;">{{user.Name}}</td>
-                          <td>{{user.FriendlyName}}</td>
-                          <td>{{user.Type}}</td>
-                          <td>{{user.IsActive}}</td>
-                          <td>{{user.Groups}}</td>
-                          <td>
-                            <button class="btn btn-secondary" ng-class="{'btn-active': activeOnly}" title="" ng-click="editUserModal()">
-                              <i class="fa fa-edit"></i>
-                            </button>
-                          </td>
-                          <td>
-                            
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
                   </div>
-                </div>
-              </auto-height>
+               </div>
 
-          </div>
-        </uib-tab>
+               <div class="col-8">
+                     <div class="toolbar">
+                        <div class="btn-toolbar pull-right" style="margin-bottom: 10px;">
+                           <div class="btn-group">
+                              <button class="btn btn-primary"  title="{{'ADDUSER' | translate}}" ng-click="addUser()">
+                                 <i class="fa fa-plus"></i>
+                              </button>
+                              <button class="btn btn-danger"  title="{{'REMOVEUSER' | translate}}" ng-click="">
+                                 <i class="fa fa-fw fa-trash"></i>
+                              </button>
+                           </div>
+                        </div>
+                     </div>
 
+               </div>
+            </div>
 
+            <div class="row" class="tm1-usersTab-Table">
+               <div class="col-12">
+                  <auto-height>
+                     <div class="card">
+                        <div class="card-body">
+                           <table class="table table-hover table-sm">
+                              <thead>
+                              <tr>
+                                 <th style="width: 40px;" translate="NAMEUSER"></th>
+                                 <th translate="ALIASUSER" ></th>
+                                 <th translate="GROUPSUSER" ></th>
+                              </tr>
+                              </thead>
+                              <tbody>
+                                 <tr ng-repeat="user in usersWithGroups | filter:listFilter track by $index">
+                                    <td style="width: 40px;" ng-click="editUser($index)">
+                                       <a>{{user.Name}}</a>
+                                    </td>
+                                    <td>
+                                       <input type="text" ng-model="usersWithGroups[$index].FriendlyName" style="width:100%;vertical-align: top;">
+                                    </td>
+                                    <td>
+                                       <div ng-repeat="group in user.Groups">
+                                          {{group.Name}}
+                                       </div>
+                                    </td>
+                                 </tr>
+                              </tbody>
+                           </table>
+                        </div>
+                     </div>
+                  </auto-height>
+               </div>
+            </div>
+         </uib-tab>
 
-        <uib-tab index="1" heading="Groups"><!-- GROUPS TAB -->
-          Groups information...
-        </uib-tab>
+         <uib-tab index="1" heading="{{'TABGROUPS' | translate}}" class="tm1-groupsTab">
+            Groups information...
+         </uib-tab>
       </uib-tabset>
-    </form>
-  </div>
-
+   </div>
 </div>
 
-  
-</div>
+

@@ -18,25 +18,25 @@
                         <tr>
                            <td translate="ADDUSERINPUTNAME"></td>
                            <td>
-                              <input type="text" ng-model="userName">
+                              <input type="text" ng-model="view.name" style="width:100%;">
                            </td>
                         </tr>
                         <tr>
                            <td translate="ADDUSERINPUTALIAS"></td>
                            <td>
-                              <input type="text" ng-model="userAlias">
+                              <input type="text" ng-model="view.alias" style="width:100%;">
                            </td>
                         </tr>
                         <tr>
                            <td translate="ADDUSERINPUTPASSWORD"></td>
                            <td>
-                              <input type="text" ng-model="userPassword">
+                              <input type="text" ng-model="view.password" style="width:100%;">
                            </td>
                         </tr>
                         <tr>
                            <td translate="ADDUSERINPUTGROUP"></td>
                            <td>
-                              <input type="text" ng-model="userPassword">
+                              <input type="text" ng-model="view.groups" ng-blur="updateGroupsArray(view.groups)" style="width:100%;">
                            </td>
                         </tr>
                      </tbody>
@@ -49,8 +49,23 @@
    </div>
    
    <div class="modal-footer">
-      <button class="btn action ng-scope" ng-click="closeThisDialog()" translate="CANCELEDITUSER">Cancel</button>
-      <button class="btn btn-primary action ng-scope" ng-click="createUser() &amp;&amp; closeThisDialog()" translate="SAVEUSERCHANGES">Save</button>
+      <div class="row">
+         <div class="col-md-12">
+            <button class="btn btn-success" ng-if="view.messageSuccess">
+               <span class="fa fa-warning" aria-hidden="true"></span><span>{{view.messageSuccess}}</span>
+            </button>
+            <button class="btn btn-warning" ng-if="view.messageError">
+               <span class="fa fa-warning" aria-hidden="true"></span><span>{{view.messageError}}</span>
+            </button>
+         </div>
+      </div>
+      <div class="row">
+         <div class="col-md-12">
+            <button class="btn action ng-scope" ng-click="closeThisDialog()" translate="CANCELEDITUSER">Cancel</button>
+            <button class="btn btn-primary action ng-scope" ng-click="createUser() &amp;&amp; closeThisDialog()" translate="SAVEUSERCHANGES">Save</button>
+         </div>
+      </div>
+
    </div>
 
 
