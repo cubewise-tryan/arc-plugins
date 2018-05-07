@@ -11,14 +11,14 @@
    </div>
 
    <div class="tm1-usersGroups-Body">
-      <uib-tabset>
+      <uib-tabset active="selectedTab">
          <uib-tab index="0" heading="{{'TABUSERS' | translate}}" class="tm1-usersTab">
             <div class="row" class="tm1-usersTab-Tools">
                <div class="col-4">
                   <div class="input-group">
                      <input type="text" ng-model="selections.filter" placeholder="{{'SEARCHUAG' | translate}}" class="form-control" style="display:inline; width: 100px;" />
 
-                     <span class="input-group-append"><!-- search clear -->
+                     <span class="input-group-append">
                         <button ng-disabled="!selections.filter.length" class="btn btn-secondary" title="{{'CLEARUAG' | translate}}" ng-click="selections.filter = ''">
                            <i class="fa fa-fw fa-remove"></i>
                         </button>
@@ -59,15 +59,23 @@
                               </thead>
                               <tbody>
                                  <tr ng-repeat="user in usersWithGroups | filter:listFilter track by $index">
-                                    <td style="width: 40px;" ng-click="editUser($index)">
-                                       <a>{{user.Name}}</a>
+                                    <td class="align-top" style="width: 40px;" title="{{'EDITUSERHEADING' | translate}}" >
+                                       <a href  ng-click="editUser($index)" class="form-control form-control-sm" style="color:#007bff;">
+                                          {{user.Name}}
+                                       </a>
                                     </td>
                                     <td>
-                                       <input type="text" ng-model="usersWithGroups[$index].FriendlyName" style="width:100%;vertical-align: top;">
+                                       <input type="text" class="form-control form-control-sm" ng-model="usersWithGroups[$index].FriendlyName" style="width:100%;vertical-align: top;">
                                     </td>
-                                    <td>
-                                       <div ng-repeat="group in user.Groups">
-                                          {{group.Name}}
+                                    <td style="width:500px;">
+                                       <div ng-repeat="group in user.Groups track by $index" >
+                                             <!-- ng-style="getRandomColour()" -->
+                                          <div style="float:left;">
+                                             <a class="badge" title="{{'REMOVEUSERFROMGROUP' | translate}}"  ng-click="removeUserFromGroup(user.Name,group.Name)">
+                                                <i class="fa fa-fw fa-remove" ></i>
+                                                {{group.Name}}
+                                             </a>
+                                          </div>
                                        </div>
                                     </td>
                                  </tr>

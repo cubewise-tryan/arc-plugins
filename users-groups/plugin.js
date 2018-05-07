@@ -34,7 +34,8 @@ arc.directive("usersGroups", function () {
 
             // Loads the UserList information from TM1
             // First part of URL is the encoded instance name and then REST API URL (excluding api/v1/)
-            var queryGetUsersWithGroups = "/Users?$expand=Groups($filter=Name ne '}tp_Everyone')";
+            // var queryGetUsersWithGroups = "/Users?$expand=Groups($filter=Name ne '}tp_Everyone')";
+            var queryGetUsersWithGroups = "/Users?$expand=Groups";
             $http.get(encodeURIComponent($scope.instance) + queryGetUsersWithGroups).then(function(success,error){
                if(success.status == 401){
                   // Set reload to true to refresh after the user logs in
@@ -86,6 +87,20 @@ arc.directive("usersGroups", function () {
          }
 
 
+         $scope.viewGroups = function(groupName){
+            $scope.selectedTab = 1;
+            $log.log($scope.selectedTab);
+            $log.log(groupName);
+         }
+
+
+         $scope.getRandomColour = function () {
+            return {
+               'background-color': '#' + Math.floor(Math.random()*16777215).toString(16)
+           }
+        };
+
+
          $scope.addUser = function(){
             ngDialog.open({
                template: "__/plugins/users-groups/addUser.html",
@@ -128,7 +143,7 @@ arc.directive("usersGroups", function () {
                            $timeout(function(){
                               $scope.view.messageSuccess = null;
                               $scope.closeThisDialog();
-                              $scope.$parent.load();
+                              $scope.ngDialogData.load();
                            }, 2000);
 
                            return;
@@ -157,9 +172,53 @@ arc.directive("usersGroups", function () {
 
               
                }],
-               data: {view: $scope.view, updateGroupsArray:$scope.updateGroupsArray}
+               data: {view: $scope.view, updateGroupsArray:$scope.updateGroupsArray, load: $scope.load}
             });
 
+         }
+
+
+         $scope.removeUserFromGroup = function(user, group){
+            // https://localhost:8111/api/v1/Users('dd')/Groups?$id=Groups('Asia')
+            var url = "/Users('"+ user + "')/Groups?$id=Groups('" + group + "')";
+            $log.log(url);
+            // var data = {
+               // "Name" : $scope.view.name,
+               // "Groups@odata.bind":$scope.dataParameter
+            // }
+            $http.delete(encodeURIComponent($scope.instance) + url).then(function(success,error){
+               if(success.status == 401){
+                  $scope.message = "User Does not Exist";
+                  $timeout(function(){
+                     $scope.message = null;
+                  }, 5000);
+                  return;
+               
+               }else if(success.status < 400){
+                  $scope.message = "User removed from Group";
+                  $scope.load();
+
+                  $timeout(function(){
+                     $scope.message = null;
+                  }, 2000);
+
+                  return;
+
+               }else{
+                  // Error to display on page
+                  $log.log(success);
+                  if(success.data && success.data.error && success.data.error.message){
+                     $scope.message = success.data.error.message;
+                  }
+                  else {
+                     $scope.message = success.data;
+                     
+                  }
+                  $timeout(function(){
+                     $scope.messageError = null;
+                  }, 5000);
+               }
+            });
          }
 
 
@@ -171,7 +230,6 @@ arc.directive("usersGroups", function () {
          });
 
 
-         //FILTER USER TABLE
          $scope.listFilter = function(user) {
                // Check text filter
                if(!$scope.selections.filter || !$scope.selections.filter.length){
@@ -189,9 +247,7 @@ arc.directive("usersGroups", function () {
          };
 
 
-         //CLOSE USERS AND GROUPS TAB
          $scope.$on("close-tab", function(event, args) {
-
                $log.log('in close tab function');
                $log.log(args);
 
@@ -203,7 +259,6 @@ arc.directive("usersGroups", function () {
          });
 
 
-         //CLEANUP - destroy event broadcast just before child scope removal..
          $scope.$on("$destroy", function(event){
                // Cancel the timeout and any other resources
                clearTimeout($scope.loadTimeout);

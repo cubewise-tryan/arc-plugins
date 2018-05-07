@@ -1,17 +1,18 @@
-<div class="tm1-editUset">
-   <div class="modal-header text-white bg-code">
+<div class="tm1-editUser">
+   <div class="modal-header text-dark bg-white">
       <span>
          <i class="fa fa-info fa-fw"></i>
          <span translate="EDITUSERHEADING"></span>
+         : {{view.name}}
       </span>
    </div>
 
-   <div class="modal-body">
+   <div class="modal-body p-0">
       <div class="container-fluid">
          <div class="col-md-12">
             <div class="panel panel-default">
                <div class="panel-body">
-                  <table class="table table-hover table-sm">
+<!--                   <table class="table table-hover table-sm">
                      <thead>
                      </thead>
                      <tbody>
@@ -38,7 +39,31 @@
                            <td>Work in progress</td>
                         </tr>
                      </tbody>
-                  </table>
+                  </table> -->
+
+                  <form>
+                     <div class="form-row">
+                        <div class="form-group col-md-6">
+                           <label for="userAlias" class="col-form-label" translate="ALIASUSER"></label>
+                           <input id="userAlias" class="form-control form-control-sm" placeholder="{{view.alias}}"></input>
+                        </div>
+                        <div class="form-group col-md-6">
+                           <label for="userPassword" class="col-form-label" translate="EDITUSERPASSWORD"></label>
+                           <input id="userPassword" class="form-control form-control-sm" placeholder="{{view.userPassword}}"></input>
+                        </div>
+                     </div>
+                     <div class="form-row">
+                        <div class="form-group col-md-6">
+                           <label for="userMemberOf" class="col-form-label" translate="EDITUSERGROUPSMEMBEROF"></label>
+                           <!-- <input id="userPassword" class="form-control form-control-sm" placeholder="{{view.userPassword}}"></input> -->
+                        </div>
+                        <div class="form-group col-md-6">
+                           <label for="userNotMemberOf" class="col-form-label" translate="EDITUSERGROUPSEXCLUDEDFROM"></label>
+                           <!-- <input id="userPassword" class="form-control form-control-sm" placeholder="{{view.userPassword}}"></input> -->
+                        </div>
+                     </div>
+                  </form>
+
                </div>
             </div>
          </div>
@@ -48,7 +73,7 @@
    
    <div class="modal-footer">
       <button class="btn action ng-scope" ng-click="closeThisDialog()" translate="CANCELEDITUSER">Cancel</button>
-      <button class="btn btn-primary action ng-scope" ng-click="updateUser() &amp;&amp; closeThisDialog()" translate="SAVEUSERCHANGES">Save</button>
+      <button class="btn btn-success action ng-scope" ng-click="updateUser() &amp;&amp; closeThisDialog()" translate="SAVEUSERCHANGES">Save</button>
    </div>
 
 
