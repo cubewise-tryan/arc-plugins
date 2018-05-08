@@ -12,20 +12,19 @@
       <div class="container-fluid">
          <div class="row mb-2 tm1-activeUser">
             <div class="col-sm-12 mt-2">
-               <a href class="btn btn-success btn-block" ng-if="view.active" title="{{'EDITUSERDISCONNECT' | translate}}"  >
-                  <div translate="EDITUSERISACTIVE">
-                  </div>
+               <a href class="btn btn-success btn-block" ng-if="view.active" ng-click="disconnectUser(view.name)" title="{{'EDITUSERDISCONNECT' | translate}}"  >
+                  <div translate="EDITUSERISACTIVE"></div>
                </a>
             </div>
          </div>
 
-         <div class="row mb-2 tm1-settings">
+         <div class="row mb-2 tm1-settings" style="cursor:pointer;">
                <div class="container">
                   <div class="row">
                      <div class="col-sm-12">
                         <div class="card">
                            <div class="card-header p-2" data-toggle="collapse" href="#collapseSettings">
-                              <label translate="EDITUSERSETTINGS" class="ng-scope"></label>
+                              <label style="cursor:pointer;" translate="EDITUSERSETTINGS"></label>
                            </div>
                            <div class="collapse" id="collapseSettings">
                               <div class="card-body">
@@ -52,13 +51,13 @@
                </div>
             </div>
 
-         <div class="row mb-2 tm1-groups">
+         <div class="row mb-2 tm1-groups" style="cursor:pointer;">
             <div class="container">
                <div class="row">
                   <div class="col-sm-12">
                      <div class="card">
                         <div class="card-header p-2" data-toggle="collapse" href="#collapseGroups">
-                           <label translate="EDITUSERGROUPSASSIGNMENTS" class="ng-scope"></label>
+                           <label style="cursor:pointer;" translate="EDITUSERGROUPSASSIGNMENTS"></label>
                         </div>
                         <div class="collapse" id="collapseGroups">
                            <div class="card-body">
@@ -66,7 +65,7 @@
                                     <div class="col-sm-6">
                                        <div class="card">
                                           <div class="card-header p-2">
-                                             <label translate="EDITUSERGROUPSEXCLUDEDFROM" class="ng-scope"></label>
+                                             <label translate="EDITUSERGROUPSEXCLUDEDFROM"></label>
                                           </div>
                                           <div class="card-body">
                                              <div class="input-group mb-1">
@@ -87,7 +86,7 @@
                                     <div class="col-sm-6">
                                        <div class="card">
                                           <div class="card-header p-2">
-                                             <label translate="EDITUSERGROUPSMEMBEROF" class="ng-scope"></label>
+                                             <label translate="EDITUSERGROUPSMEMBEROF"></label>
                                           </div>
                                           <div class="card-body">
                                              <div class="input-group mb-1">
@@ -114,33 +113,35 @@
             </div>
          </div>
 
-         <div class="row mb-2 tm1-modelSecurities">
+         <div class="row mb-2 tm1-modelSecurities" style="cursor:pointer;">
             <div class="container">
                <div class="row">
                   <div class="col-sm-12">
                      <div class="card">
                         <div class="card-header p-2" data-toggle="collapse" href="#collapseModelSecurity">
-                           <label translate="EDITUSERMODELSECURITY" class="ng-scope"></label>
+                           <label style="cursor:pointer;" translate="EDITUSERMODELSECURITY"></label>
                         </div>
                         <div class="collapse" id="collapseModelSecurity">
                            <div class="card-body">
                               <div class="input-group mb-1">
-                                 <input type="text" class="form-control" ng-model="temp1" placeholder="{{'SEARCHUAG' | translate}}">
-                                 <span class="input-group-append">
-                                    <button ng-disabled="!options.availableFilter.length" class="btn btn-secondary" title="" ng-click="" disabled="disabled">
-                                       <i class="fa fa-fw fa-remove"></i>
-                                    </button>
-                                 </span>
+                                 <uib-tabset active="selectedTab">
+                                    <uib-tab index="0" heading="{{'EDITUSERSECURITYTABAPPLICATIONS' | translate}}"></uib-tab>
+                                    <uib-tab index="1" heading="{{'EDITUSERSECURITYTABCUBES' | translate}}"></uib-tab>
+                                    <uib-tab index="2" heading="{{'EDITUSERSECURITYTABDIMENSIONS' | translate}}"></uib-tab>
+                                    <uib-tab index="3" heading="{{'EDITUSERSECURITYTABPROCESSES' | translate}}"></uib-tab>
+                                    <uib-tab index="4" heading="{{'EDITUSERSECURITYTABCHORES' | translate}}"></uib-tab>
+                                 </uib-tabset>
+                                 <!-- <input type="text" class="form-control" ng-model="temp1" placeholder="{{'SEARCHUAG' | translate}}"> -->
+                                 <!-- <span class="input-group-append"> -->
+                                    <!-- <button ng-disabled="!options.availableFilter.length" class="btn btn-secondary" title="" ng-click="" disabled="disabled"> -->
+                                       <!-- <i class="fa fa-fw fa-remove"></i> -->
+                                    <!-- </button> -->
+                                 <!-- </span> -->
                               </div>
-                              <div style="height: 250px; padding-right: 5px; overflow-y: scroll; overflow-x: hidden;">
-      
-                              </div>
+                              <!-- <div style="height: 250px; padding-right: 5px; overflow-y: scroll; overflow-x: hidden;"></div> -->
                            </div>
                         </div>
                      </div>
-                  </div>
-                  <div class="col-sm-6">
-
                   </div>
                </div>
             </div>
@@ -151,8 +152,19 @@
    </div>
    
    <div class="modal-footer">
-      <button class="btn action ng-scope" ng-click="closeThisDialog()" translate="CANCELEDITUSER">Cancel</button>
-      <button class="btn btn-success action ng-scope" ng-click="updateUser() &amp;&amp; closeThisDialog()" translate="SAVEUSERCHANGES">Save</button>
+      <div class="row">
+         <div class="col-sm-12">
+            <button class="btn btn-warning" ng-if="view.message">
+               <span class="fa fa-warning" aria-hidden="true"></span><span>{{view.message}}</span>
+            </button>
+         </div>
+      </div>
+      <div class="row">
+         <div class="col-sm-12">
+            <button class="btn action ng-scope" ng-click="closeThisDialog()" translate="CANCELEDITUSER">Cancel</button>
+            <button class="btn btn-success action ng-scope" ng-click="updateUser() &amp;&amp; closeThisDialog()" translate="SAVEUSERCHANGES">Save</button>
+         </div>
+      </div>
    </div>
 
 

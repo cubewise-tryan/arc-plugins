@@ -44,7 +44,7 @@ arc.directive("usersGroups", function () {
                
                }else if(success.status < 400){
                   $scope.usersWithGroups = success.data.value;
-                  $log.log($scope.usersWithGroups);
+
                }else{
                   // Error to display on page
                   if(success.data && success.data.error && success.data.error.message){
@@ -73,10 +73,49 @@ arc.directive("usersGroups", function () {
                   $scope.view = {
                      name : $scope.ngDialogData.usersWithGroups[rowIndex].Name,
                      alias : $scope.ngDialogData.usersWithGroups[rowIndex].FriendlyName,
-                     active: $scope.ngDialogData.usersWithGroups[rowIndex].IsActive
+                     active: $scope.ngDialogData.usersWithGroups[rowIndex].IsActive,
+                     message:''
                   }
-                  $log.log('in EDIT USER');
-                  $log.log($scope.ngDialogData.usersWithGroups);
+
+                  $scope.disconnectUser = function(userName){
+                     var url = "/Users('" + userName + "')/tm1.Disconnect";
+                     var data = {
+                     }
+
+                     $http.post(encodeURIComponent($scope.ngDialogData.instance) + url, data).then(function(success,error){
+                        $log.log('success');
+                        $log.log(success);
+                        $log.log('error');
+                        $log.log(error);
+
+                        if(success.status == 401){
+                           return;
+                        }else if(success.status < 400){
+                           //success, user disconnected
+                           $scope.view.active = false;
+
+                        }else{
+                           if(success.data && success.data.error && success.data.error.message){
+                              $scope.view.message = success.data.error.message;
+                           }
+                           else {
+                              $scope.view.message = success.data;
+                           }
+
+                           $timeout(function(){
+                              $scope.view.message = null;
+                           }, 5000);
+                        }
+
+
+                     })
+
+                  }
+
+
+                  $scope.updatePassword = function(password){
+                     //work in progress...
+                  }
 
                   $scope.updateUser = function(){
                      // work in progress....
@@ -84,10 +123,12 @@ arc.directive("usersGroups", function () {
                   }
               
                }],
-               data: {usersWithGroups: $scope.usersWithGroups, view: $scope.view}
+               data: {usersWithGroups: $scope.usersWithGroups, view: $scope.view, instance:$scope.instance}
             });
 
          }
+
+
 
 
          $scope.viewGroups = function(groupName){
@@ -116,7 +157,6 @@ arc.directive("usersGroups", function () {
                      alias:'',
                      password:'',
                      groups: [],
-                     message:''
                   }
 
                   $scope.updateGroupsArray = function(group){
