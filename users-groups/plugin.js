@@ -7,7 +7,7 @@ arc.run(['$rootScope', function($rootScope) {
         description: "This plugin adds the users and groups administration page.",
         author: "Cubewise",
         url: "https://github.com/cubewise-code/arc-plugins",
-        version: "0.4.0"
+        version: "0.5.0"
     });
 
 }]);
@@ -44,7 +44,7 @@ arc.directive("usersGroups", function () {
                
                }else if(success.status < 400){
                   $scope.usersWithGroups = success.data.value;
-
+                  $log.log($scope.usersWithGroups);
                }else{
                   // Error to display on page
                   if(success.data && success.data.error && success.data.error.message){
@@ -67,13 +67,16 @@ arc.directive("usersGroups", function () {
             ngDialog.open({
                template: "__/plugins/users-groups/editUser.html",
                className: "ngdialog-theme-default large",
-               scope: $scope,
+               // scope: $scope,
                controller: ['$rootScope', '$scope', '$http', '$state', '$tm1','$log', function ($rootScope, $scope, $http, $state, $tm1, $log) {
  
                   $scope.view = {
-                     name : $scope.$parent.usersWithGroups[rowIndex].Name,
-                     alias : $scope.$parent.usersWithGroups[rowIndex].FriendlyName,
+                     name : $scope.ngDialogData.usersWithGroups[rowIndex].Name,
+                     alias : $scope.ngDialogData.usersWithGroups[rowIndex].FriendlyName,
+                     active: $scope.ngDialogData.usersWithGroups[rowIndex].IsActive
                   }
+                  $log.log('in EDIT USER');
+                  $log.log($scope.ngDialogData.usersWithGroups);
 
                   $scope.updateUser = function(){
                      // work in progress....
@@ -81,7 +84,7 @@ arc.directive("usersGroups", function () {
                   }
               
                }],
-               data: {view: $scope.view}
+               data: {usersWithGroups: $scope.usersWithGroups, view: $scope.view}
             });
 
          }
