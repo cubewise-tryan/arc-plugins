@@ -69,10 +69,15 @@
                                        <input type="text" class="form-control form-control-sm" ng-model="usersWithGroups[$index].FriendlyName" style="width:100%;vertical-align: top;">
                                     </td>
                                     <td>
-                                       <input type="text" class="form-control form-control-sm" ng-model="selectedGroup" uib-typeahead="name as Group.Name for Group in Groups | filter:$viewValue | limitTo:8" >
+                                       <input type="text" class="form-control form-control-sm"
+                                              ng-model="selectedGroup"
+                                              uib-typeahead="name as Group.Name for Group in Groups | filter:$viewValue | limitTo:8"
+                                              typeahead-on-select="addUserToGroup(user.FriendlyName, $item.Name, user.Groups)"
+                                              placeholder="{{'TYPEGROUP' | translate}}"
+                                               >
                                     </td>
                                     <td style="width:500px;">
-                                       <div ng-repeat="group in user.Groups track by $index " >
+                                       <div ng-repeat="group in user.Groups | orderBy:'Name' track by $index " >
                                           <div style="float:left;">
                                              <a class="badge ml-1" title="{{'REMOVEUSERFROMGROUP' | translate}}" ng-style="generateHSLColour(group.Name)" ng-click="removeUserFromGroup(user.Name,group.Name)">
                                                 <i class="fa fa-fw fa-remove" ></i>

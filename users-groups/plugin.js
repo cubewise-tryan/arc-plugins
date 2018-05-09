@@ -7,7 +7,7 @@ arc.run(['$rootScope', function($rootScope) {
         description: "This plugin adds the users and groups administration page.",
         author: "Cubewise",
         url: "https://github.com/cubewise-code/arc-plugins",
-        version: "0.5.0"
+        version: "0.6.0"
     });
 
 }]);
@@ -63,9 +63,10 @@ arc.directive("usersGroups", function () {
                   $scope.reload = true;
                   return;
                }else if(success.status < 400){
-                  $scope.selectedGroup = undefined;
                   $scope.Groups = success.data.value;
-                  $log.log($scope.Groups);
+
+                  $scope.selectedGroup = undefined;
+                  //ui-typeahead requires a ng-model value, although empty
 
                }else{
                   //error to display on page
@@ -73,7 +74,7 @@ arc.directive("usersGroups", function () {
                      $scope.message =  success.data.error.message;
 
                   }else{
-                     $scope.message = success.datat;
+                     $scope.message = success.data;
                   }
                }
                $timeout(function(){
@@ -152,18 +153,6 @@ arc.directive("usersGroups", function () {
          }
 
 
-         $scope.viewGroups = function(groupName){
-            $scope.selectedTab = 1;
-            $log.log($scope.selectedTab);
-            $log.log(groupName);
-         }
-
-
-         // $scope.selectedGroup = undefined;
-         // $scope.states = ['Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut', 'Delaware', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota', 'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire', 'New Jersey', 'New Mexico', 'New York', 'North Dakota', 'North Carolina', 'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming'];
-
-
-
          $scope.generateHSLColour = function (string) {
             //HSL refers to hue, saturation, lightness
             var styleObject = {
@@ -185,6 +174,21 @@ arc.directive("usersGroups", function () {
             return styleObject;
         };
 
+        //used in addUser, addUserToGroup
+        $scope.updateGroupsArray = function(newGroup, previousGroups){
+            var array = [];
+            var arrayElement = "Groups('" + newGroup + "')";
+            array.push(arrayElement);
+
+            if(typeof previousGroups !== 'undefined'){
+               for(var i=0; i < previousGroups.length; i++){
+                  arrayElement = "Groups('" + previousGroups[i].Name + "')";
+                  array.push(arrayElement)
+               }
+            }
+
+            return array;
+         }
 
          $scope.addUser = function(){
             ngDialog.open({
@@ -200,18 +204,11 @@ arc.directive("usersGroups", function () {
                      groups: [],
                   }
 
-                  $scope.updateGroupsArray = function(group){
-                     var array = [];
-                     var arrayElement = "Groups('" + group + "')";
-                     array.push(arrayElement);
-                     $scope.dataParameter = array;
-                  }
-
                   $scope.createUser = function(){
                      var url = "/Users";
                      var data = {
                         "Name" : $scope.view.name,
-                        "Groups@odata.bind":$scope.dataParameter
+                        "Groups@odata.bind": $scope.ngDialogData.updateGroupsArray($scope.view.groups)
                      }
                      $http.post(encodeURIComponent($scope.$parent.instance) + url, data).then(function(success,error){
                         if(success.status == 401){
@@ -234,7 +231,6 @@ arc.directive("usersGroups", function () {
 
                         }else{
                            // Error to display on page
-                           $log.log(success);
                            if(success.data && success.data.error && success.data.error.message){
                               $scope.view.message = success.data.error.message;
                            }
@@ -300,22 +296,50 @@ arc.directive("usersGroups", function () {
          }
 
 
-         $scope.addUserToGroup = function(user, group){
-            user = "hh";
-            group = ["Groups('Africa')"];
-
+         $scope.addUserToGroup = function(user, newGroup, previousGroups){
+            //patching, replaces the set of group relationships. Need to add previous groups
             var url = "/Users('" + user + "')";
             var data ={
                "Name": user,
-               "Groups@odata.bind": group
+               "Groups@odata.bind": $scope.updateGroupsArray(newGroup, previousGroups)
             }
 
             $http.patch(encodeURIComponent($scope.instance)+url,data).then(function(success, error){
                $log.log(success);
                $log.log(error);
 
-            }).catch(function(response){
-               $log.log(response);
+               if(success.status == 401){
+                  $scope.reload = true;
+                  $scope.message = null;
+
+                  return;
+
+               }else if(success.status < 400){
+                  //success
+                  $scope.load();
+
+                  $scope.message = "User added to Group";
+                  $timeout(function(){
+                     $scope.message = null;
+                  },5000);
+
+                  return;
+
+               }else{
+                  if(success.data && success.data.error && success.data.error.message){
+                     $scope.message = success.data.error.message;
+
+                  }else{
+
+
+                  }
+                  $timeout(function(){
+                     $scope.message = null;
+                  },5000);
+
+                  
+               }
+
             });
 
          }
