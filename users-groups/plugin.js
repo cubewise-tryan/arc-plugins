@@ -32,11 +32,9 @@ arc.directive("usersGroups", function () {
          $scope.load = function(){
             $scope.reload = false;
 
-            // Loads the UserList information from TM1
             // First part of URL is the encoded instance name and then REST API URL (excluding api/v1/)
-            // var queryGetUsersWithGroups = "/Users?$expand=Groups($filter=Name ne '}tp_Everyone')";
-            var queryGetUsersWithGroups = "/Users?$expand=Groups";
-            $http.get(encodeURIComponent($scope.instance) + queryGetUsersWithGroups).then(function(success,error){
+            var usersWithGroupsURL = "/Users?$expand=Groups";
+            $http.get(encodeURIComponent($scope.instance) + usersWithGroupsURL).then(function(success,error){
                if(success.status == 401){
                   // Set reload to true to refresh after the user logs in
                   $scope.reload = true;
@@ -58,8 +56,33 @@ arc.directive("usersGroups", function () {
                   }, 5000);
                }
             });
+
+            var groupsURL = "/Groups";
+            $http.get(encodeURIComponent($scope.instance) + groupsURL).then(function(success,error){
+               if(success.status == 401){
+                  $scope.reload = true;
+                  return;
+               }else if(success.status < 400){
+                  $scope.selectedGroup = undefined;
+                  $scope.Groups = success.data.value;
+                  $log.log($scope.Groups);
+
+               }else{
+                  //error to display on page
+                  if(success.data && success.data.error && success.data.error.message){
+                     $scope.message =  success.data.error.message;
+
+                  }else{
+                     $scope.message = success.datat;
+                  }
+               }
+               $timeout(function(){
+                  $scope.message = null;
+               },5000);
+            });
+
          };
-         // Load the users the first time
+         // Load for first time: usersWithGroups, Groups
          $scope.load();
 
 
@@ -129,8 +152,6 @@ arc.directive("usersGroups", function () {
          }
 
 
-
-
          $scope.viewGroups = function(groupName){
             $scope.selectedTab = 1;
             $log.log($scope.selectedTab);
@@ -138,10 +159,30 @@ arc.directive("usersGroups", function () {
          }
 
 
-         $scope.getRandomColour = function () {
-            return {
-               'background-color': '#' + Math.floor(Math.random()*16777215).toString(16)
-           }
+         // $scope.selectedGroup = undefined;
+         // $scope.states = ['Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut', 'Delaware', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota', 'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire', 'New Jersey', 'New Mexico', 'New York', 'North Dakota', 'North Carolina', 'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming'];
+
+
+
+         $scope.generateHSLColour = function (string) {
+            //HSL refers to hue, saturation, lightness
+            var styleObject = {
+               "background-color":""
+            };
+            //for ngStyle format
+
+            var hash = 0;
+            var saturation = "30";
+            var lightness = "80";
+
+            for (var i = 0; i < string.length; i++) {
+               hash = string.charCodeAt(i) + ((hash << 5) - hash);
+            }
+         
+            var h = hash % 360;
+            styleObject["background-color"] = 'hsl(' + h + ', ' + saturation + '%, '+ lightness + '%)';
+
+            return styleObject;
         };
 
 
@@ -174,17 +215,17 @@ arc.directive("usersGroups", function () {
                      }
                      $http.post(encodeURIComponent($scope.$parent.instance) + url, data).then(function(success,error){
                         if(success.status == 401){
-                           $scope.view.messageError = "User Exists";
+                           $scope.view.message = "User Exists";
                            $timeout(function(){
-                              $scope.view.messageError = null;
+                              $scope.view.message = null;
                            }, 5000);
                            return;
                         
                         }else if(success.status < 400){
-                           $scope.view.messageSuccess = "User added";
+                           $scope.view.message = "User added";
 
                            $timeout(function(){
-                              $scope.view.messageSuccess = null;
+                              $scope.view.message = null;
                               $scope.closeThisDialog();
                               $scope.ngDialogData.load();
                            }, 2000);
@@ -195,14 +236,14 @@ arc.directive("usersGroups", function () {
                            // Error to display on page
                            $log.log(success);
                            if(success.data && success.data.error && success.data.error.message){
-                              $scope.view.messageError = success.data.error.message;
+                              $scope.view.message = success.data.error.message;
                            }
                            else {
-                              $scope.view.messageError = success.data;
+                              $scope.view.message = success.data;
                               
                            }
                            $timeout(function(){
-                              $scope.view.messageError = null;
+                              $scope.view.message = null;
                            }, 5000);
                         }
                      });
@@ -222,13 +263,7 @@ arc.directive("usersGroups", function () {
 
 
          $scope.removeUserFromGroup = function(user, group){
-            // https://localhost:8111/api/v1/Users('dd')/Groups?$id=Groups('Asia')
             var url = "/Users('"+ user + "')/Groups?$id=Groups('" + group + "')";
-            $log.log(url);
-            // var data = {
-               // "Name" : $scope.view.name,
-               // "Groups@odata.bind":$scope.dataParameter
-            // }
             $http.delete(encodeURIComponent($scope.instance) + url).then(function(success,error){
                if(success.status == 401){
                   $scope.message = "User Does not Exist";
@@ -262,6 +297,27 @@ arc.directive("usersGroups", function () {
                   }, 5000);
                }
             });
+         }
+
+
+         $scope.addUserToGroup = function(user, group){
+            user = "hh";
+            group = ["Groups('Africa')"];
+
+            var url = "/Users('" + user + "')";
+            var data ={
+               "Name": user,
+               "Groups@odata.bind": group
+            }
+
+            $http.patch(encodeURIComponent($scope.instance)+url,data).then(function(success, error){
+               $log.log(success);
+               $log.log(error);
+
+            }).catch(function(response){
+               $log.log(response);
+            });
+
          }
 
 

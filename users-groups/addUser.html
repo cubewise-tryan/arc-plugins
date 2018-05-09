@@ -51,11 +51,8 @@
    <div class="modal-footer">
       <div class="row">
          <div class="col-md-12">
-            <button class="btn btn-success" ng-if="view.messageSuccess">
-               <span class="fa fa-warning" aria-hidden="true"></span><span>{{view.messageSuccess}}</span>
-            </button>
-            <button class="btn btn-warning" ng-if="view.messageError">
-               <span class="fa fa-warning" aria-hidden="true"></span><span>{{view.messageError}}</span>
+            <button ng-class="{'btn btn-success':view.message === 'User added','btn btn-warning':view.message !== 'User added'}" ng-if="view.message">
+               <span ng-class="{'fa fa-check':view.message === 'User added','fa fa-warning':view.message !== 'User added'}" aria-hidden="true"></span><span>{{view.message}}</span>
             </button>
          </div>
       </div>

@@ -1,4 +1,5 @@
 {
+   "ADDGROUP":"Add Group",
    "ADDUSER":"Add User",
    "ADDUSERINPUTALIAS":"Alias",
    "ADDUSERINPUTGROUP":"Group(s)",
@@ -7,6 +8,7 @@
    "ALIASUSER":"Alias",
    "CANCELEDITUSER":"Cancel",
    "CLEARUAG":"Clear",
+   "EDITGROUPHEADING":"Edit Group",
    "EDITUSERCLONESETTINGS":"Clone User Settings",
    "EDITUSERCLONEGROUPS":"Clone User Groups",
    "EDITUSERCLONESECURITY":"Clone User Security",
@@ -25,7 +27,9 @@
    "EDITUSERMODELSECURITY":"Model Security",
    "EDITUSERPASSWORD":"Change Password",
    "GROUPSUSER":"Groups",
+   "USERGROUPS":"Users",
    "MANAGEUAG":"Manage User and Group Accounts",
+   "NAMEGROUP":"Name",
    "NAMEUSER":"Name",
    "REMOVEUSER":"Remove User",
    "REMOVEUSERFROMGROUP":"Remove User From Group",
