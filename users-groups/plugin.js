@@ -107,11 +107,6 @@ arc.directive("usersGroups", function () {
                      }
 
                      $http.post(encodeURIComponent($scope.ngDialogData.instance) + url, data).then(function(success,error){
-                        $log.log('success');
-                        $log.log(success);
-                        $log.log('error');
-                        $log.log(error);
-
                         if(success.status == 401){
                            return;
                         }else if(success.status < 400){
@@ -255,6 +250,19 @@ arc.directive("usersGroups", function () {
                data: {view: $scope.view, updateGroupsArray:$scope.updateGroupsArray, load: $scope.load}
             });
 
+         }
+
+
+         $scope.deleteUser = function(user){
+            //Work in progress
+            var url = "/Users('" + user + "')"
+            $http.delete(encodeURIComponent($scope.instance)+url).then(function(success,error){
+               $log.log(success);
+               $log.log(error);
+
+               $scope.load();
+            })
+            
          }
 
 
