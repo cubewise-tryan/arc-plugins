@@ -1,136 +1,95 @@
 <div class="tm1-editUset">
    <div class="modal-header text-dark bg-white">
       <span>
-         <i class="fa fa-child"></i>
+         <i class="fa fa-plus"></i>
          <span translate="ADDUSER"></span>
       </span>
    </div>
 
    <div class="modal-body p-0 m-0">
       <div class="container-fluid">
-         <div class="row mt-2 mb-2  tm1-addUserSettings" style="cursor: pointer;">
-            <div class="container">
-               <div class="row ">
-                  <div class="col-sm-12">
-                     <div class="card">
-                        <div class="card-header p-2" data-toggle="collapse" href="#collapseSettigns">
-                           <label style="cursor: pointer;" translate="ADDUSERSETTINGS"></label>
-                        </div>
-                        <div class="collapse show" id="collapseSettigns">
-                           <div class="card-body pt-0">
-                              <div class="row">
-                                 <div class="col-sm-12">
-                                    <form >
-                                       <div class="form-group row p-2">
-                                          <label class="col-form-label ol-form-label-sm" translate="ADDUSERINPUTNAME"></label>
-                                          <input type="text" class="form-control form-control-sm" placeholder="{{view.name}}" ng-model="view.name">
-                                          <label class="col-form-label ol-form-label-sm" translate="ADDUSERINPUTALIAS"></label>
-                                          <input type="text" class="form-control form-control-sm" placeholder="{{view.alias}}" ng-model="view.alias">
-                                          <label class="col-form-label ol-form-label-sm" translate="ADDUSERINPUTPASSWORD"></label>
-                                          <input type="text" class="form-control form-control-sm" placeholder="{{view.password}}" ng-model="view.password">
-                                       </div>
-                                    </form>
-                                 </div>
-
-                              </div>
-                           </div>
-                        </div>
-                     </div>
-                  </div>
-               </div>
-            </div>
-         </div>
-
-         <div class="row mb-2 tm1-groups" style="cursor:pointer;">
-            <div class="container">
-               <div class="row">
-                  <div class="col-sm-12">
-                     <div class="card">
-                        <div class="card-header p-2" data-toggle="collapse" href="#collapseGroups">
-                           <label style="cursor:pointer;" translate="ADDUSERGROUPSASSIGNMENTS"></label>
-                        </div>
-                        <div class="collapse" id="collapseGroups">
-                           <div class="card-body pt-2">
+         <div class="row pt-2 pb-2">
+            <div class="col-sm-12">
+               <uib-tabset active="selectedTab">
+                  <uib-tab index="0" heading="{{'ADDUSERTABSETTINGS' | translate}}">
+                     <div class="row">
+                        <div class="col-sm-12">
+                           <div class="card">
+                              <div class="card-body pt-0">
                                  <div class="row">
-                                    <div class="col-sm-6">
-                                       <div class="card">
-                                          <div class="card-header p-2">
-                                             <label translate="ADDUSERGROUPSEXCLUDEDFROM"></label>
+                                    <div class="col-sm-12">
+                                       <form >
+                                          <div class="form-group row p-2">
+                                             <label class="col-form-label ol-form-label-sm" translate="ADDUSERINPUTNAME"></label>
+                                             <input type="text" class="form-control form-control-sm" placeholder="{{view.name}}" ng-model="view.name">
+                                             <label class="col-form-label ol-form-label-sm" translate="ADDUSERINPUTALIAS"></label>
+                                             <input type="text" class="form-control form-control-sm" placeholder="{{view.alias}}" ng-model="view.alias">
+                                             <label class="col-form-label ol-form-label-sm" translate="ADDUSERINPUTPASSWORD"></label>
+                                             <input type="text" class="form-control form-control-sm" placeholder="{{view.password}}" ng-model="view.password">
                                           </div>
-                                          <div class="card-body pt-2">
-                                             <div class="input-group mb-1">
-                                                <input type="text" class="form-control" ng-model="temp1" placeholder="{{'SEARCHUAG' | translate}}">
-                                                <span class="input-group-append">
-                                                   <button ng-disabled="!options.availableFilter.length" class="btn btn-secondary" title="" ng-click="" disabled="disabled">
-                                                      <i class="fa fa-fw fa-remove"></i>
-                                                   </button>
-                                                </span>
-                                             </div>
-                                             <div style="height: 250px; padding-right: 5px; overflow-y: scroll; overflow-x: hidden;">
-                                                <!-- wip -->
-                                                <input type="text" ng-model="view.groups" ng-blur="updateGroupsArray(view.groups)" style="width:100%;">
-                                             </div>
-                                          </div>
-
-                                       </div>
-                                    </div>
-                                    <div class="col-sm-6">
-                                       <div class="card">
-                                          <div class="card-header p-2">
-                                             <label translate="ADDUSERGROUPSMEMBEROF"></label>
-                                          </div>
-                                          <div class="card-body pt-2">
-                                             <div class="input-group mb-1">
-                                                <input type="text" class="form-control" ng-model="temp2" placeholder="{{'SEARCHUAG' | translate}}">
-                                                <span class="input-group-append">
-                                                   <button ng-disabled="!options.availableFilter.length" class="btn btn-secondary" title="" ng-click="" disabled="disabled">
-                                                      <i class="fa fa-fw fa-remove"></i>
-                                                   </button>
-                                                </span>
-                                             </div>
-                                             <div style="height: 250px; padding-right: 5px; overflow-y: scroll; overflow-x: hidden;">
-                                                <!-- wip -->
-                                             </div>
-                                          </div>
-                                       </div>
+                                       </form>
                                     </div>
                                  </div>
-                           </div>
-                        </div>
-                     </div>
-                  </div>
-               </div>
-            </div>
-         </div>
-
-         <div class="row mb-2 tm1-modelSecurities" style="cursor:pointer;">
-            <div class="container">
-               <div class="row">
-                  <div class="col-sm-12">
-                     <div class="card">
-                        <div class="card-header p-2" data-toggle="collapse" href="#collapseModelSecurity">
-                           <label style="cursor:pointer;" translate="EDITUSERMODELSECURITY"></label>
-                        </div>
-                        <div class="collapse" id="collapseModelSecurity">
-                           <div class="card-body pt-2">
-                              <div class="input-group mb-1">
-                                 <uib-tabset active="selectedTab">
-                                    <uib-tab index="0" heading="{{'EDITUSERSECURITYTABAPPLICATIONS' | translate}}"></uib-tab>
-                                    <uib-tab index="1" heading="{{'EDITUSERSECURITYTABCUBES' | translate}}"></uib-tab>
-                                    <uib-tab index="2" heading="{{'EDITUSERSECURITYTABDIMENSIONS' | translate}}"></uib-tab>
-                                    <uib-tab index="3" heading="{{'EDITUSERSECURITYTABPROCESSES' | translate}}"></uib-tab>
-                                    <uib-tab index="4" heading="{{'EDITUSERSECURITYTABCHORES' | translate}}"></uib-tab>
-                                 </uib-tabset>
                               </div>
                            </div>
                         </div>
                      </div>
-                  </div>
-               </div>
+                  </uib-tab>
+                  <uib-tab index="1" heading="{{'ADDUSERTABGROUP' | translate}}">
+                     <div class="row">
+                        <div class="col-sm-12">
+                           <div class="card-body pt-2">
+                              <div class="row">
+                                 <div class="col-sm-6">
+                                    <div class="card">
+                                       <div class="card-header p-2">
+                                          <label translate="ADDUSERGROUPSEXCLUDEDFROM"></label>
+                                       </div>
+                                       <div class="card-body pt-2">
+                                          <div class="input-group mb-1">
+                                             <input type="text" class="form-control" ng-model="temp1" placeholder="{{'SEARCHUAG' | translate}}">
+                                             <span class="input-group-append">
+                                                <button ng-disabled="!options.availableFilter.length" class="btn btn-secondary" title="" ng-click="" disabled="disabled">
+                                                   <i class="fa fa-fw fa-remove"></i>
+                                                </button>
+                                             </span>
+                                          </div>
+                                          <div style="height: 250px; padding-right: 5px; overflow-y: scroll; overflow-x: hidden;">
+                                             <!-- wip -->
+                                             <input type="text" ng-model="view.groups" ng-blur="updateGroupsArray(view.groups)" style="width:100%;">
+                                          </div>
+                                       </div>
+
+                                    </div>
+                                 </div>
+                                 <div class="col-sm-6">
+                                    <div class="card">
+                                       <div class="card-header p-2">
+                                          <label translate="ADDUSERGROUPSMEMBEROF"></label>
+                                       </div>
+                                       <div class="card-body pt-2">
+                                          <div class="input-group mb-1">
+                                             <input type="text" class="form-control" ng-model="temp2" placeholder="{{'SEARCHUAG' | translate}}">
+                                             <span class="input-group-append">
+                                                <button ng-disabled="!options.availableFilter.length" class="btn btn-secondary" title="" ng-click="" disabled="disabled">
+                                                   <i class="fa fa-fw fa-remove"></i>
+                                                </button>
+                                             </span>
+                                          </div>
+                                          <div style="height: 250px; padding-right: 5px; overflow-y: scroll; overflow-x: hidden;">
+                                             <!-- wip -->
+                                          </div>
+                                       </div>
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </uib-tab>
+               </uib-tabset>
             </div>
-
          </div>
-
 
       </div>
    </div>

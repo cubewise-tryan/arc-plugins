@@ -66,9 +66,10 @@
                                  <tr ng-repeat="user in usersWithGroups | filter:listFilter track by $index">
                                     
                                     <td class="align-top" style="width: 40px;" title="{{'EDITUSERHEADING' | translate}}" >
-                                       <a href  ng-click="editUser($index)" class="form-control form-control-sm" style="color:#007bff;">
+                                       <button class="btn btn-sm btn-link btn-block text-left" title="{{'EDITUSERHEADING' | translate}}" ng-click="editUser($index)">
+                                          <i class="fa fa-edit" ></i>
                                           {{user.Name}}
-                                       </a>
+                                       </button>
                                     </td>
 
                                     <td>
@@ -83,13 +84,25 @@
                                                >
                                     </td>
                                     <td style="width:500px;">
-                                       <div ng-repeat="group in user.Groups | orderBy:'Name' track by $index " >
+                                       <div ng-repeat="group in user.Groups | limitTo:user.groupsDisplay | orderBy:'Name' " >
                                           <div style="float:left;">
                                              <a class="badge ml-1" title="{{'REMOVEUSERFROMGROUP' | translate}}" ng-style="generateHSLColour(group.Name)" ng-click="removeUserFromGroup(user.Name,group.Name)">
                                                 <i class="fa fa-fw fa-remove" ></i>
                                                 {{group.Name}}
                                              </a>
                                           </div>
+                                       </div>
+                                       <div style="float:left;" class="tm1-additionalGroups">
+                                          <button class="btn btn-sm btn-link ml-1" title="{{'GROUPSSHOWLESS' | translate}}" ng-click="showLessGroups($index)">
+                                             <i class="fa fa-arrow-left" ></i>
+                                             Less
+                                          </button>
+                                       </div>
+                                       <div style="float:left;" class="tm1-additionalGroups">
+                                          <button class="btn btn-sm btn-link ml-1" title="{{'GROUPSSHOWMORE' | translate}}" ng-click="showMoreGroups($index)">
+                                             <i class="fa fa-arrow-right" ></i>
+                                             More
+                                          </button>
                                        </div>
                                     </td>
                                     <td>

@@ -45,6 +45,12 @@ arc.directive("usersGroups", function () {
                
                }else if(success.status < 400){
                   $scope.usersWithGroups = success.data.value;
+                  //add properties to control number of display groups
+                  for(var i = 0; i < $scope.usersWithGroups.length; i++){
+                     $scope.usersWithGroups[i].groupsMax = $scope.usersWithGroups[i].Groups.length;
+                     $scope.usersWithGroups[i].groupsDisplay = 2;
+                  }
+                  $log.log($scope.usersWithGroups);
 
                }else{
                   // Error to display on page
@@ -94,14 +100,15 @@ arc.directive("usersGroups", function () {
             ngDialog.open({
                template: "__/plugins/users-groups/editUser.html",
                className: "ngdialog-theme-default large",
-               // scope: $scope,
+               scope: $scope,
                controller: ['$rootScope', '$scope', '$http', '$state', '$tm1','$log', function ($rootScope, $scope, $http, $state, $tm1, $log) {
  
                   $scope.view = {
                      name : $scope.ngDialogData.usersWithGroups[rowIndex].Name,
                      alias : $scope.ngDialogData.usersWithGroups[rowIndex].FriendlyName,
                      active: $scope.ngDialogData.usersWithGroups[rowIndex].IsActive,
-                     message:''
+                     password: "",
+                     message:""
                   }
 
                   $scope.disconnectUser = function(userName){
@@ -124,30 +131,82 @@ arc.directive("usersGroups", function () {
                               $scope.view.message = success.data;
                            }
 
-                           $timeout(function(){
-                              $scope.view.message = null;
-                           }, 5000);
-                        }
 
+                        }
+                        $timeout(function(){
+                           $scope.view.message = null;
+                        }, 5000);
 
                      })
 
                   }
 
 
-                  $scope.updatePassword = function(password){
-                     //work in progress...
+                  $scope.updateAliasName = function(userName, aliasName){
+                     //work in progress
                   }
 
-                  $scope.updateUser = function(){
-                     // work in progress....
-                     $scope.closeThisDialog();
+
+                  $scope.updatePassword = function(userName, password){
+                     var url = "/Users('" + userName + "')";
+                     var data = {
+                        "Password" : password
+                     };
+
+                     $http.patch(encodeURIComponent($scope.ngDialogData.instance) + url, data).then(function(success, error){
+                        if(success.status == 401){
+                           return;
+
+                        }else if(success.status < 400){
+                           //success
+                           // $scope.view.message = "Settings Updated";
+                           $scope.view.message = "Settings Updated";
+
+                        }else{
+                           if(success.data && success.data.error && success.data.error.message){
+                              $scope.view.message = success.data.error.message;
+                           }else{
+                              $scope.view.message = success.data;
+                           }
+                        }
+                        $timeout(function(){
+                           $scope.view.message = null;
+                           $scope.closeThisDialog();
+                        },5000);
+
+                     });
+
+                  }
+
+
+                  $scope.updateUser = function(userName, password){
+                     if(password){
+                        $scope.updatePassword(userName, password);
+                     }
+
                   }
               
                }],
-               data: {usersWithGroups: $scope.usersWithGroups, view: $scope.view, instance:$scope.instance}
+               data: {
+                  usersWithGroups : $scope.usersWithGroups,
+                  view : $scope.view,
+                  instance : $scope.instance,
+               }
             });
 
+         }
+
+         $scope.showMoreGroups = function(userIndex){
+            var step = 2;
+            $scope.usersWithGroups[userIndex].groupsDisplay = $scope.usersWithGroups[userIndex].groupsDisplay + step;
+            
+            return true;
+         }
+
+         $scope.showLessGroups = function(userIndex){
+            var step = 2;
+            $scope.usersWithGroups[userIndex].groupsDisplay = $scope.usersWithGroups[userIndex].groupsDisplay - step;
+            return true;
          }
 
 
@@ -251,7 +310,10 @@ arc.directive("usersGroups", function () {
 
               
                }],
-               data: {view: $scope.view, updateGroupsArray:$scope.updateGroupsArray, load: $scope.load}
+               data: {
+                  view : $scope.view,
+                  updateGroupsArray : $scope.updateGroupsArray,
+                  load : $scope.load}
             });
 
          }
