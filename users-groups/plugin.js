@@ -23,10 +23,13 @@ arc.directive("usersGroups", function () {
       link: function ($scope, element, attrs) {
 
       },
-      controller: ["$scope", "$rootScope", "$http", "$timeout", "$tm1", "$dialogs", "$helper","$log","ngDialog", function ($scope, $rootScope, $http, $timeout, $tm1, $dialogs, $helper,$log,ngDialog) {
+      controller: ["$scope", "$rootScope", "$http", "$timeout", "$tm1", "$dialogs", "$helper", "$log", "ngDialog", "$translate", function ($scope, $rootScope, $http, $timeout, $tm1, $dialogs, $helper, $log, ngDialog, $translate ) {
+
+      //   $translate.instant("THREADS")
 
          $scope.selections = {
-               filter: ""
+               filterUser: "",
+               filterGroup: ""
          };
 
          $scope.load = function(){
@@ -169,8 +172,9 @@ arc.directive("usersGroups", function () {
             return styleObject;
         };
 
-        //used in addUser, addUserToGroup
+
         $scope.updateGroupsArray = function(newGroup, previousGroups){
+           //used in addUser, addUserToGroup
             var array = [];
             var arrayElement = "Groups('" + newGroup + "')";
             array.push(arrayElement);
@@ -220,7 +224,7 @@ arc.directive("usersGroups", function () {
                               $scope.view.message = null;
                               $scope.closeThisDialog();
                               $scope.ngDialogData.load();
-                           }, 2000);
+                           }, 5000);
 
                            return;
 
@@ -259,8 +263,29 @@ arc.directive("usersGroups", function () {
             $http.delete(encodeURIComponent($scope.instance)+url).then(function(success,error){
                $log.log(success);
                $log.log(error);
+               if(success.status==204){
+                  //success
+                  $scope.message = "User Removed";
+                  $scope.load();
+                  $timeout(function(){
+                     $scope.message = null;
+                  },5000);
+                  return;
 
-               $scope.load();
+               }else{
+                  if(success.data && success.data.error && success.data.error.message){
+                     $scope.message = success.data.error.message;
+                  }
+                  else {
+                     $scope.message = success.data;
+                  }
+                  $timeout(function(){
+                     $scope.view.message = null;
+                  }, 5000);
+
+               }
+
+
             })
             
          }
@@ -282,7 +307,7 @@ arc.directive("usersGroups", function () {
 
                   $timeout(function(){
                      $scope.message = null;
-                  }, 2000);
+                  }, 5000);
 
                   return;
 
@@ -362,19 +387,49 @@ arc.directive("usersGroups", function () {
 
 
          $scope.listFilter = function(user) {
-               // Check text filter
-               if(!$scope.selections.filter || !$scope.selections.filter.length){
+            if((!$scope.selections.filterUser || !$scope.selections.filterUser.length)
+               && (!$scope.selections.filterGroup || !$scope.selections.filterGroup.length)
+               //user and group blank
+            ){
+               return true;
+            }else if($scope.selections.filterUser
+                     && (!$scope.selections.filterGroup || !$scope.selections.filterGroup.length)){
+               //user input, group is blank
+               var filterUser = $scope.selections.filterUser.toLowerCase();
+               if(user.Name.toLowerCase().indexOf(filterUser) !== -1
+                  || (user.FriendlyName && user.FriendlyName.toLowerCase().indexOf(filterUser) !== -1 )){
                   return true;
                }
 
-               //Check for Match
-               var filter = $scope.selections.filter.toLowerCase();
-               if(user.Name.toLowerCase().indexOf(filter) !== -1
-                  || user.FriendlyName.toLowerCase().indexOf(filter) !== -1 ){
-                  return true;
+            }else if((!$scope.selections.filterUser || !$scope.selections.filterUser.length)
+                     && $scope.selections.filterGroup){
+               //user is blank, group has value
+               var filterGroup = $scope.selections.filterGroup.toLowerCase();
+               if(user.Groups){
+                  for(var i = 0; i < user.Groups.length; i++){
+                     if(user.Groups[i].Name && user.Groups[i].Name.toLowerCase().indexOf( filterGroup)!== -1){
+                        return true;
+                     }
+                  }
                }
-               return false;
-               
+            }else{
+               //both have value
+               var filterUser = $scope.selections.filterUser.toLowerCase();
+               if(user.Name.toLowerCase().indexOf(filterUser) !== -1
+                  || (user.FriendlyName && user.FriendlyName.toLowerCase().indexOf(filterUser) !== -1 )){
+                     var filterGroup = $scope.selections.filterGroup.toLowerCase();
+                     if(user.Groups){
+                        for(var i = 0; i < user.Groups.length; i++){
+                           if(user.Groups[i].Name && user.Groups[i].Name.toLowerCase().indexOf( filterGroup)!== -1){
+                              return true;
+                           }
+                        }
+                     }
+               }
+
+            }
+
+            return false;
          };
 
 

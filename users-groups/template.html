@@ -16,18 +16,25 @@
             <div class="row" class="tm1-usersTab-Tools">
                <div class="col-4">
                   <div class="input-group">
-                     <input type="text" ng-model="selections.filter" placeholder="{{'SEARCHUAG' | translate}}" class="form-control" style="display:inline; width: 100px;" />
-
+                     <input type="text" ng-model="selections.filterUser" placeholder="{{'SEARCHUSER' | translate}}" class="form-control" style="display:inline;" />
                      <span class="input-group-append">
-                        <button ng-disabled="!selections.filter.length" class="btn btn-secondary" title="{{'CLEARUAG' | translate}}" ng-click="selections.filter = ''">
+                        <button ng-disabled="!selections.filterUser.length" class="btn btn-secondary" title="{{'CLEARUAG' | translate}}" ng-click="selections.filterUser = ''">
                            <i class="fa fa-fw fa-remove"></i>
                         </button>
                      </span>
-
                   </div>
                </div>
-
-               <div class="col-8">
+               <div class="col-4">
+                  <div class="input-group">
+                     <input type="text" ng-model="selections.filterGroup" placeholder="{{'SEARCHGROUP' | translate}}" class="form-control" style="display:inline;" />
+                     <span class="input-group-append">
+                        <button ng-disabled="!selections.filterGroup.length" class="btn btn-secondary" title="{{'CLEARUAG' | translate}}" ng-click="selections.filterGroup = ''">
+                           <i class="fa fa-fw fa-remove"></i>
+                        </button>
+                     </span>
+                  </div>
+               </div>
+               <div class="col-4">
                      <div class="toolbar">
                         <div class="btn-toolbar pull-right" style="margin-bottom: 10px;">
                            <div class="btn-group">
@@ -57,6 +64,7 @@
                               </thead>
                               <tbody>
                                  <tr ng-repeat="user in usersWithGroups | filter:listFilter track by $index">
+                                    
                                     <td class="align-top" style="width: 40px;" title="{{'EDITUSERHEADING' | translate}}" >
                                        <a href  ng-click="editUser($index)" class="form-control form-control-sm" style="color:#007bff;">
                                           {{user.Name}}

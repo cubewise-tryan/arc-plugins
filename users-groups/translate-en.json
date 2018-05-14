@@ -38,7 +38,8 @@
    "REMOVEUSER":"Remove User",
    "REMOVEUSERFROMGROUP":"Remove User From Group",
    "SAVEUSERCHANGES":"Save",
-   "SEARCHUAG":"Search" ,
+   "SEARCHUSER":"Search Name or Alias",
+   "SEARCHGROUP":"Search Groups",
    "TABUSERS":"Users",
    "TABGROUPS":"Groups",
    "TYPEGROUP":"Type group and Select to Add"
