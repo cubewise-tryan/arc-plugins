@@ -31,8 +31,24 @@
                         <button ng-disabled="!selections.filterGroup.length" class="btn btn-secondary" title="{{'CLEARUAG' | translate}}" ng-click="selections.filterGroup = ''">
                            <i class="fa fa-fw fa-remove"></i>
                         </button>
+                        <div class="btn-group" uib-dropdown title="{{'GROUPSSTEPINCREMENT' | translate}}">
+                           <button id="split-button" type="button" class="btn btn-primary btn-sm">
+                              <i class="fa fa-eye"></i>
+                              {{selections.groupsDisplay}}
+                           </button>
+                           <button type="button" class="btn btn-primary btn-sm" uib-dropdown-toggle>
+                              <span class="caret"></span>
+                              <span class="sr-only">Split button!</span>
+                           </button>
+                           <div class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="split-button">
+                              <li ng-repeat="step in selections.groupSteps" class="pl-2">
+                                 <a href="#" ng-click="updateGroupStepIncrement(step.increment)" > {{step.increment}} </a>
+                              </li>
+                           </div>
+                        </div>
                      </span>
                   </div>
+
                </div>
                <div class="col-4">
                      <div class="toolbar">
@@ -92,25 +108,34 @@
                                              </a>
                                           </div>
                                        </div>
-                                       <div style="float:left;" class="tm1-additionalGroups">
-                                          <button class="btn btn-sm btn-link ml-1" title="{{'GROUPSSHOWLESS' | translate}}" ng-click="showLessGroups($index)">
+                                       <div style="float:left;" class="tm1-showLessGroups" ng-if="displayLessGroupButton($index)">
+                                          <a class="badge badge-primary badge-sm ml-1" style="color:#fff;" title="{{'GROUPSSHOWLESS' | translate}}" ng-click="showLessGroups($index)">
                                              <i class="fa fa-arrow-left" ></i>
                                              Less
-                                          </button>
+                                          </a>
                                        </div>
-                                       <div style="float:left;" class="tm1-additionalGroups">
-                                          <button class="btn btn-sm btn-link ml-1" title="{{'GROUPSSHOWMORE' | translate}}" ng-click="showMoreGroups($index)">
-                                             <i class="fa fa-arrow-right" ></i>
+
+                                       <div style="float:left;" class="tm1-showMoreGroups" ng-if="displayMoreGroupButton($index)">
+                                          <a class="badge badge-primary badge-sm ml-1" style="color:#fff;" title="{{'GROUPSSHOWMORE' | translate}}" ng-click="showMoreGroups($index)">
                                              More
-                                          </button>
+                                             <i class="fa fa-arrow-right" ></i>
+                                          </a>
                                        </div>
                                     </td>
                                     <td>
-                                       <span style="float:right;">
-                                          <button class="btn-toolbar btn btn-sm btn-danger"  title="{{'REMOVEUSER' | translate}} {{user.Name}}" ng-click="deleteUser(user.Name)">
-                                             <i class="fa fa-remove"></i>
-                                          </button>
-                                       </span>
+                                       <ul class="nav navbar-right pull-right ">
+                                          <li>
+                                             <button class="btn btn-sm btn-primary" >
+                                                <i class="fa fa-eye"></i>
+                                                {{selections.groupsDisplay}}
+                                             </button>
+                                          </li>
+                                          <li>
+                                             <button class="btn btn-sm btn-danger"  title="{{'REMOVEUSER' | translate}} {{user.Name}}" ng-click="deleteUser(user.Name)">
+                                                <i class="fa fa-remove"></i>
+                                             </button>
+                                          </li>
+                                       </ul>
                                     </td>
                                  </tr>
                               </tbody>

@@ -29,8 +29,24 @@ arc.directive("usersGroups", function () {
 
          $scope.selections = {
                filterUser: "",
-               filterGroup: ""
+               filterGroup: "",
+               groupsDisplay:2,
+               groupSteps:[
+                  {"increment":2},
+                  {"increment":5},
+                  {"increment":10},
+                  {"increment":50},
+                  {"increment":100},
+                  {"increment":500},
+                  {"increment":1000}
+               ]
          };
+
+         $scope.updateGroupStepIncrement = function(StepIncrement){
+            $scope.selections.groupsDisplay = StepIncrement;
+            $scope.load();
+         }
+
 
          $scope.load = function(){
             $scope.reload = false;
@@ -48,7 +64,8 @@ arc.directive("usersGroups", function () {
                   //add properties to control number of display groups
                   for(var i = 0; i < $scope.usersWithGroups.length; i++){
                      $scope.usersWithGroups[i].groupsMax = $scope.usersWithGroups[i].Groups.length;
-                     $scope.usersWithGroups[i].groupsDisplay = 2;
+                     $scope.usersWithGroups[i].groupsDisplay = $scope.selections.groupsDisplay;
+                     $scope.usersWithGroups[i].groupsCustomStep = 0;
                   }
                   $log.log($scope.usersWithGroups);
 
@@ -197,16 +214,40 @@ arc.directive("usersGroups", function () {
          }
 
          $scope.showMoreGroups = function(userIndex){
-            var step = 2;
+            // var step = 2;
+            var step = $scope.selections.groupsDisplay;
             $scope.usersWithGroups[userIndex].groupsDisplay = $scope.usersWithGroups[userIndex].groupsDisplay + step;
-            
+            if($scope.usersWithGroups[userIndex].groupsDisplay > $scope.usersWithGroups[userIndex].groupsMax){
+               $scope.usersWithGroups[userIndex].groupsDisplay = $scope.usersWithGroups[userIndex].groupsMax;
+            }
             return true;
          }
 
          $scope.showLessGroups = function(userIndex){
-            var step = 2;
+            // var step = 2;
+            var step = $scope.selections.groupsDisplay;
             $scope.usersWithGroups[userIndex].groupsDisplay = $scope.usersWithGroups[userIndex].groupsDisplay - step;
+            if($scope.usersWithGroups[userIndex].groupsDisplay < $scope.selections.groupsDisplay){
+               $scope.usersWithGroups[userIndex].groupsDisplay = $scope.selections.groupsDisplay;
+            }
             return true;
+         }
+
+         $scope.displayLessGroupButton = function(userIndex){
+            if($scope.usersWithGroups[userIndex].groupsDisplay == 0 
+               || ($scope.usersWithGroups[userIndex].groupsDisplay <= $scope.selections.groupsDisplay && $scope.usersWithGroups[userIndex].groupsDisplay > 0)){
+               return false;
+            }else{
+               return true;
+            }
+         }
+
+         $scope.displayMoreGroupButton = function(userIndex){
+            if($scope.usersWithGroups[userIndex].groupsDisplay >= $scope.usersWithGroups[userIndex].groupsMax){
+               return false;
+            }else{
+               return true;
+            }
          }
 
 

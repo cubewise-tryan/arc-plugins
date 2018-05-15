@@ -37,6 +37,7 @@
    "GROUPSUSER":"Groups",
    "GROUPSSHOWLESS":"Display Less Groups",
    "GROUPSSHOWMORE":"Display Additional Groups",
+   "GROUPSSTEPINCREMENT":"Number of Groups to Increment",
    "USERGROUPS":"Users",
    "MANAGEUAG":"Manage User and Group Accounts",
    "NAMEGROUP":"Name",
