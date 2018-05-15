@@ -80,14 +80,12 @@
                               </thead>
                               <tbody>
                                  <tr ng-repeat="user in usersWithGroups | filter:listFilter track by $index">
-                                    
                                     <td class="align-top" style="width: 40px;" title="{{'EDITUSERHEADING' | translate}}" >
                                        <button class="btn btn-sm btn-link btn-block text-left" title="{{'EDITUSERHEADING' | translate}}" ng-click="editUser($index)">
                                           <i class="fa fa-edit" ></i>
                                           {{user.Name}}
                                        </button>
                                     </td>
-
                                     <td>
                                        <input type="text" class="form-control form-control-sm" ng-model="usersWithGroups[$index].FriendlyName" style="width:100%;vertical-align: top;">
                                     </td>
@@ -125,9 +123,12 @@
                                     <td>
                                        <ul class="nav navbar-right pull-right ">
                                           <li>
+                                             <input type="number"  class="pl-2" style="width:35px;" min="0" ng-model="usersWithGroups[$index].groupsDisplayOverwritten" />
+                                          </li>
+                                          <li>
                                              <button class="btn btn-sm btn-primary" >
                                                 <i class="fa fa-eye"></i>
-                                                {{selections.groupsDisplay}}
+                                                <!-- {{selections.groupsDisplay}} -->
                                              </button>
                                           </li>
                                           <li>

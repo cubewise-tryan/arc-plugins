@@ -61,11 +61,13 @@ arc.directive("usersGroups", function () {
                
                }else if(success.status < 400){
                   $scope.usersWithGroups = success.data.value;
-                  //add properties to control number of display groups
+                  //add properties to object to control number of display groups
                   for(var i = 0; i < $scope.usersWithGroups.length; i++){
                      $scope.usersWithGroups[i].groupsMax = $scope.usersWithGroups[i].Groups.length;
                      $scope.usersWithGroups[i].groupsDisplay = $scope.selections.groupsDisplay;
+                     $scope.usersWithGroups[i].groupsDisplayOverwritten = $scope.selections.groupsDisplay;
                      $scope.usersWithGroups[i].groupsCustomStep = 0;
+                     
                   }
                   $log.log($scope.usersWithGroups);
 
@@ -214,22 +216,43 @@ arc.directive("usersGroups", function () {
          }
 
          $scope.showMoreGroups = function(userIndex){
-            // var step = 2;
-            var step = $scope.selections.groupsDisplay;
-            $scope.usersWithGroups[userIndex].groupsDisplay = $scope.usersWithGroups[userIndex].groupsDisplay + step;
+            // var step = $scope.selections.groupsDisplay;
+            // $scope.usersWithGroups[userIndex].groupsDisplay = $scope.usersWithGroups[userIndex].groupsDisplay + step;
+            // if($scope.usersWithGroups[userIndex].groupsDisplay > $scope.usersWithGroups[userIndex].groupsMax){
+               // $scope.usersWithGroups[userIndex].groupsDisplay = $scope.usersWithGroups[userIndex].groupsMax;
+            // }
+
+            if($scope.usersWithGroups[userIndex].groupsDisplayOverwritten !== $scope.selections.groupsDisplay){
+               var activeStep = $scope.usersWithGroups[userIndex].groupsDisplayOverwritten;
+            }else{
+               var activeStep = $scope.selections.groupsDisplay;
+            }
+            
+            $scope.usersWithGroups[userIndex].groupsDisplay = $scope.usersWithGroups[userIndex].groupsDisplay + activeStep;
             if($scope.usersWithGroups[userIndex].groupsDisplay > $scope.usersWithGroups[userIndex].groupsMax){
                $scope.usersWithGroups[userIndex].groupsDisplay = $scope.usersWithGroups[userIndex].groupsMax;
             }
+
             return true;
          }
 
          $scope.showLessGroups = function(userIndex){
-            // var step = 2;
-            var step = $scope.selections.groupsDisplay;
-            $scope.usersWithGroups[userIndex].groupsDisplay = $scope.usersWithGroups[userIndex].groupsDisplay - step;
+            // var step = $scope.selections.groupsDisplay;
+            // $scope.usersWithGroups[userIndex].groupsDisplay = $scope.usersWithGroups[userIndex].groupsDisplay - step;
+            // if($scope.usersWithGroups[userIndex].groupsDisplay < $scope.selections.groupsDisplay){
+               // $scope.usersWithGroups[userIndex].groupsDisplay = $scope.selections.groupsDisplay;
+            // }
+
+            if($scope.usersWithGroups[userIndex].groupsDisplayOverwritten !== $scope.selections.groupsDisplay){
+               var activeStep = $scope.usersWithGroups[userIndex].groupsDisplayOverwritten;
+            }else{
+               var activeStep = $scope.selections.groupsDisplay;
+            }
+            $scope.usersWithGroups[userIndex].groupsDisplay = $scope.usersWithGroups[userIndex].groupsDisplay - activeStep;
             if($scope.usersWithGroups[userIndex].groupsDisplay < $scope.selections.groupsDisplay){
                $scope.usersWithGroups[userIndex].groupsDisplay = $scope.selections.groupsDisplay;
             }
+
             return true;
          }
 
@@ -314,7 +337,7 @@ arc.directive("usersGroups", function () {
                            $scope.view.message = "User Exists";
                            $timeout(function(){
                               $scope.view.message = null;
-                           }, 5000);
+                           }, 2000);
                            return;
                         
                         }else if(success.status < 400){
@@ -324,7 +347,7 @@ arc.directive("usersGroups", function () {
                               $scope.view.message = null;
                               $scope.closeThisDialog();
                               $scope.ngDialogData.load();
-                           }, 5000);
+                           }, 2000);
 
                            return;
 
@@ -339,7 +362,7 @@ arc.directive("usersGroups", function () {
                            }
                            $timeout(function(){
                               $scope.view.message = null;
-                           }, 5000);
+                           }, 2000);
                         }
                      });
 
@@ -361,36 +384,34 @@ arc.directive("usersGroups", function () {
 
 
          $scope.deleteUser = function(user){
-            //Work in progress
             var url = "/Users('" + user + "')"
-            $http.delete(encodeURIComponent($scope.instance)+url).then(function(success,error){
-               $log.log(success);
-               $log.log(error);
-               if(success.status==204){
-                  //success
-                  $scope.message = "User Removed";
-                  $scope.load();
-                  $timeout(function(){
-                     $scope.message = null;
-                  },5000);
-                  return;
 
-               }else{
-                  if(success.data && success.data.error && success.data.error.message){
-                     $scope.message = success.data.error.message;
-                  }
-                  else {
-                     $scope.message = success.data;
-                  }
-                  $timeout(function(){
-                     $scope.view.message = null;
-                  }, 5000);
-
-               }
-
-
-            })
+            $dialogs.confirmDelete(user, deleteSelectedUser);
             
+            function deleteSelectedUser(){
+               $http.delete(encodeURIComponent($scope.instance)+url).then(function(success,error){
+                  if(success.status==204){
+                     //success
+                     $scope.message = "User Removed";
+                     $scope.load();
+                     $timeout(function(){
+                        $scope.message = null;
+                     }, 2000);
+                     return;
+
+                  }else{
+                     if(success.data && success.data.error && success.data.error.message){
+                        $scope.message = success.data.error.message;
+                     }
+                     else {
+                        $scope.message = success.data;
+                     }
+                     $timeout(function(){
+                        $scope.view.message = null;
+                     }, 5000);
+                  }
+               });
+            }
          }
 
 
