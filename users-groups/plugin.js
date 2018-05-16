@@ -3,7 +3,7 @@ arc.run(['$rootScope', function($rootScope) {
 
     $rootScope.plugin("usersGroups", "Users and Groups", "page", {
         menu: "administration",
-        icon: "fa-sitemap",
+        icon: "fa-users",
         description: "This plugin adds the users and groups administration page.",
         author: "Cubewise",
         url: "https://github.com/cubewise-code/arc-plugins",
@@ -28,24 +28,12 @@ arc.directive("usersGroups", function () {
       //   $translate.instant("THREADS")
 
          $scope.selections = {
-               filterUser: "",
-               filterGroup: "",
-               groupsDisplay:2,
-               groupSteps:[
-                  {"increment":2},
-                  {"increment":5},
-                  {"increment":10},
-                  {"increment":50},
-                  {"increment":100},
-                  {"increment":500},
-                  {"increment":1000}
-               ]
+            filterUser: "",
+            filterGroup: "",
          };
 
-         $scope.updateGroupStepIncrement = function(StepIncrement){
-            $scope.selections.groupsDisplay = StepIncrement;
-            $scope.load();
-         }
+         $rootScope.uiPrefs.groupsDisplayNumber = 2;
+         //for now make 2, as test model does not have enough groups. Later make default 20
 
 
          $scope.load = function(){
@@ -64,10 +52,8 @@ arc.directive("usersGroups", function () {
                   //add properties to object to control number of display groups
                   for(var i = 0; i < $scope.usersWithGroups.length; i++){
                      $scope.usersWithGroups[i].groupsMax = $scope.usersWithGroups[i].Groups.length;
-                     $scope.usersWithGroups[i].groupsDisplay = $scope.selections.groupsDisplay;
-                     $scope.usersWithGroups[i].groupsDisplayOverwritten = $scope.selections.groupsDisplay;
-                     $scope.usersWithGroups[i].groupsCustomStep = 0;
-                     
+                     $scope.usersWithGroups[i].groupsDisplay = $rootScope.uiPrefs.groupsDisplayNumber;
+                     $scope.usersWithGroups[i].groupsRemaining = $scope.usersWithGroups[i].groupsMax - $rootScope.uiPrefs.groupsDisplayNumber;
                   }
                   $log.log($scope.usersWithGroups);
 
@@ -110,6 +96,33 @@ arc.directive("usersGroups", function () {
                },5000);
             });
 
+            var groupsWithUsersURL = "/Groups?$expand=Users";
+            $http.get(encodeURIComponent($scope.instance) + groupsWithUsersURL).then(function(success,error){
+               if(success.status == 401){
+                  // Set reload to true to refresh after the user logs in
+                  $scope.reload = true;
+                  return;
+               
+               }else if(success.status < 400){
+                  $scope.groupsWithUsers = success.data.value;
+                  $log.log($scope.groupsWithUsers);
+
+               }else{
+                  // Error to display on page
+                  if(success.data && success.data.error && success.data.error.message){
+                     $scope.message = success.data.error.message;
+                  }
+                  else {
+                     $scope.message = success.data;
+                  }
+                  $timeout(function(){
+                     $scope.message = null;
+                  }, 5000);
+               }
+            });
+
+
+
          };
          // Load for first time: usersWithGroups, Groups
          $scope.load();
@@ -128,36 +141,6 @@ arc.directive("usersGroups", function () {
                      active: $scope.ngDialogData.usersWithGroups[rowIndex].IsActive,
                      password: "",
                      message:""
-                  }
-
-                  $scope.disconnectUser = function(userName){
-                     var url = "/Users('" + userName + "')/tm1.Disconnect";
-                     var data = {
-                     }
-
-                     $http.post(encodeURIComponent($scope.ngDialogData.instance) + url, data).then(function(success,error){
-                        if(success.status == 401){
-                           return;
-                        }else if(success.status < 400){
-                           //success, user disconnected
-                           $scope.view.active = false;
-
-                        }else{
-                           if(success.data && success.data.error && success.data.error.message){
-                              $scope.view.message = success.data.error.message;
-                           }
-                           else {
-                              $scope.view.message = success.data;
-                           }
-
-
-                        }
-                        $timeout(function(){
-                           $scope.view.message = null;
-                        }, 5000);
-
-                     })
-
                   }
 
 
@@ -216,53 +199,14 @@ arc.directive("usersGroups", function () {
          }
 
          $scope.showMoreGroups = function(userIndex){
-            // var step = $scope.selections.groupsDisplay;
-            // $scope.usersWithGroups[userIndex].groupsDisplay = $scope.usersWithGroups[userIndex].groupsDisplay + step;
-            // if($scope.usersWithGroups[userIndex].groupsDisplay > $scope.usersWithGroups[userIndex].groupsMax){
-               // $scope.usersWithGroups[userIndex].groupsDisplay = $scope.usersWithGroups[userIndex].groupsMax;
-            // }
-
-            if($scope.usersWithGroups[userIndex].groupsDisplayOverwritten !== $scope.selections.groupsDisplay){
-               var activeStep = $scope.usersWithGroups[userIndex].groupsDisplayOverwritten;
-            }else{
-               var activeStep = $scope.selections.groupsDisplay;
-            }
-            
-            $scope.usersWithGroups[userIndex].groupsDisplay = $scope.usersWithGroups[userIndex].groupsDisplay + activeStep;
+            var step = $rootScope.uiPrefs.groupsDisplayNumber;
+            $scope.usersWithGroups[userIndex].groupsDisplay = $scope.usersWithGroups[userIndex].groupsDisplay + step;
             if($scope.usersWithGroups[userIndex].groupsDisplay > $scope.usersWithGroups[userIndex].groupsMax){
                $scope.usersWithGroups[userIndex].groupsDisplay = $scope.usersWithGroups[userIndex].groupsMax;
             }
+            $scope.usersWithGroups[userIndex].groupsRemaining = $scope.usersWithGroups[userIndex].groupsMax - $scope.usersWithGroups[userIndex].groupsDisplay;
 
             return true;
-         }
-
-         $scope.showLessGroups = function(userIndex){
-            // var step = $scope.selections.groupsDisplay;
-            // $scope.usersWithGroups[userIndex].groupsDisplay = $scope.usersWithGroups[userIndex].groupsDisplay - step;
-            // if($scope.usersWithGroups[userIndex].groupsDisplay < $scope.selections.groupsDisplay){
-               // $scope.usersWithGroups[userIndex].groupsDisplay = $scope.selections.groupsDisplay;
-            // }
-
-            if($scope.usersWithGroups[userIndex].groupsDisplayOverwritten !== $scope.selections.groupsDisplay){
-               var activeStep = $scope.usersWithGroups[userIndex].groupsDisplayOverwritten;
-            }else{
-               var activeStep = $scope.selections.groupsDisplay;
-            }
-            $scope.usersWithGroups[userIndex].groupsDisplay = $scope.usersWithGroups[userIndex].groupsDisplay - activeStep;
-            if($scope.usersWithGroups[userIndex].groupsDisplay < $scope.selections.groupsDisplay){
-               $scope.usersWithGroups[userIndex].groupsDisplay = $scope.selections.groupsDisplay;
-            }
-
-            return true;
-         }
-
-         $scope.displayLessGroupButton = function(userIndex){
-            if($scope.usersWithGroups[userIndex].groupsDisplay == 0 
-               || ($scope.usersWithGroups[userIndex].groupsDisplay <= $scope.selections.groupsDisplay && $scope.usersWithGroups[userIndex].groupsDisplay > 0)){
-               return false;
-            }else{
-               return true;
-            }
          }
 
          $scope.displayMoreGroupButton = function(userIndex){
@@ -384,11 +328,10 @@ arc.directive("usersGroups", function () {
 
 
          $scope.deleteUser = function(user){
-            var url = "/Users('" + user + "')"
-
             $dialogs.confirmDelete(user, deleteSelectedUser);
-            
+
             function deleteSelectedUser(){
+               var url = "/Users('" + user + "')"
                $http.delete(encodeURIComponent($scope.instance)+url).then(function(success,error){
                   if(success.status==204){
                      //success
@@ -416,40 +359,46 @@ arc.directive("usersGroups", function () {
 
 
          $scope.removeUserFromGroup = function(user, group){
-            var url = "/Users('"+ user + "')/Groups?$id=Groups('" + group + "')";
-            $http.delete(encodeURIComponent($scope.instance) + url).then(function(success,error){
-               if(success.status == 401){
-                  $scope.message = "User Does not Exist";
-                  $timeout(function(){
-                     $scope.message = null;
-                  }, 5000);
-                  return;
-               
-               }else if(success.status < 400){
-                  $scope.message = "User removed from Group";
-                  $scope.load();
+            var prompt = "Remove user " + user + " from group " + group + "?";
+            $dialogs.confirm(prompt, removeUserFromSelectedGroup);
 
-                  $timeout(function(){
-                     $scope.message = null;
-                  }, 5000);
-
-                  return;
-
-               }else{
-                  // Error to display on page
-                  $log.log(success);
-                  if(success.data && success.data.error && success.data.error.message){
-                     $scope.message = success.data.error.message;
+            function removeUserFromSelectedGroup(){
+               var url = "/Users('"+ user + "')/Groups?$id=Groups('" + group + "')";
+               $http.delete(encodeURIComponent($scope.instance) + url).then(function(success,error){
+                  if(success.status == 401){
+                     $scope.message = "User Does not Exist";
+                     $timeout(function(){
+                        $scope.message = null;
+                     }, 5000);
+                     return;
+                  
+                  }else if(success.status < 400){
+                     $scope.message = "User removed from Group";
+                     $scope.load();
+   
+                     $timeout(function(){
+                        $scope.message = null;
+                     }, 5000);
+   
+                     return;
+   
+                  }else{
+                     // Error to display on page
+                     $log.log(success);
+                     if(success.data && success.data.error && success.data.error.message){
+                        $scope.message = success.data.error.message;
+                     }
+                     else {
+                        $scope.message = success.data;
+                        
+                     }
+                     $timeout(function(){
+                        $scope.messageError = null;
+                     }, 5000);
                   }
-                  else {
-                     $scope.message = success.data;
-                     
-                  }
-                  $timeout(function(){
-                     $scope.messageError = null;
-                  }, 5000);
-               }
-            });
+               });
+            }
+
          }
 
 
@@ -497,6 +446,108 @@ arc.directive("usersGroups", function () {
                   
                }
 
+            });
+
+         }
+
+
+         $scope.editGroup = function(rowIndex){
+            ngDialog.open({
+               template: "__/plugins/users-groups/editGroup.html",
+               className: "ngdialog-theme-default large",
+               scope: $scope,
+               controller: ['$rootScope', '$scope', '$http', '$state', '$tm1','$log', function ($rootScope, $scope, $http, $state, $tm1, $log) {
+ 
+                  $scope.view = {
+                     name : $scope.ngDialogData.groupsWithUsers[rowIndex].Name
+                  }
+
+
+                  $scope.updateGroup = function(groupName, password){
+                     if(password){
+                        $scope.updatePassword(groupName, password);
+                     }
+
+                  }
+
+
+               }],
+               data: {
+                  groupsWithUsers : $scope.groupsWithUsers,
+                  view : $scope.view,
+                  instance : $scope.instance,
+               }
+            });
+
+         }
+
+
+         $scope.addGroup = function(){
+            ngDialog.open({
+               template: "__/plugins/users-groups/addGroup.html",
+               className: "ngdialog-theme-default large",
+               scope: $scope,
+               controller: ['$rootScope', '$scope', '$http', '$state', '$tm1','$log', function ($rootScope, $scope, $http, $state, $tm1, $log) {
+ 
+                  $scope.view = {
+                     name: '',
+                     groups: [],
+                  }
+
+                  $scope.createGroup = function(){
+                     //WORK IN PROGRESS
+                     var url = "/Users";
+                     var data = {
+                        "Name" : $scope.view.name,
+                        "Groups@odata.bind": $scope.ngDialogData.updateGroupsArray($scope.view.groups)
+                     }
+                     // $http.post(encodeURIComponent($scope.$parent.instance) + url, data).then(function(success,error){
+                        // if(success.status == 401){
+                           // $scope.view.message = "User Exists";
+                           // $timeout(function(){
+                              // $scope.view.message = null;
+                           // }, 2000);
+                           // return;
+                        
+                        // }else if(success.status < 400){
+                           // $scope.view.message = "User added";
+
+                           // $timeout(function(){
+                              // $scope.view.message = null;
+                              // $scope.closeThisDialog();
+                              // $scope.ngDialogData.load();
+                           // }, 2000);
+
+                           // return;
+
+                        // }else{
+                           // Error to display on page
+                           // if(success.data && success.data.error && success.data.error.message){
+                              // $scope.view.message = success.data.error.message;
+                           // }
+                           // else {
+                              // $scope.view.message = success.data;
+                              
+                           // }
+                           // $timeout(function(){
+                              // $scope.view.message = null;
+                           // }, 2000);
+                        // }
+                     // });
+
+                  }
+
+                  $scope.closeThisDialog = function(){
+                     ngDialog.close();
+                  }
+
+              
+               }],
+               data: {
+                  view : $scope.view,
+                  updateGroupsArray : $scope.updateGroupsArray,
+                  load : $scope.load
+               }
             });
 
          }
