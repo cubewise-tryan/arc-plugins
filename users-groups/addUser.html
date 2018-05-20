@@ -97,8 +97,8 @@
    <div class="modal-footer">
       <div class="row">
          <div class="col-md-12">
-            <button ng-class="{'btn btn-success':view.message === 'User added','btn btn-warning':view.message !== 'User added'}" ng-if="view.message">
-               <span ng-class="{'fa fa-check':view.message === 'User added','fa fa-warning':view.message !== 'User added'}" aria-hidden="true"></span><span>{{view.message}}</span>
+            <button ng-class="{'btn btn-success':view.messageSuccess,'btn btn-warning':view.messageWarning}" ng-if="view.message">
+               <span ng-class="{'fa fa-check':view.messageSuccess,'fa fa-warning':view.messageWarning}" aria-hidden="true"></span><span>{{view.message}}</span>
             </button>
          </div>
       </div>

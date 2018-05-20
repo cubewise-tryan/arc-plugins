@@ -4,8 +4,8 @@
          <label class="page-title">
             <i class="fa fa-sitemap"></i> {{instance | uppercase}}:<span translate="MANAGEUAG"></span>
          </label>
-         <button class="btn btn-warning" ng-if="message">
-            <span class="fa fa-warning" aria-hidden="true"></span><span>{{message}}</span>
+         <button ng-class="{'btn btn-success' : messageSuccess, 'btn btn-warning' : messageWarning}" ng-if="message">
+            <span ng-class="{'fa fa-check' : messageSuccess,'fa fa-warning' : messageWarning}" aria-hidden="true"></span><span>{{message}}</span>
          </button>
       </div>
    </div>

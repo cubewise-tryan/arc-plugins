@@ -236,11 +236,11 @@ arc.directive("usersGroups", function () {
             styleObject["background-color"] = 'hsl(' + h + ', ' + saturation + '%, '+ lightness + '%)';
 
             return styleObject;
-        };
+         };
 
 
-        $scope.updateGroupsArray = function(newGroup, previousGroups){
-           //used in addUser, addUserToGroup
+         $scope.updateGroupsArray = function(newGroup, previousGroups){
+            //used in addUser, addUserToGroup
             var array = [];
             var arrayElement = "Groups('" + newGroup + "')";
             array.push(arrayElement);
@@ -277,17 +277,21 @@ arc.directive("usersGroups", function () {
                      }
                      $http.post(encodeURIComponent($scope.$parent.instance) + url, data).then(function(success,error){
                         if(success.status == 401){
-                           $scope.view.message = "User Exists";
+                           $scope.view.message = $translate.instant("FUNCTIONADDUSERERROR");
+                           $scope.view.messageWarning = true;
                            $timeout(function(){
                               $scope.view.message = null;
+                              $scope.view.messageWarning = false;
                            }, 2000);
                            return;
                         
                         }else if(success.status < 400){
-                           $scope.view.message = "User added";
+                           $scope.view.message = $translate.instant("FUNCTIONADDUSERSUCCESS");
+                           $scope.view.messageSuccess = true;
 
                            $timeout(function(){
                               $scope.view.message = null;
+                              $scope.view.messageSuccess = null;
                               $scope.closeThisDialog();
                               $scope.ngDialogData.load();
                            }, 2000);
@@ -298,13 +302,16 @@ arc.directive("usersGroups", function () {
                            // Error to display on page
                            if(success.data && success.data.error && success.data.error.message){
                               $scope.view.message = success.data.error.message;
+                              $scope.view.messageWarning = true;
                            }
                            else {
                               $scope.view.message = success.data;
-                              
+                              $scope.view.messageWarning = true;
                            }
                            $timeout(function(){
                               $scope.view.message = null;
+                              $scope.view.messageWarning = null;
+
                            }, 2000);
                         }
                      });
@@ -334,22 +341,28 @@ arc.directive("usersGroups", function () {
                $http.delete(encodeURIComponent($scope.instance)+url).then(function(success,error){
                   if(success.status==204){
                      //success
-                     $scope.message = "User Removed";
+                     $scope.message = $translate.instant("FUNCTIONDELETEUSERSUCCESS");
+                     $scope.messageSuccess = true;
+
                      $scope.load();
                      $timeout(function(){
                         $scope.message = null;
+                        $scope.messageSuccess = null;
                      }, 2000);
                      return;
 
                   }else{
                      if(success.data && success.data.error && success.data.error.message){
                         $scope.message = success.data.error.message;
+                        $scope.messageWarning = true;
                      }
                      else {
                         $scope.message = success.data;
+                        $scope.messageWarning = true;
                      }
                      $timeout(function(){
                         $scope.view.message = null;
+                        $scope.messageWarning = null;
                      }, 5000);
                   }
                });
@@ -365,18 +378,20 @@ arc.directive("usersGroups", function () {
                var url = "/Users('"+ user + "')/Groups?$id=Groups('" + group + "')";
                $http.delete(encodeURIComponent($scope.instance) + url).then(function(success,error){
                   if(success.status == 401){
-                     $scope.message = "User Does not Exist";
+                     $scope.message = $translate.instant("FUNCTIONREMOVEUSERFROMGROUPERROR");
                      $timeout(function(){
                         $scope.message = null;
                      }, 5000);
                      return;
                   
                   }else if(success.status < 400){
-                     $scope.message = "User removed from Group";
+                     $scope.message = $translate.instant("FUNCTIONREMOVEUSERFROMGROUPSUCCESS");
+                     $scope.messageSuccess = true;
                      $scope.load();
    
                      $timeout(function(){
                         $scope.message = null;
+                        $scope.messageSuccess = null;
                      }, 5000);
    
                      return;
@@ -386,13 +401,16 @@ arc.directive("usersGroups", function () {
                      $log.log(success);
                      if(success.data && success.data.error && success.data.error.message){
                         $scope.message = success.data.error.message;
+                        $scope.messageWarning = true;
                      }
                      else {
                         $scope.message = success.data;
-                        
+                        $scope.messageSuccess = false;
+                        $scope.messageWarning = true;
                      }
                      $timeout(function(){
                         $scope.messageError = null;
+                        $scope.messageWarning = null;
                      }, 5000);
                   }
                });
@@ -410,9 +428,6 @@ arc.directive("usersGroups", function () {
             }
 
             $http.patch(encodeURIComponent($scope.instance)+url,data).then(function(success, error){
-               $log.log(success);
-               $log.log(error);
-
                if(success.status == 401){
                   $scope.reload = true;
                   $scope.message = null;
@@ -423,9 +438,11 @@ arc.directive("usersGroups", function () {
                   //success
                   $scope.load();
 
-                  $scope.message = "User added to Group";
+                  $scope.message = $translate.instant("FUNCTIONADDUSERTOGROUPSUCCESS");
+                  $scope.messageSuccess = true;
                   $timeout(function(){
                      $scope.message = null;
+                     $scope.messageSuccess = null;
                   },5000);
 
                   return;
@@ -433,15 +450,12 @@ arc.directive("usersGroups", function () {
                }else{
                   if(success.data && success.data.error && success.data.error.message){
                      $scope.message = success.data.error.message;
-
-                  }else{
-
-
+                     $scope.messageWarning = true;
                   }
                   $timeout(function(){
                      $scope.message = null;
+                     $scope.messageWarning = null;
                   },5000);
-
                   
                }
 
@@ -655,11 +669,6 @@ arc.directive("usersGroups", function () {
                }
          });
 
-
-         $scope.$on("$destroy", function(event){
-               // Cancel the timeout and any other resources
-               clearTimeout($scope.loadTimeout);
-         });
         
 
         }]
