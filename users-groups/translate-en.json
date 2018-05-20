@@ -44,6 +44,8 @@
    "GROUPSSHOWLESS":"Display Less Groups",
    "GROUPSSHOWMORE":"Display Additional Groups",
    "GROUPSSTEPINCREMENT":"Number of Groups to Increment",
+   "GROUPEXCLUDE":"Group is Excluded",
+   "GROUPINCLUDE":"Group is Included",
    "USERGROUPS":"Users",
    "MANAGEUAG":"Manage User and Group Accounts",
    "NAMEGROUP":"Name",

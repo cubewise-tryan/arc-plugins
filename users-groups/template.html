@@ -28,12 +28,17 @@
                   <div class="input-group">
                      <input type="text" ng-model="selections.filterGroup" placeholder="{{'SEARCHGROUP' | translate}}" class="form-control" style="display:inline;" />
                      <span class="input-group-append">
+                        <button class="btn btn-success" ng-if="includedInGroup" title="{{'GROUPINCLUDE' | translate}}" ng-click="toggleIncludedInGroup()">
+                           <i class="fa fa-plus" ></i>
+                        </button>
+                        <button class="btn btn-danger" ng-if="!includedInGroup" title="{{'GROUPEXCLUDE' | translate}}" ng-click="toggleIncludedInGroup()">
+                           <i class="fa fa-minus" ></i>
+                        </button>
                         <button ng-disabled="!selections.filterGroup.length" class="btn btn-secondary" title="{{'CLEARUAG' | translate}}" ng-click="selections.filterGroup = ''">
                            <i class="fa fa-fw fa-remove"></i>
                         </button>
                      </span>
                   </div>
-
                </div>
                <div class="col-4">
                      <div class="toolbar">
@@ -90,7 +95,7 @@
                                                >
                                     </td>
                                     <td  style="width:500px;">
-                                       <div ng-repeat="group in user.Groups | limitTo:user.groupsDisplay | orderBy:'Name' " >
+                                       <div ng-repeat="group in user.Groups | limitTo:user.groupsDisplay | orderBy:'Name'" >
                                           <div style="float:left;">
                                              <div class="badge ml-1" ng-style="generateHSLColour(group.Name)" style="cursor:default;">
                                                 {{group.Name}}
@@ -99,7 +104,7 @@
                                              </div>
                                           </div>
                                        </div>
-                                       <div style="float:left;" class="tm1-showMoreGroups" ng-if="displayMoreGroupButton($index)">
+                                       <div style="float:left;" class="tm1-showMoreGroups" ng-if="user.groupsRemaining">
                                           <a class="badge badge-secondary badge-sm ml-1" style="color:#fff;" title="{{'GROUPSSHOWMORE' | translate}}" ng-click="showMoreGroups($index)">
                                              {{user.groupsRemaining}} more
                                              <i class="fa fa-arrow-right" ></i>
