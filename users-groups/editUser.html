@@ -45,10 +45,9 @@
                                  <uib-tabset >
                                  <!-- active="selectedTab" -->
                                     <uib-tab index="0" heading="{{'EDITUSERSECURITYTABAPPLICATIONS' | translate}}"></uib-tab>
-                                    <uib-tab index="1" heading="{{'EDITUSERSECURITYTABCUBES' | translate}}"></uib-tab>
-                                    <uib-tab index="2" heading="{{'EDITUSERSECURITYTABDIMENSIONS' | translate}}"></uib-tab>
-                                    <uib-tab index="3" heading="{{'EDITUSERSECURITYTABPROCESSES' | translate}}"></uib-tab>
-                                    <uib-tab index="4" heading="{{'EDITUSERSECURITYTABCHORES' | translate}}"></uib-tab>
+                                    <uib-tab index="1" heading="{{'EDITUSERSECURITYTABCUBESANDDIMENSIONS' | translate}}"></uib-tab>
+                                    <uib-tab index="2" heading="{{'EDITUSERSECURITYTABPROCESSES' | translate}}"></uib-tab>
+                                    <uib-tab index="3" heading="{{'EDITUSERSECURITYTABCHORES' | translate}}"></uib-tab>
                                  </uib-tabset>
                               </div>
                            </div>
@@ -64,15 +63,15 @@
    <div class="modal-footer">
       <div class="row">
          <div class="col-sm-12">
-            <button class="btn btn-warning" ng-if="view.message">
-               <span class="fa fa-warning" aria-hidden="true"></span><span>{{view.message}}</span>
+            <button ng-class="{'btn btn-success' : view.messageSuccess, 'btn btn-warning' : view.messageWarning}" ng-if="view.message">
+               <span ng-class="{'fa fa-check' : view.messageSuccess,'fa fa-warning' : view.messageWarning}" aria-hidden="true"></span><span>{{view.message}}</span>
             </button>
          </div>
       </div>
       <div class="row">
          <div class="col-sm-12">
             <button class="btn action ng-scope" ng-click="closeThisDialog()" translate="CANCEL"></button>
-            <button class="btn btn-success action ng-scope" ng-click="updateUser(view.name, view.password) &amp;&amp; closeThisDialog()" translate="SAVEUAG"></button>
+            <button class="btn btn-success action ng-scope" ng-click="updateUser(view.name, view.alias, view.password) &amp;&amp; closeThisDialog()" translate="SAVEUAG"></button>
          </div>
       </div>
    </div>

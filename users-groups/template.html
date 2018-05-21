@@ -27,11 +27,11 @@
                <div class="col-4">
                   <div class="input-group">
                      <span class="input-group-prepend">
-                        <button class="btn btn-success" ng-if="includedInGroup" title="{{'GROUPINCLUDE' | translate}}" ng-click="toggleIncludedInGroup()">
+                        <button ng-disabled="!selections.filterGroup.length" class="btn btn-secondary inactive" ng-if="includedInGroup" title="{{'GROUPINCLUDE' | translate}}" ng-click="toggleIncludedInGroup()">
                            <i class="fa fa-plus" ></i>
                         </button>
-                        <button class="btn btn-danger" ng-if="!includedInGroup" title="{{'GROUPEXCLUDE' | translate}}" ng-click="toggleIncludedInGroup()">
-                           <i class="fa fa-minus" ></i>
+                        <button ng-disabled="!selections.filterGroup.length" class="btn btn-secondary inactive" ng-if="!includedInGroup" title="{{'GROUPEXCLUDE' | translate}}" ng-click="toggleIncludedInGroup()">
+                           <i class="fa fa-ban" ></i>
                         </button>
                      </span>
                      <input type="text" ng-model="selections.filterGroup" placeholder="{{'SEARCHGROUP' | translate}}" class="form-control" style="display:inline;" />
@@ -86,7 +86,7 @@
                                        </div>
                                     </td>
                                     <td>
-                                       <input type="text" class="form-control form-control-sm" ng-model="usersWithGroups[$index].FriendlyName" style="width:100%;">
+                                       <input type="text" class="form-control form-control-sm" ng-model="usersWithGroups[$index].displayName" ng-blur="updateUserDisplayName(usersWithGroups[$index].Name, usersWithGroups[$index].displayName)" style="width:100%;">
                                     </td>
                                     <td>
                                        <input type="text" class="form-control form-control-sm"

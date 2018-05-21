@@ -25,8 +25,6 @@ arc.directive("usersGroups", function () {
       },
       controller: ["$scope", "$rootScope", "$http", "$timeout", "$tm1", "$dialogs", "$helper", "$log", "ngDialog", "$translate", function ($scope, $rootScope, $http, $timeout, $tm1, $dialogs, $helper, $log, ngDialog, $translate ) {
 
-      //   $translate.instant("THREADS")
-
          $scope.selections = {
             filterUser: "",
             filterGroup: "",
@@ -49,14 +47,61 @@ arc.directive("usersGroups", function () {
                
                }else if(success.status < 400){
                   $scope.usersWithGroups = success.data.value;
-                  //add properties to object to control number of display groups
-                  for(var i = 0; i < $scope.usersWithGroups.length; i++){
-                     $scope.usersWithGroups[i].groupsMax = $scope.usersWithGroups[i].Groups.length;
-                     $scope.usersWithGroups[i].groupsDisplay = $rootScope.uiPrefs.groupsDisplayNumber;
-                     $scope.usersWithGroups[i].groupsRemaining = $scope.usersWithGroups[i].groupsMax - $rootScope.uiPrefs.groupsDisplayNumber;
-                     if($scope.usersWithGroups[i].groupsRemaining < 0){$scope.usersWithGroups[i].groupsRemaining = 0};
+
+                  //retrieve user display name
+                  var displayAllMDXDetailURL = "/ExecuteMDX?$expand=Axes($expand=Hierarchies($select=Name;$expand=Dimension($select=Name)),Tuples($expand=Members($select=Name,UniqueName,Ordinal,Attributes;$expand=Parent($select=Name);$expand=Element($select=Name,Type,Level)))),Cells($select=Value,Updateable,Consolidated,RuleDerived,HasPicklist,FormatString,FormattedValue)";
+                  var userDisplayNameMDX = {
+                     "MDX": "SELECT NON EMPTY {[}ElementAttributes_}Clients].[}TM1_DefaultDisplayValue]} ON COLUMNS, NON EMPTY {TM1SUBSETALL([}Clients])}ON ROWS FROM [}ElementAttributes_}Clients]"
                   }
-                  $log.log($scope.usersWithGroups);
+                  $http.post(encodeURIComponent($scope.instance) + displayAllMDXDetailURL, userDisplayNameMDX).then(function(success, error){
+                     if(success.status == 401){
+                        // Set reload to true to refresh after the user logs in
+                        $scope.reload = true;
+                        return;
+
+                     }else if(success.status < 400){
+                        var options = {
+                           alias: {},
+                           suppressZeroRows: 1,
+                           suppressZeroColumns: 1,
+                           maxRows: 50
+                        };
+                        $scope.cubeName = "}ElementAttributes_}Clients";
+
+                        $scope.result = $tm1.resultsetTransform($scope.instance, $scope.cubeName, success.data, options);
+   
+                        //add properties to object to control number of display groups and user display name
+                        for(var i = 0; i < $scope.usersWithGroups.length; i++){
+                           $scope.usersWithGroups[i].groupsMax = $scope.usersWithGroups[i].Groups.length;
+                           $scope.usersWithGroups[i].groupsDisplay = $rootScope.uiPrefs.groupsDisplayNumber;
+   
+                           $scope.usersWithGroups[i].groupsRemaining = $scope.usersWithGroups[i].groupsMax - $rootScope.uiPrefs.groupsDisplayNumber;
+                           if($scope.usersWithGroups[i].groupsRemaining < 0){$scope.usersWithGroups[i].groupsRemaining = 0};
+   
+                           if(typeof $scope.result.metadata["}Clients"][$scope.usersWithGroups[i].Name] !== "undefined"){
+                              $scope.usersWithGroups[i].displayName = $scope.result.metadata["}Clients"][$scope.usersWithGroups[i].Name].attributes["}TM1_DefaultDisplayValue"];
+                           }else{
+                              $scope.usersWithGroups[i].displayName = $scope.usersWithGroups[i].Name;
+                           }
+                           
+                        }
+                        $log.log($scope.usersWithGroups);
+
+                     }else{
+                        // Error to display on page
+                        if(success.data && success.data.error && success.data.error.message){
+                           $scope.message = success.data.error.message;
+                        }
+                        else {
+                           $scope.message = success.data;
+                        }
+                        $timeout(function(){
+                           $scope.message = null;
+                        }, 5000);
+                     }
+
+
+                  });
 
                }else{
                   // Error to display on page
@@ -122,11 +167,53 @@ arc.directive("usersGroups", function () {
                }
             });
 
-
-
          };
          // Load for first time: usersWithGroups, Groups
          $scope.load();
+
+
+         $scope.updateUserDisplayName = function(userName, newDisplayName){
+            var url = "/Cubes('}ElementAttributes_}Clients')/tm1.Update";
+            var data = {
+               "Cells" : [
+                  {"Tuple@odata.bind": [
+                     "Dimensions('}Clients')/DefaultHierarchy/Elements('" + userName +"')",
+                     "Dimensions('}ElementAttributes_}Clients')/DefaultHierarchy/Elements('}TM1_DefaultDisplayValue')"
+                     ]
+                  }
+               ],
+               "Value" : newDisplayName
+            } 
+
+            $http.post(encodeURIComponent($scope.instance) + url, data).then(function(success, error){
+               if(success.status == 401){
+                  // Set reload to true to refresh after the user logs in
+                  $scope.reload = true;
+                  return;
+               
+               }else if(success.status < 400){
+                  //success
+                  return;
+
+               }else{
+                  // Error to display on page
+                  if(success.data && success.data.error && success.data.error.message){
+                     $scope.message = success.data.error.message;
+                  }
+                  else {
+                     $scope.message = success.data;
+                  }
+                  $scope.messageWarning = true;
+
+                  $timeout(function(){
+                     $scope.message = null;
+                     $scope.messageWarning = null;
+                  }, 5000);
+
+               }
+
+            })
+         }
 
 
          $scope.editUser = function(rowIndex){
@@ -138,15 +225,10 @@ arc.directive("usersGroups", function () {
  
                   $scope.view = {
                      name : $scope.ngDialogData.usersWithGroups[rowIndex].Name,
-                     alias : $scope.ngDialogData.usersWithGroups[rowIndex].FriendlyName,
+                     alias : $scope.ngDialogData.usersWithGroups[rowIndex].displayName,
                      active: $scope.ngDialogData.usersWithGroups[rowIndex].IsActive,
                      password: "",
                      message:""
-                  }
-
-
-                  $scope.updateAliasName = function(userName, aliasName){
-                     //work in progress
                   }
 
 
@@ -162,8 +244,8 @@ arc.directive("usersGroups", function () {
 
                         }else if(success.status < 400){
                            //success
-                           // $scope.view.message = "Settings Updated";
-                           $scope.view.message = "Settings Updated";
+                           $scope.view.message = $translate.instant("FUNCTIONEDITUSERSUCCESS");
+                           $scope.view.messageSuccess = true;
 
                         }else{
                            if(success.data && success.data.error && success.data.error.message){
@@ -171,22 +253,26 @@ arc.directive("usersGroups", function () {
                            }else{
                               $scope.view.message = success.data;
                            }
+                           $scope.view.messageWarning = true;
                         }
-                        $timeout(function(){
-                           $scope.view.message = null;
-                           $scope.closeThisDialog();
-                        },5000);
 
                      });
 
                   }
 
 
-                  $scope.updateUser = function(userName, password){
+                  $scope.updateUser = function(userName, aliasName, password){
                      if(password){
                         $scope.updatePassword(userName, password);
                      }
-
+                     if(aliasName){
+                        $scope.updateUserDisplayName(userName, aliasName);
+                        $scope.ngDialogData.usersWithGroups[rowIndex].displayName = aliasName;
+                     }
+                     $timeout(function(){
+                        $scope.view.message = null;
+                        $scope.closeThisDialog();
+                     }, 1000);
                   }
               
                }],
@@ -372,7 +458,7 @@ arc.directive("usersGroups", function () {
 
          $scope.removeUserFromGroup = function(user, group){
             var prompt = "Remove user " + user + " from group " + group + "?";
-            $dialogs.confirm(prompt, removeUserFromSelectedGroup);
+            $dialogs.confirmDelete(prompt, removeUserFromSelectedGroup);
 
             function removeUserFromSelectedGroup(){
                var url = "/Users('"+ user + "')/Groups?$id=Groups('" + group + "')";
