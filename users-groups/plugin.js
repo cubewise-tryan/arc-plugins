@@ -32,7 +32,7 @@ arc.directive("usersGroups", function () {
             filterGroup: "",
          };
 
-         $rootScope.uiPrefs.groupsDisplayNumber = 10;
+         $rootScope.uiPrefs.groupsDisplayNumber = 2;
          //for now make 2, as test model does not have enough groups. Later make default 20
 
 

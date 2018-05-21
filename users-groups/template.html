@@ -26,14 +26,16 @@
                </div>
                <div class="col-4">
                   <div class="input-group">
-                     <input type="text" ng-model="selections.filterGroup" placeholder="{{'SEARCHGROUP' | translate}}" class="form-control" style="display:inline;" />
-                     <span class="input-group-append">
+                     <span class="input-group-prepend">
                         <button class="btn btn-success" ng-if="includedInGroup" title="{{'GROUPINCLUDE' | translate}}" ng-click="toggleIncludedInGroup()">
                            <i class="fa fa-plus" ></i>
                         </button>
                         <button class="btn btn-danger" ng-if="!includedInGroup" title="{{'GROUPEXCLUDE' | translate}}" ng-click="toggleIncludedInGroup()">
                            <i class="fa fa-minus" ></i>
                         </button>
+                     </span>
+                     <input type="text" ng-model="selections.filterGroup" placeholder="{{'SEARCHGROUP' | translate}}" class="form-control" style="display:inline;" />
+                     <span class="input-group-append">
                         <button ng-disabled="!selections.filterGroup.length" class="btn btn-secondary" title="{{'CLEARUAG' | translate}}" ng-click="selections.filterGroup = ''">
                            <i class="fa fa-fw fa-remove"></i>
                         </button>
