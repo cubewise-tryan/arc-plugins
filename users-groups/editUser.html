@@ -42,8 +42,10 @@
                         <div class="col-sm-12">
                            <uib-tabset >
                            <!-- active="selectedTab" -->
-                              <uib-tab index="0" heading="{{'EDITUSERSECURITYTABAPPLICATIONS' | translate}}"></uib-tab>
-                              <uib-tab index="1" heading="{{'EDITUSERSECURITYTABCUBESANDDIMENSIONS' | translate}}" ng-click="getCubeSecurityPerUser()">
+                              <uib-tab index="0" heading="{{'EDITUSERSECURITYTABAPPLICATIONS' | translate}}">
+                                 <!-- work in progress -->
+                              </uib-tab>
+                              <uib-tab index="1" heading="{{'EDITUSERSECURITYTABCUBESANDDIMENSIONS' | translate}}" ng-click="getCubeSecurityPerUser(); getDimesionSecurityPerUser()">
                                  <div class="row">
                                     <div class="col-sm-12">
                                        <div class="card-body pt-2">
@@ -73,7 +75,7 @@
                                                             <!--style="display:block; " height:200px; overflow-y: auto; overflow-x: hidden; -->
                                                             <tr ng-repeat="cube in cubes track by $index">
                                                                <td>
-                                                                  <a href>{{cube.name}}</a>
+                                                                  <a href ng-click="getDimensionsPerCube(cube.name)">{{cube.name}}</a>
                                                                </td>
                                                                <td>
                                                                   <div ng-repeat = "group in cube.groupsWithAccess" class="badge ml-1" ng-style="generateHSLColour(group)" style="cursor: default;">
@@ -81,7 +83,6 @@
                                                                   </div>
                                                                </td>
                                                             </tr>
-
                                                          </tbody>
                                                       </table>
                                                    </div>
@@ -106,13 +107,20 @@
                                                       <table class="table table-hover table-sm">
                                                          <thead>
                                                             <th>Name</th>
-                                                            <th>Access</th>
                                                             <th>Groups</th>
                                                          </thead>
-                                                         <tbody>
-                                                            <td>A</td>
-                                                            <td>b</td>
-                                                            <td>C</td>
+                                                         <tbody >
+                                                            <!--style="display:block; " height:200px; overflow-y: auto; overflow-x: hidden; -->
+                                                            <tr ng-repeat="dimension in dimensions | filter:dimensionFilter track by $index">
+                                                               <td>
+                                                                  {{dimension.name}}
+                                                               </td>
+                                                               <td>
+                                                                  <div ng-repeat = "group in dimension.groupsWithAccess" class="badge ml-1" ng-style="generateHSLColour(group)" style="cursor: default;">
+                                                                     {{group}}
+                                                                  </div>
+                                                               </td>
+                                                            </tr>
                                                          </tbody>
                                                       </table>
                                                    </div>
@@ -123,8 +131,102 @@
                                     </div>
                                  </div>
                               </uib-tab>
-                              <uib-tab index="2" heading="{{'EDITUSERSECURITYTABPROCESSES' | translate}}"></uib-tab>
-                              <uib-tab index="3" heading="{{'EDITUSERSECURITYTABCHORES' | translate}}"></uib-tab>
+                              <uib-tab index="2" heading="{{'EDITUSERSECURITYTABPROCESSES' | translate}}" ng-click="getProcessSecurityPerUser()">
+                                 <div class="row">
+                                    <div class="col-sm-12">
+                                       <div class="card-body pt-2">
+                                          <div class="row">
+                                             <div class="col-sm-12">
+                                                <div class="card">
+                                                   <div class="card-header p-2">
+                                                      <div class="input-group">
+                                                         <span class="input-group-prepend">
+                                                            <label style="padding-right: 10px;" translate="EDITUSERSECURITYTABPROCESSES"></label>
+                                                         </span>
+                                                            <input type="text" class="form-control" ng-model="temp1" placeholder="{{'SEARCHUAG' | translate}}">
+                                                         <span class="input-group-append">
+                                                            <button ng-disabled="!options.availableFilter.length" class="btn btn-secondary" title="" ng-click="" disabled="disabled">
+                                                               <i class="fa fa-fw fa-remove"></i>
+                                                            </button>
+                                                         </span>
+                                                      </div>
+                                                   </div>
+                                                   <div class="card-body pt-2">
+                                                      <table class="table table-hover table-sm">
+                                                         <thead>
+                                                            <th>Name</th>
+                                                            <th>Groups</th>
+                                                         </thead>
+                                                         <tbody >
+                                                            <!--style="display:block; " height:200px; overflow-y: auto; overflow-x: hidden; -->
+                                                            <tr ng-repeat="process in processes track by $index">
+                                                               <td>
+                                                                  {{process.name}}
+                                                               </td>
+                                                               <td>
+                                                                  <div ng-repeat = "group in process.groupsWithAccess" class="badge ml-1" ng-style="generateHSLColour(group)" style="cursor: default;">
+                                                                     {{group}}
+                                                                  </div>
+                                                               </td>
+                                                            </tr>
+                                                         </tbody>
+                                                      </table>
+                                                   </div>
+                                                </div>
+                                             </div>
+                                          </div>
+                                       </div>
+                                    </div>
+                                 </div>
+                              </uib-tab>
+                              <uib-tab index="3" heading="{{'EDITUSERSECURITYTABCHORES' | translate}}" ng-click="getChoreSecurityPerUser()">
+                                 <div class="row">
+                                    <div class="col-sm-12">
+                                       <div class="card-body pt-2">
+                                          <div class="row">
+                                             <div class="col-sm-12">
+                                                <div class="card">
+                                                   <div class="card-header p-2">
+                                                      <div class="input-group">
+                                                         <span class="input-group-prepend">
+                                                            <label style="padding-right: 10px;" translate="EDITUSERSECURITYTABCHORES"></label>
+                                                         </span>
+                                                            <input type="text" class="form-control" ng-model="temp1" placeholder="{{'SEARCHUAG' | translate}}">
+                                                         <span class="input-group-append">
+                                                            <button ng-disabled="!options.availableFilter.length" class="btn btn-secondary" title="" ng-click="" disabled="disabled">
+                                                               <i class="fa fa-fw fa-remove"></i>
+                                                            </button>
+                                                         </span>
+                                                      </div>
+                                                   </div>
+                                                   <div class="card-body pt-2">
+                                                      <table class="table table-hover table-sm">
+                                                         <thead>
+                                                            <th>Name</th>
+                                                            <th>Groups</th>
+                                                         </thead>
+                                                         <tbody >
+                                                            <!--style="display:block; " height:200px; overflow-y: auto; overflow-x: hidden; -->
+                                                            <tr ng-repeat="chore in chores track by $index">
+                                                               <td>
+                                                                  {{chore.name}}
+                                                               </td>
+                                                               <td>
+                                                                  <div ng-repeat = "group in chore.groupsWithAccess" class="badge ml-1" ng-style="generateHSLColour(group)" style="cursor: default;">
+                                                                     {{group}}
+                                                                  </div>
+                                                               </td>
+                                                            </tr>
+                                                         </tbody>
+                                                      </table>
+                                                   </div>
+                                                </div>
+                                             </div>
+                                          </div>
+                                       </div>
+                                    </div>
+                                 </div>
+                              </uib-tab>
                            </uib-tabset>
                         </div>
                      </div>
