@@ -99,7 +99,7 @@
                                     <td  style="width:500px;">
                                        <div ng-repeat="group in user.Groups | limitTo:user.groupsDisplay | orderBy:'Name'" >
                                           <div style="float:left;">
-                                             <div class="badge ml-1" ng-style="generateHSLColour(group.Name)" style="cursor:default;">
+                                             <div class="badge ml-1" ng-style="generateHSLColour(group.Name)" style="cursor : default;">
                                                 {{group.Name}}
                                                 <a><i class="fa fa-search" ng-click="selections.filterGroup = group.Name" title="{{'SEARCHGROUP' | translate}}"></i></a>
                                                 <a><i class="fa fa-fw fa-remove" ng-click="removeUserFromGroup(user.Name,group.Name)" title="{{'REMOVEUSERFROMGROUP' | translate}}"></i></a>
