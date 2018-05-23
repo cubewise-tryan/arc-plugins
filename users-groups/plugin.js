@@ -26,8 +26,12 @@ arc.directive("usersGroups", function () {
       controller: ["$scope", "$rootScope", "$http", "$timeout", "$tm1", "$dialogs", "$helper", "$log", "ngDialog", "$translate", function ($scope, $rootScope, $http, $timeout, $tm1, $dialogs, $helper, $log, ngDialog, $translate ) {
 
          $scope.selections = {
-            filterUser: "",
-            filterGroup: "",
+            filterUser : "",
+            filterGroup : "",
+            filterCube : "",
+            filterDimension : "",
+            filterProcess : "",
+            filterChore : ""
          };
 
          $rootScope.uiPrefs.groupsDisplayNumber = 2;
@@ -336,6 +340,19 @@ arc.directive("usersGroups", function () {
                      })
                   }
 
+                  $scope.cubeFilter = function(cube, index){
+                     if(!$scope.selections.filterCube){
+                        return true;
+                     }else{
+                        if(cube.name.toLowerCase().indexOf($scope.selections.filterCube.toLowerCase())!==-1){
+                           return true;
+                        }else{
+                           return false;
+                        }
+                     }
+                  }
+
+
                   $scope.getDimesionSecurityPerUser = function(){
                      var groupsMDX = groupsArrayToGroupsMDX($scope.view.groups);
 
@@ -403,7 +420,9 @@ arc.directive("usersGroups", function () {
                         
                         }else if(success.status < 400){
                            $scope.dimensionsInCube = success.data.Dimensions;
-                           $log.log($scope.dimensionsInCube);
+
+                           //reset
+                           $scope.selections.filterDimension = "for " + cubeName;
                            
                         }else{
                            if(success.data && success.data.error && success.data.error.message){
@@ -419,6 +438,15 @@ arc.directive("usersGroups", function () {
                   }
 
                   $scope.dimensionFilter = function(dimension, index){
+
+                     if($scope.selections.filterDimension){
+                        if(dimension.name.toLowerCase().indexOf($scope.selections.filterDimension.toLowerCase())!==-1){
+                           return true;
+                        }else{
+                           return false;
+                        }
+                     }
+
                      if($scope.dimensionsInCube){
                         for(var i = 0; i < $scope.dimensionsInCube.length; i++){
                            if($scope.dimensionsInCube[i].Name.toLowerCase().indexOf(dimension.name.toLowerCase())!==-1){
@@ -427,10 +455,11 @@ arc.directive("usersGroups", function () {
                         }
                         return false;
 
-                     }else{
+                     }
+                     else{
                         return true;
                      }
-                     return true;
+
                   }
 
                   $scope.getProcessSecurityPerUser = function(){
@@ -489,6 +518,20 @@ arc.directive("usersGroups", function () {
 
                   }
 
+
+                  $scope.processFilter = function(process, index){
+                     if(!$scope.selections.filterProcess){
+                        return true;
+                     }else{
+                        if(process.name.toLowerCase().indexOf($scope.selections.filterProcess.toLowerCase())!==-1){
+                           return true;
+                        }else{
+                           return false;
+                        }
+                     }
+                  }
+
+
                   $scope.getChoreSecurityPerUser = function(){
                      var groupsMDX = groupsArrayToGroupsMDX($scope.view.groups);
 
@@ -545,6 +588,19 @@ arc.directive("usersGroups", function () {
 
                   }
 
+
+                  $scope.choreFilter = function(chore, index){
+                     if(!$scope.selections.filterChore){
+                        return true;
+                     }else{
+                        if(chore.name.toLowerCase().indexOf($scope.selections.filterChore.toLowerCase())!==-1){
+                           return true;
+                        }else{
+                           return false;
+                        }
+                     }
+                  }
+
                   var groupsArrayToGroupsMDX = function(userGroupsArray){
                      var groupsMDX = "";
                      if(userGroupsArray.length>0){
@@ -557,17 +613,6 @@ arc.directive("usersGroups", function () {
                   }
 
 
-                  $scope.getDimensionSecurityPerUser = function(){
-                     //WORK IN PROGRESS
-                     var url = "";
-                     var data = "";
-         
-                     $http.post(encodeURIComponent($scope.instance)+url, data).then(function(success, error){
-                        $log.log(success);
-                        $log.log(error);
-                     })
-                  }
-
                }],
                data: {
                   usersWithGroups : $scope.usersWithGroups,
@@ -577,9 +622,6 @@ arc.directive("usersGroups", function () {
             });
 
          }
-
-
-
 
 
 
@@ -970,8 +1012,6 @@ arc.directive("usersGroups", function () {
                var filterUser = $scope.selections.filterUser.toLowerCase();
                if(user.Name.toLowerCase().indexOf(filterUser) !== -1
                   || (user.FriendlyName && user.FriendlyName.toLowerCase().indexOf(filterUser) !== -1 )){
-
-                 
 
                   return true;
                }
