@@ -28,10 +28,13 @@ arc.directive("usersGroups", function () {
          $scope.selections = {
             filterUser : "",
             filterGroup : "",
+            filterApplication : "",
             filterCube : "",
             filterDimension : "",
             filterProcess : "",
-            filterChore : ""
+            filterChore : "",
+            filterGroupGroup : "",
+            filterGroupUser : ""
          };
 
          $rootScope.uiPrefs.groupsDisplayNumber = 2;
@@ -220,6 +223,68 @@ arc.directive("usersGroups", function () {
             })
          }
 
+         $scope.changePassword = function(userName){
+            var confirmMessage = $translate.instant("EDITPASSWORDCONFIRMMESSAGE") + userName + "?";
+            $dialogs.confirm(confirmMessage, changeUserPassword);
+
+            function changeUserPassword(){
+               ngDialog.open({
+                  template: "__/plugins/users-groups/changePassword.html",
+                  className: "ngdialog-theme-default small",
+                  scope: $scope,
+                  controller: ['$rootScope', '$scope', '$http', '$state', '$tm1','$log', function ($rootScope, $scope, $http, $state, $tm1, $log) {
+    
+                     $scope.view = {
+                        name : userName,
+                        password: "",
+                        message:""
+                     }
+   
+                     $scope.updatePassword = function(userName, password){
+                        var url = "/Users('" + userName + "')";
+                        var data = {
+                           "Password" : password
+                        };
+   
+                        $http.patch(encodeURIComponent($scope.ngDialogData.instance) + url, data).then(function(success, error){
+                           if(success.status == 401){
+                              return;
+   
+                           }else if(success.status < 400){
+                              $scope.view.message = $translate.instant("EDITUSERPASSWORDSUCCESS");
+                              $scope.view.messageSuccess = true;
+                              $timeout(function(){
+                                 $scope.view.message = null;
+                                 $scope.view.messageSuccess = null;
+                                 $scope.closeThisDialog();
+                              }, 1000);
+
+                           }else{
+                              if(success.data && success.data.error && success.data.error.message){
+                                 $scope.view.message = success.data.error.message;
+                              }else{
+                                 $scope.view.message = success.data;
+                              }
+                              $scope.view.messageWarning = true;
+                           }
+   
+                        });
+   
+                     }
+   
+                  }],
+                  data: {
+                     usersWithGroups : $scope.usersWithGroups,
+                     view : $scope.view,
+                     instance : $scope.instance,
+                  }
+               });
+            }
+
+
+         }
+
+
 
          $scope.editUser = function(rowIndex){
             ngDialog.open({
@@ -236,7 +301,6 @@ arc.directive("usersGroups", function () {
                      groups: $scope.ngDialogData.usersWithGroups[rowIndex].Groups,
                      message:""
                   }
-
 
 
                   $scope.updatePassword = function(userName, password){
@@ -282,6 +346,76 @@ arc.directive("usersGroups", function () {
                      }, 1000);
                   }
               
+
+                  $scope.getApplicationSecurityPerUser = function(){
+                     var groupsMDX = groupsArrayToGroupsMDX($scope.view.groups);
+
+                     var url = "/ExecuteMDX?$expand=Axes($expand=Hierarchies($select=Name;$expand=Dimension($select=Name)),Tuples($expand=Members($select=Name,UniqueName,Ordinal,Attributes;$expand=Parent($select=Name);$expand=Element($select=Name,Type,Level)))),Cells($select=Value,Updateable,Consolidated,RuleDerived,HasPicklist,FormatString,FormattedValue)";
+                     var mdx = "SELECT NON EMPTY" + groupsMDX + "ON COLUMNS, NON EMPTY {TM1SUBSETALL( [}ApplicationEntries] )} ON ROWS FROM [}ApplicationSecurity]"
+                     var data = { 
+                        "MDX" : mdx
+                      };
+                      
+                     $http.post(encodeURIComponent($scope.instance)+url, data).then(function(success, error){
+                        if(success.status == 401){
+                           // Set reload to true to refresh after the user logs in
+                           $scope.reload = true;
+                           return;
+                        
+                        }else if(success.status < 400){
+                           var options = {
+                              alias: {},
+                              suppressZeroRows: 1,
+                              suppressZeroColumns: 1,
+                              maxRows: 50
+                           };
+                           var cubeName = "}ApplicationSecurity";
+                           $scope.applicationSecurityResult = $tm1.resultsetTransform($scope.instance, cubeName, success.data, options);
+
+                           $scope.applications = [];
+                           for(var i = 0; i < $scope.applicationSecurityResult.rows.length; i++){
+                              var item = {
+                                 name : "",
+                                 groupsWithAccess : []
+                              }
+                              item.name = $scope.applicationSecurityResult.rows[i]["}ApplicationEntries"].name;
+
+                              for(var j = 0; j < $scope.applicationSecurityResult.rows[i].cells.length; j++){
+                                 if($scope.applicationSecurityResult.rows[i].cells[j].value){
+                                    item.groupsWithAccess.push($scope.applicationSecurityResult.rows[i].cells[j].key + ":" + $scope.applicationSecurityResult.rows[i].cells[j].value);
+                                 }
+                                 
+                              }
+                              $scope.applications.push(item);
+                           }
+
+                        }else{
+                           if(success.data && success.data.error && success.data.error.message){
+                              $scope.view.message = success.data.error.message;
+                           }else{
+                              $scope.view.message = success.data;
+                           }
+                           $scope.view.messageWarning = true;
+
+                        }
+
+                     })
+
+                  }
+
+
+                  $scope.applicationFilter = function(application, index){
+                     if(!$scope.selections.filterApplication){
+                        return true;
+                     }else{
+                        if(application.name.toLowerCase().indexOf($scope.selections.filterApplication.toLowerCase())!==-1){
+                           return true;
+                        }else{
+                           return false;
+                        }
+                     }
+                  }
+
 
                   $scope.getCubeSecurityPerUser = function(){
                      var groupsMDX = groupsArrayToGroupsMDX($scope.view.groups);
@@ -395,7 +529,7 @@ arc.directive("usersGroups", function () {
                               }
                               $scope.dimensions.push(item);
                            }
-                           $log.log($scope.dimensions);
+
                         }else{
                            if(success.data && success.data.error && success.data.error.message){
                               $scope.view.message = success.data.error.message;
@@ -438,7 +572,6 @@ arc.directive("usersGroups", function () {
                   }
 
                   $scope.dimensionFilter = function(dimension, index){
-
                      if($scope.selections.filterDimension){
                         if(dimension.name.toLowerCase().indexOf($scope.selections.filterDimension.toLowerCase())!==-1){
                            return true;
@@ -503,7 +636,6 @@ arc.directive("usersGroups", function () {
                               }
                               $scope.processes.push(item);
                            }
-                           $log.log($scope.processes);
                         }else{
                            if(success.data && success.data.error && success.data.error.message){
                               $scope.view.message = success.data.error.message;
@@ -573,7 +705,6 @@ arc.directive("usersGroups", function () {
                               }
                               $scope.chores.push(item);
                            }
-                           $log.log($scope.chores);
                         }else{
                            if(success.data && success.data.error && success.data.error.message){
                               $scope.view.message = success.data.error.message;

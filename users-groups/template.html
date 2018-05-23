@@ -76,6 +76,9 @@
                                        <a href="" class="text-danger pt-1"  ng-click="deleteUser(user.Name)" title="{{'DELETEUAG' | translate}}" >
                                           <i class="fa fa-close"></i>
                                        </a>
+                                       <a href="" class="text-primary pt-1"  ng-click="changePassword(user.Name)" title="{{'EDITPASSWORD' | translate}}" >
+                                          <i class="fa fa-key"></i>
+                                       </a>
                                        <a href="" class="text-primary pl-1 pt-1" ng-click="editUser($index)" title="{{'EDITUAG' | translate}}" >
                                           <i class="fa fa-edit"></i>
                                        </a>
@@ -128,9 +131,9 @@
             <div class="row" class="tm1-groupsTab-Tools">
                <div class="col-4">
                   <div class="input-group">
-                     <input type="text" ng-model="selections.filterGroup" placeholder="{{'SEARCHGROUP' | translate}}" class="form-control" style="display:inline;" />
+                     <input type="text" ng-model="selections.filterGroupGroup" placeholder="{{'SEARCHGROUP' | translate}}" class="form-control" style="display:inline;" />
                      <span class="input-group-append">
-                        <button ng-disabled="!selections.filterUser.length" class="btn btn-secondary" title="{{'CLEARUAG' | translate}}" ng-click="selections.filterUser = ''">
+                        <button ng-disabled="!selections.filterGroupGroup.length" class="btn btn-secondary" title="{{'CLEARUAG' | translate}}" ng-click="selections.filterGroupGroup = ''">
                            <i class="fa fa-fw fa-remove"></i>
                         </button>
                      </span>
@@ -138,9 +141,9 @@
                </div>
                <div class="col-4">
                   <div class="input-group">
-                     <input type="text" ng-model="selections.filterUser" placeholder="{{'SEARCHUSER' | translate}}" class="form-control" style="display:inline;" />
+                     <input type="text" ng-model="selections.filterGroupUser" placeholder="{{'SEARCHUSER' | translate}}" class="form-control" style="display:inline;" />
                      <span class="input-group-append">
-                        <button ng-disabled="!selections.filterGroup.length" class="btn btn-secondary" title="{{'CLEARUAG' | translate}}" ng-click="selections.filterGroup = ''">
+                        <button ng-disabled="!selections.filterGroupUser.length" class="btn btn-secondary" title="{{'CLEARUAG' | translate}}" ng-click="selections.filterGroupUser = ''">
                            <i class="fa fa-fw fa-remove"></i>
                         </button>
                      </span>
@@ -184,23 +187,16 @@
                                     <td style="width:500px;">
                                        <div ng-repeat="user in group.Users | orderBy:'Name' " >
                                           <div style="float:left;">
-                                             <a class="badge ml-1" title="{{'REMOVEUSERFROMGROUP' | translate}}" ng-style="generateHSLColour(user.Name)" ng-click="removeUserFromGroup(user.Name,group.Name)">
-                                                <i class="fa fa-fw fa-remove" ></i>
+                                             <div class="badge ml-1" title="{{'REMOVEUSERFROMGROUP' | translate}}" ng-style="generateHSLColour(user.Name)" ng-click="removeUserFromGroup(user.Name,group.Name)">
                                                 {{user.Name}}
-                                             </a>
+                                                <a><i class="fa fa-search" ng-click="selections.filterGroup = group.Name" title="{{'SEARCHGROUP' | translate}}"></i></a>
+                                                <a><i class="fa fa-fw fa-remove" ng-click="removeUserFromGroup(user.Name,group.Name)" title="{{'REMOVEUSERFROMGROUP' | translate}}"></i></a>
+                                             </div>
                                           </div>
                                        </div>
-                                       <div style="float:left;" class="tm1-showLessGroups" ng-if="displayLessGroupButton($index)">
-                                          <a class="badge badge-primary badge-sm ml-1" style="color:#fff;" title="{{'GROUPSSHOWLESS' | translate}}" ng-click="showLessGroups($index)">
-                                             <i class="fa fa-arrow-left" ></i>
-                                             Less
-                                          </a>
-                                       </div>
-
-                                       <div style="float:left;" class="tm1-showMoreGroups" ng-if="displayMoreGroupButton($index)">
-                                          <a class="badge badge-primary badge-sm ml-1" style="color:#fff;" title="{{'GROUPSSHOWMORE' | translate}}" ng-click="showMoreGroups($index)">
-                                             More (20)
-                                             <!-- {{usersWithGroups[userIndex].groupsRemaining}} -->
+                                       <div style="float:left;" class="tm1-showMoreGroups" ng-if="user.groupsRemaining">
+                                          <a class="badge badge-secondary badge-sm ml-1" style="color:#fff;" title="{{'GROUPSSHOWMORE' | translate}}" ng-click="showMoreGroups($index)">
+                                             {{user.groupsRemaining}} more
                                              <i class="fa fa-arrow-right" ></i>
                                           </a>
                                        </div>
