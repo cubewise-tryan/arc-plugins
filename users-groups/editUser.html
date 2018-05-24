@@ -46,8 +46,11 @@
                                                       {{application.name}}
                                                    </td>
                                                    <td style="width: 100%;">
-                                                      <div ng-repeat = "group in application.groupsWithAccess" class="badge ml-1" ng-style="generateHSLColour(group)" style="cursor: default;">
-                                                         {{group}}
+                                                      <div ng-repeat = "group in application.groupsWithAccess" class="badge ml-1" ng-style="generateHSLColour(group.name)" style="cursor: default;">
+                                                         {{group.name}}
+                                                         <div ng-class="securityAccessColourMapping(group.access)">
+                                                            {{group.access}}
+                                                         </div>
                                                       </div>
                                                    </td>
                                                 </tr>
@@ -93,10 +96,14 @@
                                                       <a href ng-click="getDimensionsPerCube(cube.name)" title="{{'EDITUSERFILTERDIMENSIONS' | translate}}">{{cube.name}}</a>
                                                    </td>
                                                    <td style="display:flex;">
-                                                      <div ng-repeat = "group in cube.groupsWithAccess" class="badge ml-1" ng-style="generateHSLColour(group)" style="cursor: default;">
-                                                         {{group}}
+                                                      <div ng-repeat = "group in cube.groupsWithAccess" class="badge ml-1" ng-style="generateHSLColour(group.name)" style="cursor: default;">
+                                                         {{group.name}}
+                                                         <div ng-class="securityAccessColourMapping(group.access)">
+                                                            {{group.access}}
+                                                         </div>
                                                       </div>
                                                    </td>
+
                                                 </tr>
                                              </tbody>
                                           </table>
@@ -130,8 +137,11 @@
                                                       {{dimension.name}}
                                                    </td>
                                                    <td style="display:flex;">
-                                                      <div ng-repeat = "group in dimension.groupsWithAccess" class="badge ml-1" ng-style="generateHSLColour(group)" style="cursor: default;">
-                                                         {{group}}
+                                                      <div ng-repeat = "group in dimension.groupsWithAccess" class="badge ml-1" ng-style="generateHSLColour(group.name)" style="cursor: default;">
+                                                         {{group.name}}
+                                                         <div ng-class="securityAccessColourMapping(group.access)">
+                                                            {{group.access}}
+                                                         </div>
                                                       </div>
                                                    </td>
                                                 </tr>
@@ -177,8 +187,11 @@
                                                       {{process.name}}
                                                    </td>
                                                    <td style="width: 100%;">
-                                                      <div ng-repeat = "group in process.groupsWithAccess" class="badge ml-1" ng-style="generateHSLColour(group)" style="cursor: default;">
-                                                         {{group}}
+                                                      <div ng-repeat = "group in process.groupsWithAccess" class="badge ml-1" ng-style="generateHSLColour(group.name)" style="cursor: default;">
+                                                         {{group.name}}
+                                                         <div ng-class="securityAccessColourMapping(group.access)">
+                                                            {{group.access}}
+                                                         </div>
                                                       </div>
                                                    </td>
                                                 </tr>
@@ -224,8 +237,11 @@
                                                       {{chore.name}}
                                                    </td>
                                                    <td style="width: 100%;">
-                                                      <div ng-repeat = "group in chore.groupsWithAccess" class="badge ml-1" ng-style="generateHSLColour(group)" style="cursor: default;">
-                                                         {{group}}
+                                                      <div ng-repeat = "group in chore.groupsWithAccess" class="badge ml-1" ng-style="generateHSLColour(group.name)" style="cursor: default;">
+                                                         {{group.name}}
+                                                         <div ng-class="securityAccessColourMapping(group.access)">
+                                                            {{group.access}}
+                                                         </div>
                                                       </div>
                                                    </td>
                                                 </tr>

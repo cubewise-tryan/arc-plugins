@@ -381,8 +381,14 @@ arc.directive("usersGroups", function () {
                               item.name = $scope.applicationSecurityResult.rows[i]["}ApplicationEntries"].name;
 
                               for(var j = 0; j < $scope.applicationSecurityResult.rows[i].cells.length; j++){
+                                 var group = {
+                                    name:"",
+                                    access:""
+                                 };
                                  if($scope.applicationSecurityResult.rows[i].cells[j].value){
-                                    item.groupsWithAccess.push($scope.applicationSecurityResult.rows[i].cells[j].key + ":" + $scope.applicationSecurityResult.rows[i].cells[j].value);
+                                    group.name = $scope.applicationSecurityResult.rows[i].cells[j].key;
+                                    group.access = $scope.applicationSecurityResult.rows[i].cells[j].value;
+                                    item.groupsWithAccess.push(group);
                                  }
                                  
                               }
@@ -452,8 +458,14 @@ arc.directive("usersGroups", function () {
                               item.name = $scope.cubeSecurityResult.rows[i]["}Cubes"].name;
 
                               for(var j = 0; j < $scope.cubeSecurityResult.rows[i].cells.length; j++){
+                                 var group = {
+                                    name:"",
+                                    access:""
+                                 };
                                  if($scope.cubeSecurityResult.rows[i].cells[j].value){
-                                    item.groupsWithAccess.push($scope.cubeSecurityResult.rows[i].cells[j].key + ":" + $scope.cubeSecurityResult.rows[i].cells[j].value);
+                                    group.name = $scope.cubeSecurityResult.rows[i].cells[j].key;
+                                    group.access = $scope.cubeSecurityResult.rows[i].cells[j].value;
+                                    item.groupsWithAccess.push(group);
                                  }
                                  
                               }
@@ -522,8 +534,14 @@ arc.directive("usersGroups", function () {
                               item.name = $scope.dimensionSecurityResult.rows[i]["}Dimensions"].name;
 
                               for(var j = 0; j < $scope.dimensionSecurityResult.rows[i].cells.length; j++){
+                                 var group = {
+                                    name:"",
+                                    access:""
+                                 };
                                  if($scope.dimensionSecurityResult.rows[i].cells[j].value){
-                                    item.groupsWithAccess.push($scope.dimensionSecurityResult.rows[i].cells[j].key + ":" + $scope.dimensionSecurityResult.rows[i].cells[j].value);
+                                    group.name = $scope.dimensionSecurityResult.rows[i].cells[j].key;
+                                    group.access = $scope.dimensionSecurityResult.rows[i].cells[j].value;
+                                    item.groupsWithAccess.push(group);
                                  }
                                  
                               }
@@ -629,8 +647,14 @@ arc.directive("usersGroups", function () {
                               item.name = $scope.processSecurityResult.rows[i]["}Processes"].name;
 
                               for(var j = 0; j < $scope.processSecurityResult.rows[i].cells.length; j++){
+                                 var group = {
+                                    name:"",
+                                    access:""
+                                 };
                                  if($scope.processSecurityResult.rows[i].cells[j].value){
-                                    item.groupsWithAccess.push($scope.processSecurityResult.rows[i].cells[j].key + ":" + $scope.processSecurityResult.rows[i].cells[j].value);
+                                    group.name = $scope.processSecurityResult.rows[i].cells[j].key;
+                                    group.access = $scope.processSecurityResult.rows[i].cells[j].value;
+                                    item.groupsWithAccess.push(group);
                                  }
                                  
                               }
@@ -698,8 +722,14 @@ arc.directive("usersGroups", function () {
                               item.name = $scope.choreSecurityResult.rows[i]["}Chores"].name;
 
                               for(var j = 0; j < $scope.choreSecurityResult.rows[i].cells.length; j++){
+                                 var group = {
+                                    name:"",
+                                    access:""
+                                 };
                                  if($scope.choreSecurityResult.rows[i].cells[j].value){
-                                    item.groupsWithAccess.push($scope.choreSecurityResult.rows[i].cells[j].key + ":" + $scope.choreSecurityResult.rows[i].cells[j].value);
+                                    group.name = $scope.choreSecurityResult.rows[i].cells[j].key;
+                                    group.access = $scope.choreSecurityResult.rows[i].cells[j].value;
+                                    item.groupsWithAccess.push(group);
                                  }
                                  
                               }
@@ -793,6 +823,24 @@ arc.directive("usersGroups", function () {
 
             return styleObject;
          };
+
+
+         $scope.securityAccessColourMapping = function (string){
+            var accessColour = "";
+
+            if(string === "ADMIN"){
+               accessColour = "badge badge-danger"
+            }else if(string === "WRITE"){
+               accessColour = "badge badge-warning"
+            }else if(string === "READ"){
+               accessColour = "badge badge-info"
+            }else{
+               accessColour = "badge badge-light"
+            }
+
+            return accessColour;
+
+         }
 
 
          $scope.updateGroupsArray = function(newGroup, previousGroups){
