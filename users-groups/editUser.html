@@ -36,17 +36,16 @@
                                        </div>
                                        <div class="card-body pt-2">
                                           <table class="table table-hover table-sm">
-                                             <thead>
-                                                <th translate="EDITUSERNAME"></th>
-                                                <th translate="EDITUSERGROUPS"></th>
+                                             <thead style="display: block;">
+                                                <th style="min-width: 400px;" translate="EDITUSERNAME"></th>
+                                                <th style="width: 100%;" translate="EDITUSERGROUPS"></th>
                                              </thead>
-                                             <tbody >
-                                                <!--style="display:block; " height:200px; overflow-y: auto; overflow-x: hidden; -->
+                                             <tbody style="display: block; height:400px; overflow-y:auto; width:100%; overflow-x: auto;">
                                                 <tr ng-repeat="application in applications | filter:applicationFilter track by application.name">
-                                                   <td>
+                                                   <td style="min-width: 400px;">
                                                       {{application.name}}
                                                    </td>
-                                                   <td>
+                                                   <td style="width: 100%;">
                                                       <div ng-repeat = "group in application.groupsWithAccess" class="badge ml-1" ng-style="generateHSLColour(group)" style="cursor: default;">
                                                          {{group}}
                                                       </div>
@@ -84,17 +83,16 @@
                                        </div>
                                        <div class="card-body pt-2">
                                           <table class="table table-hover table-sm">
-                                             <thead>
-                                                <th translate="EDITUSERNAME"></th>
-                                                <th translate="EDITUSERGROUPS"></th>
+                                             <thead style="display: block;">
+                                                <th style="min-width: 244px;" translate="EDITUSERNAME"></th>
+                                                <th style="width: 481px;" translate="EDITUSERGROUPS"></th>
                                              </thead>
-                                             <tbody >
-                                                <!--style="display:block; " height:200px; overflow-y: auto; overflow-x: hidden; -->
+                                             <tbody style="display: block; height:400px; overflow-y:auto; width:481px; overflow-x: auto;">
                                                 <tr ng-repeat="cube in cubes | filter:cubeFilter track by cube.name">
                                                    <td>
                                                       <a href ng-click="getDimensionsPerCube(cube.name)" title="{{'EDITUSERFILTERDIMENSIONS' | translate}}">{{cube.name}}</a>
                                                    </td>
-                                                   <td>
+                                                   <td style="display:flex;">
                                                       <div ng-repeat = "group in cube.groupsWithAccess" class="badge ml-1" ng-style="generateHSLColour(group)" style="cursor: default;">
                                                          {{group}}
                                                       </div>
@@ -122,17 +120,16 @@
                                        </div>
                                        <div class="card-body pt-2">
                                           <table class="table table-hover table-sm">
-                                             <thead>
-                                                <th translate="EDITUSERNAME"></th>
-                                                <th translate="EDITUSERGROUPS"></th>
+                                             <thead style="display: block;">
+                                                <th style="min-width: 244px;" translate="EDITUSERNAME"></th>
+                                                <th style="width: 481px;" translate="EDITUSERGROUPS"></th>
                                              </thead>
-                                             <tbody >
-                                                <!--style="display:block; " height:200px; overflow-y: auto; overflow-x: hidden; -->
+                                             <tbody style="display: block; height:400px; overflow-y:auto; width:481px; overflow-x: auto;">
                                                 <tr ng-repeat="dimension in dimensions | filter:dimensionFilter track by dimension.name">
                                                    <td>
                                                       {{dimension.name}}
                                                    </td>
-                                                   <td>
+                                                   <td style="display:flex;">
                                                       <div ng-repeat = "group in dimension.groupsWithAccess" class="badge ml-1" ng-style="generateHSLColour(group)" style="cursor: default;">
                                                          {{group}}
                                                       </div>
@@ -170,17 +167,16 @@
                                        </div>
                                        <div class="card-body pt-2">
                                           <table class="table table-hover table-sm">
-                                             <thead>
-                                                <th translate="EDITUSERNAME"></th>
-                                                <th translate="EDITUSERGROUPS"></th>
+                                             <thead style="display: block;">
+                                                <th style="min-width: 400px;" translate="EDITUSERNAME"></th>
+                                                <th style="width:100%;" translate="EDITUSERGROUPS"></th>
                                              </thead>
-                                             <tbody >
-                                                <!--style="display:block; " height:200px; overflow-y: auto; overflow-x: hidden; -->
+                                             <tbody style="display: block; height:400px; overflow-y: auto; width: 100%; overflow-x: auto;">
                                                 <tr ng-repeat="process in processes | filter:processFilter track by process.name">
-                                                   <td>
+                                                   <td style="min-width: 400px;">
                                                       {{process.name}}
                                                    </td>
-                                                   <td>
+                                                   <td style="width: 100%;">
                                                       <div ng-repeat = "group in process.groupsWithAccess" class="badge ml-1" ng-style="generateHSLColour(group)" style="cursor: default;">
                                                          {{group}}
                                                       </div>
@@ -218,17 +214,16 @@
                                        </div>
                                        <div class="card-body pt-2">
                                           <table class="table table-hover table-sm">
-                                             <thead>
-                                                <th translate="EDITUSERNAME"></th>
-                                                <th translate="EDITUSERGROUPS"></th>
+                                             <thead style="display: block;">
+                                                <th style="min-width: 400px;" translate="EDITUSERNAME"></th>
+                                                <th style="width: 100%;" translate="EDITUSERGROUPS"></th>
                                              </thead>
-                                             <tbody >
-                                                <!--style="display:block; " height:200px; overflow-y: auto; overflow-x: hidden; -->
+                                             <tbody style = "display: block; height: 400px; overflow-y: auto; width: 100%; overflow-x: auto;">
                                                 <tr ng-repeat="chore in chores | filter: choreFilter track by chore.name">
-                                                   <td>
+                                                   <td style="min-width: 400px;">
                                                       {{chore.name}}
                                                    </td>
-                                                   <td>
+                                                   <td style="width: 100%;">
                                                       <div ng-repeat = "group in chore.groupsWithAccess" class="badge ml-1" ng-style="generateHSLColour(group)" style="cursor: default;">
                                                          {{group}}
                                                       </div>
