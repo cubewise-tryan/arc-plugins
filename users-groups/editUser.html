@@ -94,10 +94,10 @@
                                                 <tr ng-repeat="cube in cubes | filter:cubeFilter track by $index">
                                                    <td>
                                                       <a href ng-click="getDimensionsPerCube(cube.name);"
-                                                         ng-class="{'text-success' : cube.name == cubeSelected}"
+                                                         ng-class="{'text-success font-weight-bold' : cube.name == cubeSelected}"
                                                          title="{{'EDITUSERFILTERDIMENSIONS' | translate}}">{{cube.name}}</a>
                                                    </td>
-                                                   <td style="display:flex;">
+                                                   <td style="display:flex; width: 481px">
                                                       <div ng-repeat = "group in cube.groupsWithAccess" class="badge ml-1" ng-style="generateHSLColour(group.name)" style="cursor: default;">
                                                          {{group.name}}
                                                          <div ng-class="securityAccessColourMapping(group.access)">
@@ -138,7 +138,7 @@
                                                    <td>
                                                       {{dimension.name}}
                                                    </td>
-                                                   <td style="display:flex;">
+                                                   <td style="display:flex; width: 481px;">
                                                       <div ng-repeat = "group in dimension.groupsWithAccess" class="badge ml-1" ng-style="generateHSLColour(group.name)" style="cursor: default;">
                                                          {{group.name}}
                                                          <div ng-class="securityAccessColourMapping(group.access)">

@@ -793,7 +793,6 @@ arc.directive("usersGroups", function () {
          }
 
 
-
          $scope.includedInGroup = true;
          $scope.toggleIncludedInGroup = function(){
             $scope.includedInGroup = !$scope.includedInGroup;
