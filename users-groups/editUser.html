@@ -91,9 +91,11 @@
                                                 <th style="width: 481px;" translate="EDITUSERGROUPS"></th>
                                              </thead>
                                              <tbody style="display: block; height:400px; overflow-y:auto; width:481px; overflow-x: auto;">
-                                                <tr ng-repeat="cube in cubes | filter:cubeFilter track by cube.name">
+                                                <tr ng-repeat="cube in cubes | filter:cubeFilter track by $index">
                                                    <td>
-                                                      <a href ng-click="getDimensionsPerCube(cube.name)" title="{{'EDITUSERFILTERDIMENSIONS' | translate}}">{{cube.name}}</a>
+                                                      <a href ng-click="getDimensionsPerCube(cube.name);"
+                                                         ng-class="{'text-success' : cube.name == cubeSelected}"
+                                                         title="{{'EDITUSERFILTERDIMENSIONS' | translate}}">{{cube.name}}</a>
                                                    </td>
                                                    <td style="display:flex;">
                                                       <div ng-repeat = "group in cube.groupsWithAccess" class="badge ml-1" ng-style="generateHSLColour(group.name)" style="cursor: default;">

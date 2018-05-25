@@ -562,6 +562,7 @@ arc.directive("usersGroups", function () {
                   }
 
 
+                  $scope.cubeSelected = "";
                   $scope.getDimensionsPerCube = function(cubeName){
                      var url = "/Cubes('" + cubeName + "')?$expand=Dimensions($select=Name)";
                      $http.get(encodeURIComponent($scope.instance) + url).then(function(success, error){
@@ -572,10 +573,14 @@ arc.directive("usersGroups", function () {
                         
                         }else if(success.status < 400){
                            $scope.dimensionsInCube = success.data.Dimensions;
-
-                           //reset
-                           $scope.selections.filterDimension = "for " + cubeName;
                            
+                           //trigger selected cube colour/filter change
+                           if($scope.cubeSelected === cubeName){
+                              $scope.cubeSelected = "";
+                           }else{
+                              $scope.cubeSelected = cubeName;
+                           }
+
                         }else{
                            if(success.data && success.data.error && success.data.error.message){
                               $scope.view.message = success.data.error.message;
@@ -589,26 +594,29 @@ arc.directive("usersGroups", function () {
                      });
                   }
 
+
                   $scope.dimensionFilter = function(dimension, index){
-                     if($scope.selections.filterDimension){
+                     if($scope.cubeSelected.length || ($scope.cubeSelected.length && !$scope.selections.filterDimension.length)){
+                        // 
+                        if($scope.dimensionsInCube){
+                           for(var i = 0; i < $scope.dimensionsInCube.length; i++){
+                              if($scope.dimensionsInCube[i].Name.toLowerCase().indexOf(dimension.name.toLowerCase())!==-1){
+                                 return true;
+                              }
+                           }
+                           return false;
+   
+                        }
+                        else{
+                           return true;
+                        }
+
+                     }else{
                         if(dimension.name.toLowerCase().indexOf($scope.selections.filterDimension.toLowerCase())!==-1){
                            return true;
                         }else{
                            return false;
                         }
-                     }
-
-                     if($scope.dimensionsInCube){
-                        for(var i = 0; i < $scope.dimensionsInCube.length; i++){
-                           if($scope.dimensionsInCube[i].Name.toLowerCase().indexOf(dimension.name.toLowerCase())!==-1){
-                              return true;
-                           }
-                        }
-                        return false;
-
-                     }
-                     else{
-                        return true;
                      }
 
                   }
