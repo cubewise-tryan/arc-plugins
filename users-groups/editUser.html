@@ -69,7 +69,7 @@
                         <div class="col-sm-12">
                            <div class="card-body pt-2">
                               <div class="row">
-                                 <div class="col-sm-6">
+                                 <div class="col-sm-12">
                                     <div class="card">
                                        <div class="card-header p-2">
                                           <div class="input-group">
@@ -87,17 +87,17 @@
                                        <div class="card-body pt-2">
                                           <table class="table table-hover table-sm">
                                              <thead style="display: block;">
-                                                <th style="min-width: 244px;" translate="EDITUSERNAME"></th>
-                                                <th style="width: 481px;" translate="EDITUSERGROUPS"></th>
+                                                <th style="min-width: 400px;" translate="EDITUSERNAME"></th>
+                                                <th style="width: 100%;" translate="EDITUSERGROUPS"></th>
                                              </thead>
-                                             <tbody style="display: block; height:400px; overflow-y:auto; width:481px; overflow-x: auto;">
+                                             <tbody style="display: block; height:120px; overflow-y:auto; width:100%; overflow-x: auto;">
                                                 <tr ng-repeat="cube in cubes | filter:cubeFilter track by $index">
-                                                   <td>
+                                                   <td style="min-width: 400px;" ng-class="{'bg-secondary' : cube.name == cubeSelected}">
                                                       <a href ng-click="getDimensionsPerCube(cube.name);"
-                                                         ng-class="{'text-success font-weight-bold' : cube.name == cubeSelected}"
+                                                         ng-class="{'text-light font-weight-bold' : cube.name == cubeSelected}"
                                                          title="{{'EDITUSERFILTERDIMENSIONS' | translate}}">{{cube.name}}</a>
                                                    </td>
-                                                   <td style="display:flex; width: 481px">
+                                                   <td style="width: 100%" ng-class="{'bg-secondary' : cube.name == cubeSelected}">
                                                       <div ng-repeat = "group in cube.groupsWithAccess" class="badge ml-1" ng-style="generateHSLColour(group.name)" style="cursor: default;">
                                                          {{group.name}}
                                                          <div ng-class="securityAccessColourMapping(group.access)">
@@ -105,14 +105,15 @@
                                                          </div>
                                                       </div>
                                                    </td>
-
                                                 </tr>
                                              </tbody>
                                           </table>
                                        </div>
                                     </div>
                                  </div>
-                                 <div class="col-sm-6">
+                              </div>
+                              <div class="row pt-3">
+                                 <div class="col-sm-12">
                                     <div class="card">
                                        <div class="card-header p-2">
                                           <div class="input-group">
@@ -130,15 +131,15 @@
                                        <div class="card-body pt-2">
                                           <table class="table table-hover table-sm">
                                              <thead style="display: block;">
-                                                <th style="min-width: 244px;" translate="EDITUSERNAME"></th>
-                                                <th style="width: 481px;" translate="EDITUSERGROUPS"></th>
+                                                <th style="min-width: 400px;" translate="EDITUSERNAME"></th>
+                                                <th style="width: 100%;" translate="EDITUSERGROUPS"></th>
                                              </thead>
-                                             <tbody style="display: block; height:400px; overflow-y:auto; width:481px; overflow-x: auto;">
+                                             <tbody style="display: block; height:200px; overflow-y:auto; width:100%; overflow-x: auto;">
                                                 <tr ng-repeat="dimension in dimensions | filter:dimensionFilter track by dimension.name">
-                                                   <td>
+                                                   <td style="min-width: 400px;">
                                                       {{dimension.name}}
                                                    </td>
-                                                   <td style="display:flex; width: 481px;">
+                                                   <td style="width: 100%;">
                                                       <div ng-repeat = "group in dimension.groupsWithAccess" class="badge ml-1" ng-style="generateHSLColour(group.name)" style="cursor: default;">
                                                          {{group.name}}
                                                          <div ng-class="securityAccessColourMapping(group.access)">

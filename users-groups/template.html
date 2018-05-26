@@ -62,13 +62,13 @@
                         <div class="card-body">
                            <table class="table table-hover table-sm">
                               <thead>
-                              <tr>
-                                 <th style="width:2px;"></th>
-                                 <th class="pl-0" style="width: 40px;" translate="NAMEUSER"></th>
-                                 <th style="width: 40px;" translate="ALIASUSER"></th>
-                                 <th style="width: 40px;" translate="ADDGROUP"></th>
-                                 <th translate="GROUPSUSER" ></th>
-                              </tr>
+                                 <tr>
+                                    <th style="width:2px;"></th>
+                                    <th class="pl-0" style="width: 40px;" translate="NAMEUSER"></th>
+                                    <th style="width: 40px;" translate="ALIASUSER"></th>
+                                    <th style="width: 40px;" translate="ADDGROUP"></th>
+                                    <th translate="GROUPSUSER" ></th>
+                                 </tr>
                               </thead>
                               <tbody>
                                  <tr ng-repeat="user in usersWithGroups | filter:listFilter track by $index">
@@ -141,6 +141,14 @@
                </div>
                <div class="col-4">
                   <div class="input-group">
+                     <span class="input-group-prepend">
+                        <button ng-disabled="!selections.filterGroupUser.length" class="btn btn-secondary inactive" ng-if="includedInGroup" title="{{'GROUPINCLUDE' | translate}}" ng-click="toggleIncludedInGroup()">
+                           <i class="fa fa-plus" ></i>
+                        </button>
+                        <button ng-disabled="!selections.filterGroupUser.length" class="btn btn-secondary inactive" ng-if="!includedInGroup" title="{{'GROUPEXCLUDE' | translate}}" ng-click="toggleIncludedInGroup()">
+                           <i class="fa fa-ban" ></i>
+                        </button>
+                     </span>
                      <input type="text" ng-model="selections.filterGroupUser" placeholder="{{'SEARCHUSER' | translate}}" class="form-control" style="display:inline;" />
                      <span class="input-group-append">
                         <button ng-disabled="!selections.filterGroupUser.length" class="btn btn-secondary" title="{{'CLEARUAG' | translate}}" ng-click="selections.filterGroupUser = ''">
@@ -170,19 +178,28 @@
                         <div class="card-body">
                            <table class="table table-hover table-sm">
                               <thead>
-                              <tr>
-                                 <th style="width: 40px;" translate="NAMEGROUP"></th>
-                                 <th style="width: 40px;" translate="USERGROUPS" ></th>
-                                 <th ></th>
-                              </tr>
+                                 <tr>
+                                    <th style="width:2px;"></th>
+                                    <th class="pl-0" style="width: 40px;" translate="NAMEGROUP"></th>
+                                    <th style="width: 40px;" translate="USERGROUPS" ></th>
+                                 </tr>
                               </thead>
                               <tbody>
                                  <tr ng-repeat="group in groupsWithUsers | filter:listFilter track by $index">
-                                    <td class="align-top" style="width: 40px;" title="{{'EDITGROUPHEADING' | translate}}" >
-                                       <button class="btn btn-sm btn-link btn-block text-left" title="{{'EDITUSERHEADING' | translate}}" ng-click="editGroup($index)">
-                                          <i class="fa fa-edit" ></i>
+                                    <td class="align-top pr-0 pt-2" style="width: 2px;">
+                                       <a href="" class="text-danger pt-1"  title="{{'DELETEUAG' | translate}}" >
+                                             <!-- ng-click="deleteGroup(group.Name)" -->
+                                          <i class="fa fa-close"></i>
+                                       </a>
+                                       <a href="" class="text-primary pl-1 pt-1"  title="{{'EDITUAG' | translate}}" >
+                                             <!-- ng-click="editGroup($index)" -->
+                                          <i class="fa fa-edit"></i>
+                                       </a>
+                                    </td>
+                                    <td class="align-top pl-0;" style="width: 40px;" >
+                                       <div ng-class="{'text-success font-weight-bold':user.IsActive}" class="form-control form-control-sm pl-0" style="cursor:default; border-color: white;">
                                           {{group.Name}}
-                                       </button>
+                                       </div>
                                     </td>
                                     <td style="width:500px;">
                                        <div ng-repeat="user in group.Users | orderBy:'Name' " >

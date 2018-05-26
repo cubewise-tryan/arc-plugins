@@ -813,13 +813,14 @@ arc.directive("usersGroups", function () {
          $scope.generateHSLColour = function (string) {
             //HSL refers to hue, saturation, lightness
             var styleObject = {
-               "background-color":""
+               "background-color":"",
+               "color":"white"
             };
             //for ngStyle format
 
             var hash = 0;
-            var saturation = "30";
-            var lightness = "80";
+            var saturation = "50";
+            var lightness = "50";
 
             for (var i = 0; i < string.length; i++) {
                hash = string.charCodeAt(i) + ((hash << 5) - hash);
