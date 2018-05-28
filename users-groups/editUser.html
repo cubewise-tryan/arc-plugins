@@ -46,7 +46,8 @@
                                                       {{application.name}}
                                                    </td>
                                                    <td style="width: 100%;">
-                                                      <div ng-repeat = "group in application.groupsWithAccess" class="badge ml-1" ng-style="generateHSLColour(group.name)" style="cursor: default;">
+                                                      <div ng-repeat = "group in application.groupsWithAccess" class="badge ml-1"  style="cursor: default;">
+                                                            <!-- ng-style="generateHSLColour(group.name)" -->
                                                          {{group.name}}
                                                          <div ng-class="securityAccessColourMapping(group.access)">
                                                             {{group.access}}
@@ -98,7 +99,8 @@
                                                          title="{{'EDITUSERFILTERDIMENSIONS' | translate}}">{{cube.name}}</a>
                                                    </td>
                                                    <td style="width: 100%" ng-class="{'bg-secondary' : cube.name == cubeSelected}">
-                                                      <div ng-repeat = "group in cube.groupsWithAccess" class="badge ml-1" ng-style="generateHSLColour(group.name)" style="cursor: default;">
+                                                      <div ng-repeat = "group in cube.groupsWithAccess" class="badge ml-1" style="cursor: default;">
+                                                            <!-- ng-style="generateHSLColour(group.name)" -->
                                                          {{group.name}}
                                                          <div ng-class="securityAccessColourMapping(group.access)">
                                                             {{group.access}}
@@ -140,7 +142,8 @@
                                                       {{dimension.name}}
                                                    </td>
                                                    <td style="width: 100%;">
-                                                      <div ng-repeat = "group in dimension.groupsWithAccess" class="badge ml-1" ng-style="generateHSLColour(group.name)" style="cursor: default;">
+                                                      <div ng-repeat = "group in dimension.groupsWithAccess" class="badge ml-1"  style="cursor: default;">
+                                                            <!-- ng-style="generateHSLColour(group.name)" -->
                                                          {{group.name}}
                                                          <div ng-class="securityAccessColourMapping(group.access)">
                                                             {{group.access}}
@@ -190,7 +193,8 @@
                                                       {{process.name}}
                                                    </td>
                                                    <td style="width: 100%;">
-                                                      <div ng-repeat = "group in process.groupsWithAccess" class="badge ml-1" ng-style="generateHSLColour(group.name)" style="cursor: default;">
+                                                      <div ng-repeat = "group in process.groupsWithAccess" class="badge ml-1"  style="cursor: default;">
+                                                            <!-- ng-style="generateHSLColour(group.name)" -->
                                                          {{group.name}}
                                                          <div ng-class="securityAccessColourMapping(group.access)">
                                                             {{group.access}}
@@ -240,7 +244,8 @@
                                                       {{chore.name}}
                                                    </td>
                                                    <td style="width: 100%;">
-                                                      <div ng-repeat = "group in chore.groupsWithAccess" class="badge ml-1" ng-style="generateHSLColour(group.name)" style="cursor: default;">
+                                                      <div ng-repeat = "group in chore.groupsWithAccess" class="badge ml-1"  style="cursor: default;">
+                                                            <!-- ng-style="generateHSLColour(group.name)" -->
                                                          {{group.name}}
                                                          <div ng-class="securityAccessColourMapping(group.access)">
                                                             {{group.access}}

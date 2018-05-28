@@ -284,7 +284,18 @@ arc.directive("usersGroups", function () {
 
          }
 
+         $scope.inputType = "password";
+         $scope.hidePassword = true;
+         $scope.hideShowPassword = function(){
+            if ($scope.inputType == "password"){
+               $scope.inputType = "text";
+               $scope.hidePassword = false;
+            }else{
+               $scope.inputType = "password";
+               $scope.hidePassword = true;
+            }
 
+         };
 
          $scope.editUser = function(rowIndex){
             ngDialog.open({

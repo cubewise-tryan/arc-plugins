@@ -11,7 +11,7 @@
    </div>
 
    <div class="tm1-usersGroups-Body">
-      <uib-tabset active="1">
+      <uib-tabset active="0">
          <uib-tab index="0" heading="{{'TABUSERS' | translate}}" class="tm1-usersTab">
             <div class="row" class="tm1-usersTab-Tools">
                <div class="col-4">
@@ -28,10 +28,10 @@
                   <div class="input-group">
                      <span class="input-group-prepend">
                         <button ng-disabled="!selections.filterGroup.length" class="btn btn-secondary inactive" ng-if="includedInGroup" title="{{'GROUPINCLUDE' | translate}}" ng-click="toggleIncludedInGroup()">
-                           <i class="fa fa-plus" ></i>
+                           AND
                         </button>
                         <button ng-disabled="!selections.filterGroup.length" class="btn btn-secondary inactive" ng-if="!includedInGroup" title="{{'GROUPEXCLUDE' | translate}}" ng-click="toggleIncludedInGroup()">
-                           <i class="fa fa-ban" ></i>
+                           NOT
                         </button>
                      </span>
                      <input type="text" ng-model="selections.filterGroup" placeholder="{{'SEARCHGROUP' | translate}}" class="form-control" style="display:inline;" />
@@ -143,10 +143,10 @@
                   <div class="input-group">
                      <span class="input-group-prepend">
                         <button ng-disabled="!selections.filterGroupUser.length" class="btn btn-secondary inactive" ng-if="includedInGroupGroup" title="{{'USERINCLUDE' | translate}}" ng-click="toggleIncludedInGroupGroup()">
-                           <i class="fa fa-plus" ></i>
+                           AND
                         </button>
                         <button ng-disabled="!selections.filterGroupUser.length" class="btn btn-secondary inactive" ng-if="!includedInGroupGroup" title="{{'USEREXCLUDE' | translate}}" ng-click="toggleIncludedInGroupGroup()">
-                           <i class="fa fa-ban" ></i>
+                           NOT
                         </button>
                      </span>
                      <input type="text" ng-model="selections.filterGroupUser" placeholder="{{'SEARCHUSER' | translate}}" class="form-control" style="display:inline;" />
@@ -162,7 +162,7 @@
                   <div class="toolbar">
                      <div class="btn-toolbar pull-right" style="margin-bottom: 10px;">
                         <div class="btn-group">
-                           <button class="btn btn-primary"  title="{{'ADDUSER' | translate}}" ng-click="addGroup()">
+                           <button class="btn btn-primary"  title="{{'ADDGROUP' | translate}}" ng-click="addGroup()">
                               <i class="fa fa-plus"></i>
                            </button>
                         </div>
@@ -190,10 +190,6 @@
                                        <a href="" class="text-danger pt-1" ng-click="deleteGroup(group.Name)" title="{{'DELETEUAG' | translate}}" >
                                           <i class="fa fa-close"></i>
                                        </a>
-                                       <a href="" class="text-primary pl-1 pt-1"  title="{{'EDITUAG' | translate}}" >
-                                             <!-- ng-click="editGroup($index)" -->
-                                          <i class="fa fa-edit"></i>
-                                       </a>
                                     </td>
                                     <td class="align-top pl-0;" style="width: 40px;" >
                                        <div ng-class="{'text-success font-weight-bold':user.IsActive}" class="form-control form-control-sm pl-0" style="cursor:default; border-color: white;">
@@ -205,8 +201,8 @@
                                           <div style="float:left;">
                                              <div class="badge ml-1" title="{{'REMOVEUSERFROMGROUP' | translate}}" ng-style="generateHSLColour(user.Name)" ng-click="removeUserFromGroup(user.Name,group.Name)">
                                                 {{user.Name}}
-                                                <a><i class="fa fa-search" ng-click="selections.filterGroup = group.Name" title="{{'SEARCHGROUP' | translate}}"></i></a>
-                                                <a><i class="fa fa-fw fa-remove" ng-click="removeUserFromGroup(user.Name,group.Name)" title="{{'REMOVEUSERFROMGROUP' | translate}}"></i></a>
+                                                <a><i class="fa fa-search" ng-click="selections.filterGroupUser = user.Name" title="{{'SEARCHGROUP' | translate}}"></i></a>
+                                                <a><i class="fa fa-fw fa-remove" ng-click="removeUserFromGroup(user.Name, group.Name)" title="{{'REMOVEUSERFROMGROUP' | translate}}"></i></a>
                                              </div>
                                           </div>
                                        </div>

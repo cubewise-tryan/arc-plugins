@@ -67,6 +67,8 @@
    "MANAGEUAG":"Manage User and Group Accounts",
    "NAMEGROUP":"Name",
    "NAMEUSER":"Name",
+   "PASSWORDHIDE":"Hide Password",
+   "PASSWORDSHOW":"Show Password",
    "REMOVEUSER":"Remove User",
    "REMOVEUSERFROMGROUP":"Remove User From Group",
    "SAVEUAG":"Save",
