@@ -19,6 +19,7 @@
    "EDITPASSWORDHEADING":"Change Password",
    "EDITPASSWORDCONFIRMMESSAGE":"Change password for ",
    "EDITUAG":"Edit",
+   "EDITUSERHEADING":"Edit User",
    "EDITGROUPHEADING":"Edit Group",
    "EDITGROUPTABMODELSECURITY":"Model Security",
    "EDITGROUPSECURITYTABAPPLICATIONS":"Applications",
@@ -52,6 +53,7 @@
    "FUNCTIONADDUSERERROR":"User Exists",
    "FUNCTIONADDUSERSUCCESS":"User added to Group",
    "FUNCTIONADDUSERTOGROUPSUCCESS":"User added to Group",
+   "FUNCTIONDELETEGROUPSUCCESS":"Group Removed",
    "FUNCTIONDELETEUSERSUCCESS":"User Removed",
    "FUNCTIONREMOVEUSERFROMGROUPERROR":"User Does not Exist",
    "FUNCTIONREMOVEUSERFROMGROUPSUCCESS":"User removed from Group",
@@ -77,5 +79,7 @@
    "SEARCHUSER":"Search User",
    "TABUSERS":"Users",
    "TABGROUPS":"Groups",
-   "TYPEGROUP":"Type group and Select to Add"
+   "TYPEGROUP":"Type group and Select to Add",
+   "USEREXCLUDE":"User is Excluded",
+   "USERINCLUDE":"User is Included"
 }

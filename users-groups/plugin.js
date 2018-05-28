@@ -798,6 +798,89 @@ arc.directive("usersGroups", function () {
             $scope.includedInGroup = !$scope.includedInGroup;
          }
 
+
+         $scope.listFilterUser = function(user) {
+            if((!$scope.selections.filterUser || !$scope.selections.filterUser.length)
+               && (!$scope.selections.filterGroup || !$scope.selections.filterGroup.length)
+               //user and group blank
+            ){
+               return true;
+            }else if($scope.selections.filterUser
+                     && (!$scope.selections.filterGroup || !$scope.selections.filterGroup.length)){
+               //user input, group is blank
+               var filterUser = $scope.selections.filterUser.toLowerCase();
+               if(user.Name.toLowerCase().indexOf(filterUser) !== -1
+                  || (user.FriendlyName && user.FriendlyName.toLowerCase().indexOf(filterUser) !== -1 )){
+
+                  return true;
+               }
+
+            }else if((!$scope.selections.filterUser || !$scope.selections.filterUser.length)
+                     && $scope.selections.filterGroup){
+               //user is blank, group has input
+               var filterGroup = $scope.selections.filterGroup.toLowerCase();
+
+               if(user.Groups){
+                  if($scope.includedInGroup){
+                     for(var i = 0; i < user.Groups.length; i++){
+                        if(user.Groups[i].Name && user.Groups[i].Name.toLowerCase().indexOf(filterGroup)!== -1){
+                           return true;
+                        }
+                     }
+                  }else{
+                     var containsFilterGroup = false;
+                     for(var i = 0; i < user.Groups.length; i++){
+                        if(user.Groups[i].Name && user.Groups[i].Name.toLowerCase().indexOf(filterGroup) == -1){
+                           containsFilterGroup = true;
+                        }else{
+                           return false;
+                        }
+                     }
+                     return containsFilterGroup;
+
+                  }
+               }
+               
+
+            }else{
+               //both have input
+               var filterUser = $scope.selections.filterUser.toLowerCase();
+               if(user.Name.toLowerCase().indexOf(filterUser) !== -1
+                  || (user.FriendlyName && user.FriendlyName.toLowerCase().indexOf(filterUser) !== -1 )){
+                     var filterGroup = $scope.selections.filterGroup.toLowerCase();
+
+                     if(user.Groups){
+                        if($scope.includedInGroup){
+                           for(var i = 0; i < user.Groups.length; i++){
+                              if(user.Groups[i].Name && user.Groups[i].Name.toLowerCase().indexOf( filterGroup)!== -1){
+                                 return true;
+                              }
+                           }
+                        }else{
+                           var containsFilterGroup = false;
+                           for(var i = 0; i < user.Groups.length; i++){
+                              if(user.Groups[i].Name && user.Groups[i].Name.toLowerCase().indexOf(filterGroup) == -1){
+                                 containsFilterGroup = true;
+                              }else{
+                                 return false;
+                              }
+                           }
+                           return containsFilterGroup;
+
+
+                        }
+
+                     }
+                     
+
+               }
+
+            }
+
+            return false;
+         };
+
+
          $scope.showMoreGroups = function(userIndex){
             var step = $rootScope.uiPrefs.groupsDisplayNumber;
             $scope.usersWithGroups[userIndex].groupsDisplay = $scope.usersWithGroups[userIndex].groupsDisplay + step;
@@ -808,6 +891,94 @@ arc.directive("usersGroups", function () {
 
             return true;
          }
+
+
+         $scope.includedInGroupGroup = true;
+         $scope.toggleIncludedInGroupGroup = function(){
+            $scope.includedInGroupGroup = !$scope.includedInGroupGroup;
+         }
+
+
+         $scope.listFilterGroup = function(group) {
+            if((!$scope.selections.filterGroupGroup || !$scope.selections.filterGroupGroup.length)
+               && (!$scope.selections.filterGroupUser || !$scope.selections.filterGroupUser.length)
+               //group and user blank
+            ){
+               return true;
+            }else if($scope.selections.filterGroupGroup
+                     && (!$scope.selections.filterGroupUser || !$scope.selections.filterGroupUser.length)){
+               //group input, user is blank
+               var filterGroupGroup = $scope.selections.filterGroupGroup.toLowerCase();
+               if(group.Name.toLowerCase().indexOf(filterGroupGroup) !== -1
+                  || (group.FriendlyName && group.FriendlyName.toLowerCase().indexOf(filterGroupGroup) !== -1 )){
+
+                  return true;
+               }
+
+            }else if((!$scope.selections.filterGroupGroup || !$scope.selections.filterGroupGroup.length)
+                     && $scope.selections.filterGroupUser){
+               //group is blank, user has input
+               var filterGroupUser = $scope.selections.filterGroupUser.toLowerCase();
+
+               if(group.Users){
+                  if($scope.includedInGroupGroup){
+                     for(var i = 0; i < group.Users.length; i++){
+                        if(group.Users[i].Name && group.Users[i].Name.toLowerCase().indexOf(filterGroupUser)!== -1){
+                           return true;
+                        }
+                     }
+                  }else{
+                     var containsFilterUser = false;
+                     for(var i = 0; i < group.Users.length; i++){
+                        if(group.Users[i].Name && group.Users[i].Name.toLowerCase().indexOf(filterGroupUser) == -1){
+                           containsFilterUser = true;
+                        }else{
+                           return false;
+                        }
+                     }
+                     return containsFilterUser;
+
+                  }
+               }
+               
+
+            }else{
+               //both have input
+               var filterGroupGroup = $scope.selections.filterGroupGroup.toLowerCase();
+               if(group.Name.toLowerCase().indexOf(filterGroupGroup) !== -1
+                  || (group.FriendlyName && group.FriendlyName.toLowerCase().indexOf(filterGroupGroup) !== -1 )){
+                     var filterGroupUser = $scope.selections.filterGroupUser.toLowerCase();
+
+                     if(group.Users){
+                        if($scope.includedInGroupGroup){
+                           for(var i = 0; i < group.Users.length; i++){
+                              if(group.Users[i].Name && group.Users[i].Name.toLowerCase().indexOf( filterGroupUser)!== -1){
+                                 return true;
+                              }
+                           }
+                        }else{
+                           var containsFilterUser = false;
+                           for(var i = 0; i < group.Users.length; i++){
+                              if(group.Users[i].Name && group.Users[i].Name.toLowerCase().indexOf(filterGroupUser) == -1){
+                                 containsFilterUser = true;
+                              }else{
+                                 return false;
+                              }
+                           }
+                           return containsFilterUser;
+
+
+                        }
+
+                     }
+                     
+
+               }
+
+            }
+
+            return false;
+         };
 
 
          $scope.generateHSLColour = function (string) {
@@ -1179,94 +1350,49 @@ arc.directive("usersGroups", function () {
          }
 
 
+         $scope.deleteGroup = function(group){
+            $dialogs.confirmDelete(group, deleteSelectedGroup);
+
+            function deleteSelectedGroup(){
+               var url = "/Groups('" + group + "')"
+               $http.delete(encodeURIComponent($scope.instance)+url).then(function(success,error){
+                  if(success.status==204){
+                     //success
+                     $scope.message = $translate.instant("FUNCTIONDELETEGROUPSUCCESS");
+                     $scope.messageSuccess = true;
+
+                     $scope.load();
+                     $timeout(function(){
+                        $scope.message = null;
+                        $scope.messageSuccess = null;
+                     }, 2000);
+                     return;
+
+                  }else{
+                     if(success.data && success.data.error && success.data.error.message){
+                        $scope.message = success.data.error.message;
+                        $scope.messageWarning = true;
+                     }
+                     else {
+                        $scope.message = success.data;
+                        $scope.messageWarning = true;
+                     }
+                     $timeout(function(){
+                        $scope.view.message = null;
+                        $scope.messageWarning = null;
+                     }, 5000);
+                  }
+               });
+            }
+         }
+
+
          $scope.$on("login-reload", function(event, args) {
                // Check that instance in args matches your $scope
                if(args.instance === $scope.instance && $scope.reload){
                   load();
                }
          });
-
-
-         $scope.listFilter = function(user) {
-            if((!$scope.selections.filterUser || !$scope.selections.filterUser.length)
-               && (!$scope.selections.filterGroup || !$scope.selections.filterGroup.length)
-               //user and group blank
-            ){
-               return true;
-            }else if($scope.selections.filterUser
-                     && (!$scope.selections.filterGroup || !$scope.selections.filterGroup.length)){
-               //user input, group is blank
-               var filterUser = $scope.selections.filterUser.toLowerCase();
-               if(user.Name.toLowerCase().indexOf(filterUser) !== -1
-                  || (user.FriendlyName && user.FriendlyName.toLowerCase().indexOf(filterUser) !== -1 )){
-
-                  return true;
-               }
-
-            }else if((!$scope.selections.filterUser || !$scope.selections.filterUser.length)
-                     && $scope.selections.filterGroup){
-               //user is blank, group has input
-               var filterGroup = $scope.selections.filterGroup.toLowerCase();
-
-               if(user.Groups){
-                  if($scope.includedInGroup){
-                     for(var i = 0; i < user.Groups.length; i++){
-                        if(user.Groups[i].Name && user.Groups[i].Name.toLowerCase().indexOf(filterGroup)!== -1){
-                           return true;
-                        }
-                     }
-                  }else{
-                     var containsFilterGroup = false;
-                     for(var i = 0; i < user.Groups.length; i++){
-                        if(user.Groups[i].Name && user.Groups[i].Name.toLowerCase().indexOf(filterGroup) == -1){
-                           containsFilterGroup = true;
-                        }else{
-                           return false;
-                        }
-                     }
-                     return containsFilterGroup;
-
-                  }
-               }
-               
-
-            }else{
-               //both have input
-               var filterUser = $scope.selections.filterUser.toLowerCase();
-               if(user.Name.toLowerCase().indexOf(filterUser) !== -1
-                  || (user.FriendlyName && user.FriendlyName.toLowerCase().indexOf(filterUser) !== -1 )){
-                     var filterGroup = $scope.selections.filterGroup.toLowerCase();
-
-                     if(user.Groups){
-                        if($scope.includedInGroup){
-                           for(var i = 0; i < user.Groups.length; i++){
-                              if(user.Groups[i].Name && user.Groups[i].Name.toLowerCase().indexOf( filterGroup)!== -1){
-                                 return true;
-                              }
-                           }
-                        }else{
-                           var containsFilterGroup = false;
-                           for(var i = 0; i < user.Groups.length; i++){
-                              if(user.Groups[i].Name && user.Groups[i].Name.toLowerCase().indexOf(filterGroup) == -1){
-                                 containsFilterGroup = true;
-                              }else{
-                                 return false;
-                              }
-                           }
-                           return containsFilterGroup;
-
-
-                        }
-
-                     }
-                     
-
-               }
-
-            }
-
-            return false;
-         };
 
 
          $scope.$on("close-tab", function(event, args) {

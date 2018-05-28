@@ -11,7 +11,7 @@
    </div>
 
    <div class="tm1-usersGroups-Body">
-      <uib-tabset active="selectedTab">
+      <uib-tabset active="1">
          <uib-tab index="0" heading="{{'TABUSERS' | translate}}" class="tm1-usersTab">
             <div class="row" class="tm1-usersTab-Tools">
                <div class="col-4">
@@ -71,7 +71,7 @@
                                  </tr>
                               </thead>
                               <tbody>
-                                 <tr ng-repeat="user in usersWithGroups | filter:listFilter track by $index">
+                                 <tr ng-repeat="user in usersWithGroups | filter:listFilterUser track by $index">
                                     <td class="align-top pr-0 pt-2">
                                        <a href="" class="text-danger pt-1"  ng-click="deleteUser(user.Name)" title="{{'DELETEUAG' | translate}}" >
                                           <i class="fa fa-close"></i>
@@ -142,10 +142,10 @@
                <div class="col-4">
                   <div class="input-group">
                      <span class="input-group-prepend">
-                        <button ng-disabled="!selections.filterGroupUser.length" class="btn btn-secondary inactive" ng-if="includedInGroup" title="{{'GROUPINCLUDE' | translate}}" ng-click="toggleIncludedInGroup()">
+                        <button ng-disabled="!selections.filterGroupUser.length" class="btn btn-secondary inactive" ng-if="includedInGroupGroup" title="{{'USERINCLUDE' | translate}}" ng-click="toggleIncludedInGroupGroup()">
                            <i class="fa fa-plus" ></i>
                         </button>
-                        <button ng-disabled="!selections.filterGroupUser.length" class="btn btn-secondary inactive" ng-if="!includedInGroup" title="{{'GROUPEXCLUDE' | translate}}" ng-click="toggleIncludedInGroup()">
+                        <button ng-disabled="!selections.filterGroupUser.length" class="btn btn-secondary inactive" ng-if="!includedInGroupGroup" title="{{'USEREXCLUDE' | translate}}" ng-click="toggleIncludedInGroupGroup()">
                            <i class="fa fa-ban" ></i>
                         </button>
                      </span>
@@ -185,10 +185,9 @@
                                  </tr>
                               </thead>
                               <tbody>
-                                 <tr ng-repeat="group in groupsWithUsers | filter:listFilter track by $index">
+                                 <tr ng-repeat="group in groupsWithUsers | filter:listFilterGroup track by $index">
                                     <td class="align-top pr-0 pt-2" style="width: 2px;">
-                                       <a href="" class="text-danger pt-1"  title="{{'DELETEUAG' | translate}}" >
-                                             <!-- ng-click="deleteGroup(group.Name)" -->
+                                       <a href="" class="text-danger pt-1" ng-click="deleteGroup(group.Name)" title="{{'DELETEUAG' | translate}}" >
                                           <i class="fa fa-close"></i>
                                        </a>
                                        <a href="" class="text-primary pl-1 pt-1"  title="{{'EDITUAG' | translate}}" >
