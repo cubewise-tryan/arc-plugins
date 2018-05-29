@@ -1,8 +1,8 @@
-<div class="tm1-editUser">
+<div class="tm1-auditUser">
    <div class="modal-header text-dark bg-white">
       <span>
          <i class="fa fa-pencil-square-o"></i>
-         <span translate="EDITUSERHEADING"></span>
+         <span translate="AUDITUSERHEADING"></span>
          : {{view.name}}
             
       </span>
@@ -14,7 +14,7 @@
          <div class="row mb-2">
             <div class="col-sm-12 pt-2">
                <uib-tabset active="0">
-                  <uib-tab index="0" heading="{{'EDITUSERSECURITYTABAPPLICATIONS' | translate}}" select="getApplicationSecurityPerUser()">
+                  <uib-tab index="0" heading="{{'AUDITUSERSECURITYTABAPPLICATIONS' | translate}}" select="getApplicationSecurityPerUser()">
                      <div class="row">
                         <div class="col-sm-12">
                            <div class="card-body pt-2">
@@ -24,7 +24,7 @@
                                        <div class="card-header p-2">
                                           <div class="input-group">
                                              <span class="input-group-prepend">
-                                                <label style="padding-right: 10px;" translate="EDITUSERSECURITYTABAPPLICATIONS"></label>
+                                                <label style="padding-right: 10px;" translate="AUDITUSERSECURITYTABAPPLICATIONS"></label>
                                              </span>
                                              <input type="text" class="form-control" ng-model="selections.filterApplication" placeholder="{{'SEARCHAPPLICATION' | translate}}">
                                              <span class="input-group-append">
@@ -37,8 +37,8 @@
                                        <div class="card-body pt-2">
                                           <table class="table table-hover table-sm">
                                              <thead style="display: block;">
-                                                <th style="min-width: 400px;" translate="EDITUSERNAME"></th>
-                                                <th style="width: 100%;" translate="EDITUSERGROUPS"></th>
+                                                <th style="min-width: 400px;" translate="AUDITUSERNAME"></th>
+                                                <th style="width: 100%;" translate="AUDITUSERGROUPS"></th>
                                              </thead>
                                              <tbody style="display: block; height:400px; overflow-y:auto; width:100%; overflow-x: auto;">
                                                 <tr ng-repeat="application in applications | filter:applicationFilter track by application.name">
@@ -65,7 +65,7 @@
                         </div>
                      </div>
                   </uib-tab>
-                  <uib-tab index="1" heading="{{'EDITUSERSECURITYTABCUBESANDDIMENSIONS' | translate}}" ng-click="getCubeSecurityPerUser(); getDimesionSecurityPerUser()">
+                  <uib-tab index="1" heading="{{'AUDITUSERSECURITYTABCUBESANDDIMENSIONS' | translate}}" ng-click="getCubeSecurityPerUser(); getDimesionSecurityPerUser()">
                      <div class="row">
                         <div class="col-sm-12">
                            <div class="card-body pt-2">
@@ -75,7 +75,7 @@
                                        <div class="card-header p-2">
                                           <div class="input-group">
                                              <span class="input-group-prepend">
-                                                <label style="padding-right: 10px;" translate="EDITUSERSECURITYTABCUBES"></label>
+                                                <label style="padding-right: 10px;" translate="AUDITUSERSECURITYTABCUBES"></label>
                                              </span>
                                              <input type="text" class="form-control" ng-model="selections.filterCube" placeholder="{{'SEARCHCUBE' | translate}}">
                                              <span class="input-group-append">
@@ -88,15 +88,15 @@
                                        <div class="card-body pt-2">
                                           <table class="table table-hover table-sm">
                                              <thead style="display: block;">
-                                                <th style="min-width: 400px;" translate="EDITUSERNAME"></th>
-                                                <th style="width: 100%;" translate="EDITUSERGROUPS"></th>
+                                                <th style="min-width: 400px;" translate="AUDITUSERNAME"></th>
+                                                <th style="width: 100%;" translate="AUDITUSERGROUPS"></th>
                                              </thead>
                                              <tbody style="display: block; height:120px; overflow-y:auto; width:100%; overflow-x: auto;">
                                                 <tr ng-repeat="cube in cubes | filter:cubeFilter track by $index">
                                                    <td style="min-width: 400px;" ng-class="{'bg-secondary' : cube.name == cubeSelected}">
                                                       <a href ng-click="getDimensionsPerCube(cube.name);"
                                                          ng-class="{'text-light font-weight-bold' : cube.name == cubeSelected}"
-                                                         title="{{'EDITUSERFILTERDIMENSIONS' | translate}}">{{cube.name}}</a>
+                                                         title="{{'AUDITUSERFILTERDIMENSIONS' | translate}}">{{cube.name}}</a>
                                                    </td>
                                                    <td style="width: 100%" ng-class="{'bg-secondary' : cube.name == cubeSelected}">
                                                       <div ng-repeat = "group in cube.groupsWithAccess" class="badge ml-1" style="cursor: default;">
@@ -120,7 +120,7 @@
                                        <div class="card-header p-2">
                                           <div class="input-group">
                                              <span class="input-group-prepend">
-                                                <label style="padding-right: 10px;" translate="EDITUSERSECURITYTABDIMENSIONS"></label>
+                                                <label style="padding-right: 10px;" translate="AUDITUSERSECURITYTABDIMENSIONS"></label>
                                              </span>
                                              <input type="text" class="form-control" ng-model="selections.filterDimension" placeholder="{{'SEARCHDIMENSION' | translate}}">
                                              <span class="input-group-append">
@@ -133,8 +133,8 @@
                                        <div class="card-body pt-2">
                                           <table class="table table-hover table-sm">
                                              <thead style="display: block;">
-                                                <th style="min-width: 400px;" translate="EDITUSERNAME"></th>
-                                                <th style="width: 100%;" translate="EDITUSERGROUPS"></th>
+                                                <th style="min-width: 400px;" translate="AUDITUSERNAME"></th>
+                                                <th style="width: 100%;" translate="AUDITUSERGROUPS"></th>
                                              </thead>
                                              <tbody style="display: block; height:200px; overflow-y:auto; width:100%; overflow-x: auto;">
                                                 <tr ng-repeat="dimension in dimensions | filter:dimensionFilter track by dimension.name">
@@ -161,7 +161,7 @@
                         </div>
                      </div>
                   </uib-tab>
-                  <uib-tab index="2" heading="{{'EDITUSERSECURITYTABPROCESSES' | translate}}" ng-click="getProcessSecurityPerUser()">
+                  <uib-tab index="2" heading="{{'AUDITUSERSECURITYTABPROCESSES' | translate}}" ng-click="getProcessSecurityPerUser()">
                      <div class="row">
                         <div class="col-sm-12">
                            <div class="card-body pt-2">
@@ -171,7 +171,7 @@
                                        <div class="card-header p-2">
                                           <div class="input-group">
                                              <span class="input-group-prepend">
-                                                <label style="padding-right: 10px;" translate="EDITUSERSECURITYTABPROCESSES"></label>
+                                                <label style="padding-right: 10px;" translate="AUDITUSERSECURITYTABPROCESSES"></label>
                                              </span>
                                              <input type="text" class="form-control" ng-model="selections.filterProcess" placeholder="{{'SEARCHPROCESS' | translate}}">
                                              <span class="input-group-append">
@@ -184,8 +184,8 @@
                                        <div class="card-body pt-2">
                                           <table class="table table-hover table-sm">
                                              <thead style="display: block;">
-                                                <th style="min-width: 400px;" translate="EDITUSERNAME"></th>
-                                                <th style="width:100%;" translate="EDITUSERGROUPS"></th>
+                                                <th style="min-width: 400px;" translate="AUDITUSERNAME"></th>
+                                                <th style="width:100%;" translate="AUDITUSERGROUPS"></th>
                                              </thead>
                                              <tbody style="display: block; height:400px; overflow-y: auto; width: 100%; overflow-x: auto;">
                                                 <tr ng-repeat="process in processes | filter:processFilter track by process.name">
@@ -212,7 +212,7 @@
                         </div>
                      </div>
                   </uib-tab>
-                  <uib-tab index="3" heading="{{'EDITUSERSECURITYTABCHORES' | translate}}" ng-click="getChoreSecurityPerUser()">
+                  <uib-tab index="3" heading="{{'AUDITUSERSECURITYTABCHORES' | translate}}" ng-click="getChoreSecurityPerUser()">
                      <div class="row">
                         <div class="col-sm-12">
                            <div class="card-body pt-2">
@@ -222,7 +222,7 @@
                                        <div class="card-header p-2">
                                           <div class="input-group">
                                              <span class="input-group-prepend">
-                                                <label style="padding-right: 10px;" translate="EDITUSERSECURITYTABCHORES"></label>
+                                                <label style="padding-right: 10px;" translate="AUDITUSERSECURITYTABCHORES"></label>
                                              </span>
                                              <input type="text" class="form-control" ng-model="selections.filterChore" placeholder="{{'SEARCHCHORE' | translate}}">
                                              <span class="input-group-append">
@@ -235,8 +235,8 @@
                                        <div class="card-body pt-2">
                                           <table class="table table-hover table-sm">
                                              <thead style="display: block;">
-                                                <th style="min-width: 400px;" translate="EDITUSERNAME"></th>
-                                                <th style="width: 100%;" translate="EDITUSERGROUPS"></th>
+                                                <th style="min-width: 400px;" translate="AUDITUSERNAME"></th>
+                                                <th style="width: 100%;" translate="AUDITUSERGROUPS"></th>
                                              </thead>
                                              <tbody style = "display: block; height: 400px; overflow-y: auto; width: 100%; overflow-x: auto;">
                                                 <tr ng-repeat="chore in chores | filter: choreFilter track by chore.name">
@@ -263,15 +263,6 @@
                         </div>
                      </div>
                   </uib-tab>
-                  <uib-tab index="4" heading="{{'EDITGROUPSECURITYTABCLIENTPROPERTIES' | translate}}" ng-click="">
-                     <!-- WORK IN PROGRESS -->
-                  </uib-tab>
-                  <uib-tab index="5" heading="{{'EDITGROUPSECURITYTABCLIENTSETTINGS' | translate}}" ng-click="">
-                     <!-- WORK IN PROGRESS -->
-                  </uib-tab>
-                  <uib-tab index="6" heading="{{'EDITGROUPSECURITYTABCAPABILITIES' | translate}}" ng-click="">
-                     <!-- WORK IN PROGRESS -->
-                  </uib-tab>
                </uib-tabset>
             </div>
          </div>
@@ -289,7 +280,6 @@
       <div class="row">
          <div class="col-sm-12">
             <button class="btn action ng-scope" ng-click="closeThisDialog()" translate="CANCEL"></button>
-            <button class="btn btn-success action ng-scope" ng-click="updateUser(view.name, view.alias, view.password) &amp;&amp; closeThisDialog()" translate="SAVEUAG"></button>
          </div>
       </div>
    </div>

@@ -43,15 +43,15 @@
                   </div>
                </div>
                <div class="col-4">
-                     <div class="toolbar">
-                        <div class="btn-toolbar pull-right" style="margin-bottom: 10px;">
-                           <div class="btn-group">
-                              <button class="btn btn-primary"  title="{{'ADDUSER' | translate}}" ng-click="addUser()">
-                                 <i class="fa fa-plus"></i>
-                              </button>
-                           </div>
+                  <div class="toolbar">
+                     <div class="btn-toolbar pull-right" style="margin-bottom: 10px;">
+                        <div class="btn-group">
+                           <button class="btn btn-primary"  title="{{'ADDUSER' | translate}}" ng-click="addUser()">
+                              <i class="fa fa-plus"></i>
+                           </button>
                         </div>
                      </div>
+                  </div>
                </div>
             </div>
 
@@ -79,8 +79,11 @@
                                        <a href="" class="text-primary pt-1"  ng-click="changePassword(user.Name)" title="{{'EDITPASSWORD' | translate}}" >
                                           <i class="fa fa-key"></i>
                                        </a>
-                                       <a href="" class="text-primary pl-1 pt-1" ng-click="editUser($index)" title="{{'EDITUAG' | translate}}" >
+                                       <a href="" class="text-primary pl-1 pt-1" ng-click="settingsUser($index)" title="{{'SETTINGSUAG' | translate}}" >
                                           <i class="fa fa-edit"></i>
+                                       </a>
+                                       <a href="" class="text-primary pl-1 pt-1" ng-click="auditUser($index)" title="{{'AUDITUAG' | translate}}" >
+                                          <i class=" 	fa fa-drivers-license-o"></i>
                                        </a>
                                     </td>
                                     <td class="align-top pl-0;" style="width: 40px;" >

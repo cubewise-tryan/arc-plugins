@@ -1,0 +1,105 @@
+<div class="tm1-auditUser">
+   <div class="modal-header text-dark bg-white">
+      <span>
+         <i class="fa fa-pencil-square-o"></i>
+         <span translate="SETTINGSUSERHEADING"></span>
+         : {{view.name}}
+            
+      </span>
+   </div>
+
+   <div class="modal-body p-0 m-0">
+      <div class="container-fluid">
+         <div class="row mb-2">
+            <div class="col-sm-12 pt-2">
+               <uib-tabset active="0">
+                  <uib-tab index="0" heading="{{'SETTINGSUSERTABCLIENTPROPERTIES' | translate}}" select="getClientPropertiesPerUser(view.name)">
+                     <div class="row">
+                        <div class="col-sm-12">
+                           <div class="card-body pt-2">
+                              <div class="row">
+                                 <div class="col-sm-12">
+                                    <div class="card">
+                                       <div class="card-body pt-2">
+                                          <table class="table table-hover table-sm">
+                                             <thead style="display: block;">
+                                                <th style="min-width: 400px;" translate="SETTINGSUSERNAME"></th>
+                                                <th style="width: 100%;" translate="SETTINGSUSERVALUE"></th>
+                                             </thead>
+                                             <tbody style="display: block; height:350px; overflow-y:auto; width:100%; overflow-x: auto;">
+                                                <tr ng-repeat="clientProperty in clientProperties track by clientProperty.name">
+                                                   <td style="min-width: 400px;">
+                                                      {{clientProperty.name}}
+                                                   </td>
+                                                   <td style="width: 100%;">
+                                                      <input type="text" class="form-control" ng-readonly="clientProperty.isReadOnly" ng-model="clientProperty.value" placeholder="{{clientProperty.value}}" ng-blur="updateClientProperty(view.name, clientProperty.name, clientProperty.value)">
+                                                   </td>
+                                                </tr>
+                                             </tbody>
+                                          </table>
+                                       </div>
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </uib-tab>
+                  <uib-tab index="1" heading="{{'SETTINGSUSERTABCLIENTSETTINGS' | translate}}" ng-click="getClientSettingsPerUser(view.name)">
+                     <div class="row">
+                        <div class="col-sm-12">
+                           <div class="card-body pt-2">
+                              <div class="row">
+                                 <div class="col-sm-12">
+                                    <div class="card">
+                                       <div class="card-body pt-2">
+                                          <table class="table table-hover table-sm">
+                                             <thead style="display: block;">
+                                                <th style="min-width: 400px;" translate="SETTINGSUSERNAME"></th>
+                                                <th style="width: 100%;" translate="SETTINGSUSERVALUE"></th>
+                                             </thead>
+                                             <tbody style="display: block; height:350px; overflow-y:auto; width:100%; overflow-x: auto;">
+                                                <tr ng-repeat="clientSetting in clientSettings track by clientSetting.name">
+                                                   <td style="min-width: 400px;">
+                                                      {{clientSetting.name}}
+                                                   </td>
+                                                   <td style="width: 100%;">
+                                                      <input type="text" class="form-control" ng-model="clientSetting.value" placeholder="{{clientSetting.value}}" ng-blur="updateClientSetting(view.name, clientSetting.name, clientSetting.value)">
+                                                   </td>
+                                                </tr>
+                                             </tbody>
+                                          </table>
+                                       </div>
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </uib-tab>
+                  <uib-tab index="2" heading="{{'SETTINGSUSERTABCAPABILITIES' | translate}}" ng-click="">
+                     <!-- WORK IN PROGRESS -->
+                  </uib-tab>
+               </uib-tabset>
+            </div>
+         </div>
+      </div>
+   </div>
+   
+   <div class="modal-footer">
+      <div class="row">
+         <div class="col-sm-12">
+            <button ng-class="{'btn btn-success' : view.messageSuccess, 'btn btn-warning' : view.messageWarning}" ng-if="view.message">
+               <span ng-class="{'fa fa-check' : view.messageSuccess,'fa fa-warning' : view.messageWarning}" aria-hidden="true"></span><span>{{view.message}}</span>
+            </button>
+         </div>
+      </div>
+      <div class="row">
+         <div class="col-sm-12">
+            <button class="btn action ng-scope" ng-click="closeThisDialog()" translate="{{'BACKUAG' | translate}}"></button>
+         </div>
+      </div>
+   </div>
+
+
+</div>

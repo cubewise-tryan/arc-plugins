@@ -297,9 +297,9 @@ arc.directive("usersGroups", function () {
 
          };
 
-         $scope.editUser = function(rowIndex){
+         $scope.auditUser = function(rowIndex){
             ngDialog.open({
-               template: "__/plugins/users-groups/editUser.html",
+               template: "__/plugins/users-groups/auditUser.html",
                className: "ngdialog-theme-default large",
                scope: $scope,
                controller: ['$rootScope', '$scope', '$http', '$state', '$tm1','$log', function ($rootScope, $scope, $http, $state, $tm1, $log) {
@@ -798,6 +798,233 @@ arc.directive("usersGroups", function () {
                   usersWithGroups : $scope.usersWithGroups,
                   view : $scope.view,
                   instance : $scope.instance,
+               }
+            });
+
+         }
+
+
+         $scope.settingsUser = function(rowIndex){
+            ngDialog.open({
+               template: "__/plugins/users-groups/settingsUser.html",
+               className: "ngdialog-theme-default large",
+               scope: $scope,
+               controller: ['$rootScope', '$scope', '$http', '$state', '$tm1','$log', function ($rootScope, $scope, $http, $state, $tm1, $log) {
+ 
+                  $scope.view = {
+                     name : $scope.ngDialogData.usersWithGroups[rowIndex].Name,
+                     alias : $scope.ngDialogData.usersWithGroups[rowIndex].displayName,
+                     active: $scope.ngDialogData.usersWithGroups[rowIndex].IsActive,
+                     password: "",
+                     groups: $scope.ngDialogData.usersWithGroups[rowIndex].Groups,
+                     message:""
+                  }
+
+
+                  $scope.getClientPropertiesPerUser = function(userName){
+                     var userMDX = "{[}Clients].[}Clients].[" + userName + "]}";
+                     var url = "/ExecuteMDX?$expand=Axes($expand=Hierarchies($select=Name;$expand=Dimension($select=Name)),Tuples($expand=Members($select=Name,UniqueName,Ordinal,Attributes;$expand=Parent($select=Name);$expand=Element($select=Name,Type,Level)))),Cells($select=Value,Updateable,Consolidated,RuleDerived,HasPicklist,FormatString,FormattedValue)";
+                     var mdx = "SELECT " + userMDX + "ON COLUMNS, { EXCEPT( {TM1SUBSETALL( [}ClientProperties] )}, { [}ClientProperties].[PASSWORD] }) } ON ROWS FROM [}ClientProperties]";
+
+                     var data = { 
+                        "MDX" : mdx
+                      };
+                      
+                     $http.post(encodeURIComponent($scope.instance)+url, data).then(function(success, error){
+                        $log.log(success);
+                        if(success.status == 401){
+                           // Set reload to true to refresh after the user logs in
+                           $scope.reload = true;
+                           return;
+                        
+                        }else if(success.status < 400){
+                           var options = {
+                              alias: {},
+                              suppressZeroRows: 0,
+                              suppressZeroColumns: 0,
+                              maxRows: 50
+                           };
+                           var cubeName = "}ClientProperties";
+                           $scope.clientPropertiesResult = $tm1.resultsetTransform($scope.instance, cubeName, success.data, options);
+                           $log.log($scope.clientPropertiesResult);
+
+                           $scope.clientProperties = [];
+                           for(var i = 0; i < $scope.clientPropertiesResult.rows.length; i++){
+                              var item = {
+                                 name : "",
+                                 value : "",
+                                 isReadOnly : false
+                              }
+                              item.name = $scope.clientPropertiesResult.rows[i]["}ClientProperties"].name;
+                              item.value = $scope.clientPropertiesResult.rows[i].cells[0].value;
+                              if($scope.clientPropertiesResult.rows[i]["}ClientProperties"].name == "PasswordLastTimeUpdated"){
+                                 item.isReadOnly = true;
+                              }
+
+                              $scope.clientProperties.push(item);
+                           }
+
+                        }else{
+                           if(success.data && success.data.error && success.data.error.message){
+                              $scope.view.message = success.data.error.message;
+                           }else{
+                              $scope.view.message = success.data;
+                           }
+                           $scope.view.messageWarning = true;
+
+                        }
+
+                     })
+
+                  }
+
+
+                  $scope.updateClientProperty = function(userName, propertyName, newValue){
+                     var url = "/Cubes('}ClientProperties')/tm1.Update ";
+                     var data = {
+                        "Cells" : [
+                           {"Tuple@odata.bind": [
+                              "Dimensions('}Clients')/DefaultHierarchy/Elements('" + userName +"')",
+                              "Dimensions('}ClientProperties')/DefaultHierarchy/Elements('" + propertyName + "')"
+                              ]
+                           }
+                        ],
+                        "Value" : newValue
+                     } 
+         
+                     $http.post(encodeURIComponent($scope.instance) + url, data).then(function(success, error){
+                        if(success.status == 401){
+                           // Set reload to true to refresh after the user logs in
+                           $scope.reload = true;
+                           return;
+                        
+                        }else if(success.status < 400){
+                           //success
+                           return;
+         
+                        }else{
+                           // Error to display on page
+                           if(success.data && success.data.error && success.data.error.message){
+                              $scope.message = success.data.error.message;
+                           }
+                           else {
+                              $scope.message = success.data;
+                           }
+                           $scope.messageWarning = true;
+         
+                           $timeout(function(){
+                              $scope.message = null;
+                              $scope.messageWarning = null;
+                           }, 5000);
+         
+                        }
+         
+                     })
+                  }
+
+
+                  $scope.getClientSettingsPerUser = function(userName){
+                     var userMDX = "{[}Clients].[}Clients].[" + userName + "]}";
+                     var url = "/ExecuteMDX?$expand=Axes($expand=Hierarchies($select=Name;$expand=Dimension($select=Name)),Tuples($expand=Members($select=Name,UniqueName,Ordinal,Attributes;$expand=Parent($select=Name);$expand=Element($select=Name,Type,Level)))),Cells($select=Value,Updateable,Consolidated,RuleDerived,HasPicklist,FormatString,FormattedValue)";
+                     var mdx = "SELECT " + userMDX + "ON COLUMNS, {TM1SUBSETALL( [}ClientSettings] )} ON ROWS FROM [}ClientSettings]";
+
+                     var data = { 
+                        "MDX" : mdx
+                      };
+                      
+                     $http.post(encodeURIComponent($scope.instance)+url, data).then(function(success, error){
+                        $log.log(success);
+                        if(success.status == 401){
+                           // Set reload to true to refresh after the user logs in
+                           $scope.reload = true;
+                           return;
+                        
+                        }else if(success.status < 400){
+                           var options = {
+                              alias: {},
+                              suppressZeroRows: 0,
+                              suppressZeroColumns: 0,
+                              maxRows: 50
+                           };
+                           var cubeName = "}ClientSettings";
+                           $scope.clientSettingsResult = $tm1.resultsetTransform($scope.instance, cubeName, success.data, options);
+                           $log.log($scope.clientSettingsResult);
+
+                           $scope.clientSettings = [];
+                           for(var i = 0; i < $scope.clientSettingsResult.rows.length; i++){
+                              var item = {
+                                 name : "",
+                                 value : ""
+                              }
+                              item.name = $scope.clientSettingsResult.rows[i]["}ClientSettings"].name;
+                              item.value = $scope.clientSettingsResult.rows[i].cells[0].value;
+
+                              $scope.clientSettings.push(item);
+                           }
+
+                        }else{
+                           if(success.data && success.data.error && success.data.error.message){
+                              $scope.view.message = success.data.error.message;
+                           }else{
+                              $scope.view.message = success.data;
+                           }
+                           $scope.view.messageWarning = true;
+
+                        }
+
+                     })
+
+                  }
+
+                  $scope.updateClientSetting = function(userName, settingName, newValue){
+                     var url = "/Cubes('}ClientSettings')/tm1.Update ";
+                     var data = {
+                        "Cells" : [
+                           {"Tuple@odata.bind": [
+                              "Dimensions('}Clients')/DefaultHierarchy/Elements('" + userName +"')",
+                              "Dimensions('}ClientSettings')/DefaultHierarchy/Elements('" + settingName + "')"
+                              ]
+                           }
+                        ],
+                        "Value" : newValue
+                     } 
+         
+                     $http.post(encodeURIComponent($scope.instance) + url, data).then(function(success, error){
+                        if(success.status == 401){
+                           // Set reload to true to refresh after the user logs in
+                           $scope.reload = true;
+                           return;
+                        
+                        }else if(success.status < 400){
+                           //success
+                           return;
+         
+                        }else{
+                           // Error to display on page
+                           if(success.data && success.data.error && success.data.error.message){
+                              $scope.message = success.data.error.message;
+                           }
+                           else {
+                              $scope.message = success.data;
+                           }
+                           $scope.messageWarning = true;
+         
+                           $timeout(function(){
+                              $scope.message = null;
+                              $scope.messageWarning = null;
+                           }, 5000);
+         
+                        }
+         
+                     })
+                  }
+
+
+               }],
+               data: {
+                  usersWithGroups : $scope.usersWithGroups,
+                  view : $scope.view,
+                  instance : $scope.instance
                }
             });
 
