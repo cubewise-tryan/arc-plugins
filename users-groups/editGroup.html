@@ -10,36 +10,14 @@
 
    <div class="modal-body p-0 m-0">
       <div class="container-fluid">
-         <div class="row mb-2 tm1-activeUser">
-            <div class="col-sm-12 mt-2">
-               <a href class="btn btn-success btn-block" ng-if="view.active" ng-click="disconnectUser(view.name)" title="{{'EDITUSERDISCONNECT' | translate}}"  >
-                  <div translate="EDITUSERISACTIVE"></div>
-               </a>
-            </div>
-         </div>
-
-
          <div class="row mb-2">
-            <div class="col-sm-12">
-               <uib-tabset>
-                  <uib-tab index="0" heading="{{'EDITGROUPTABMODELSECURITY' | translate}}">
-                     <div class="row">
-                        <div class="col-sm-12">
-                           <div class="card-body pt-2">
-                              <div class="input-group mb-1">
-                                 <uib-tabset >
-                                    <!-- active="selectedTab" -->
-                                    <uib-tab index="0" heading="{{'EDITGROUPSECURITYTABAPPLICATIONS' | translate}}"></uib-tab>
-                                    <uib-tab index="1" heading="{{'EDITGROUPSECURITYTABCUBES' | translate}}"></uib-tab>
-                                    <uib-tab index="2" heading="{{'EDITGROUPSECURITYTABDIMENSIONS' | translate}}"></uib-tab>
-                                    <uib-tab index="3" heading="{{'EDITGROUPSECURITYTABPROCESSES' | translate}}"></uib-tab>
-                                    <uib-tab index="4" heading="{{'EDITGROUPSECURITYTABCHORES' | translate}}"></uib-tab>
-                                 </uib-tabset>
-                              </div>
-                           </div>
-                        </div>
-                     </div>
-                  </uib-tab>
+            <div class="col-sm-12 pt-2">
+               <uib-tabset active="0">
+                  <uib-tab index="0" heading="{{'EDITGROUPSECURITYTABAPPLICATIONS' | translate}}"></uib-tab>
+                  <uib-tab index="1" heading="{{'EDITGROUPSECURITYTABCUBES' | translate}}"></uib-tab>
+                  <uib-tab index="2" heading="{{'EDITGROUPSECURITYTABDIMENSIONS' | translate}}"></uib-tab>
+                  <uib-tab index="3" heading="{{'EDITGROUPSECURITYTABPROCESSES' | translate}}"></uib-tab>
+                  <uib-tab index="4" heading="{{'EDITGROUPSECURITYTABCHORES' | translate}}"></uib-tab>
                </uib-tabset>
             </div>
          </div>
@@ -56,8 +34,8 @@
       </div>
       <div class="row">
          <div class="col-sm-12">
-            <button class="btn action ng-scope" ng-click="closeThisDialog()" translate="CANCEL"></button>
-            <button class="btn btn-success action ng-scope" ng-click="updateGroup(view.name) &amp;&amp; closeThisDialog()" translate="SAVEUSERCHANGES"></button>
+            <button class="btn action ng-scope" ng-click="closeThisDialog()" translate="{{'CANCELUAG' | translate}}"></button>
+            <button class="btn btn-success action ng-scope" ng-click="updateGroup(view.name) &amp;&amp; closeThisDialog()" translate="{{'SAVEUAG' | translate}}"></button>
          </div>
       </div>
    </div>

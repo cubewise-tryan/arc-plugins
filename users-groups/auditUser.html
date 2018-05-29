@@ -10,7 +10,6 @@
 
    <div class="modal-body p-0 m-0">
       <div class="container-fluid">
-
          <div class="row mb-2">
             <div class="col-sm-12 pt-2">
                <uib-tabset active="0">
@@ -47,7 +46,6 @@
                                                    </td>
                                                    <td style="width: 100%;">
                                                       <div ng-repeat = "group in application.groupsWithAccess" class="badge ml-1"  style="cursor: default;">
-                                                            <!-- ng-style="generateHSLColour(group.name)" -->
                                                          {{group.name}}
                                                          <div ng-class="securityAccessColourMapping(group.access)">
                                                             {{group.access}}
@@ -245,7 +243,6 @@
                                                    </td>
                                                    <td style="width: 100%;">
                                                       <div ng-repeat = "group in chore.groupsWithAccess" class="badge ml-1"  style="cursor: default;">
-                                                            <!-- ng-style="generateHSLColour(group.name)" -->
                                                          {{group.name}}
                                                          <div ng-class="securityAccessColourMapping(group.access)">
                                                             {{group.access}}
@@ -279,7 +276,7 @@
       </div>
       <div class="row">
          <div class="col-sm-12">
-            <button class="btn action ng-scope" ng-click="closeThisDialog()" translate="CANCEL"></button>
+            <button class="btn action ng-scope" ng-click="closeThisDialog()" translate="BACKUAG"></button>
          </div>
       </div>
    </div>

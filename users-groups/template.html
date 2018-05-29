@@ -130,7 +130,6 @@
          </uib-tab>
 
          <uib-tab index="1" heading="{{'TABGROUPS' | translate}}" class="tm1-groupsTab">
-            <!-- WORK IN PROGRESS -->
             <div class="row" class="tm1-groupsTab-Tools">
                <div class="col-4">
                   <div class="input-group">
@@ -139,6 +138,7 @@
                         <button ng-disabled="!selections.filterGroupGroup.length" class="btn btn-secondary" title="{{'CLEARUAG' | translate}}" ng-click="selections.filterGroupGroup = ''">
                            <i class="fa fa-fw fa-remove"></i>
                         </button>
+                        
                      </span>
                   </div>
                </div>
@@ -182,16 +182,22 @@
                            <table class="table table-hover table-sm">
                               <thead>
                                  <tr>
-                                    <th style="width:2px;"></th>
+                                    <th style="width:25px;"></th>
                                     <th class="pl-0" style="width: 40px;" translate="NAMEGROUP"></th>
                                     <th style="width: 40px;" translate="USERGROUPS" ></th>
                                  </tr>
                               </thead>
                               <tbody>
                                  <tr ng-repeat="group in groupsWithUsers | filter:listFilterGroup track by $index">
-                                    <td class="align-top pr-0 pt-2" style="width: 2px;">
+                                    <td class="align-top pr-0 pt-2" style="width:25px;">
                                        <a href="" class="text-danger pt-1" ng-click="deleteGroup(group.Name)" title="{{'DELETEUAG' | translate}}" >
                                           <i class="fa fa-close"></i>
+                                       </a>
+                                       <a href="" class="text-primary pl-1 pt-1" ng-click="settingsGroup($index)" title="{{'SETTINGSUAG' | translate}}" >
+                                          <i class="fa fa-edit"></i>
+                                       </a>
+                                       <a href="" class="text-primary pl-1 pt-1" ng-click="editGroup($index)" title="{{'EDITUAG' | translate}}" >
+                                          <i class="fa fa-address-book-o"></i>
                                        </a>
                                     </td>
                                     <td class="align-top pl-0;" style="width: 40px;" >
