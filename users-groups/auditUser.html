@@ -45,10 +45,9 @@
                                                       {{application.name}}
                                                    </td>
                                                    <td style="width: 100%;">
-                                                      <div ng-repeat = "group in application.groupsWithAccess" class="badge ml-1"  style="cursor: default;">
-                                                         {{group.name}}
-                                                         <div ng-class="securityAccessColourMapping(group.access)">
-                                                            {{group.access}}
+                                                      <div ng-repeat = "group in application.groupsWithAccess" ng-class="securityAccessColourMapping(group.access)" class="ml-1" style="cursor: default;"> 
+                                                         <div>
+                                                            {{group.name}}:{{group.access}}
                                                          </div>
                                                       </div>
                                                    </td>
@@ -97,11 +96,9 @@
                                                          title="{{'AUDITUSERFILTERDIMENSIONS' | translate}}">{{cube.name}}</a>
                                                    </td>
                                                    <td style="width: 100%" ng-class="{'bg-secondary' : cube.name == cubeSelected}">
-                                                      <div ng-repeat = "group in cube.groupsWithAccess" class="badge ml-1" style="cursor: default;">
-                                                            <!-- ng-style="generateHSLColour(group.name)" -->
-                                                         {{group.name}}
-                                                         <div ng-class="securityAccessColourMapping(group.access)">
-                                                            {{group.access}}
+                                                      <div ng-repeat = "group in cube.groupsWithAccess" ng-class="securityAccessColourMapping(group.access)" class="ml-1" style="cursor: default;">
+                                                         <div>
+                                                            {{group.name}}:{{group.access}}
                                                          </div>
                                                       </div>
                                                    </td>
@@ -140,11 +137,9 @@
                                                       {{dimension.name}}
                                                    </td>
                                                    <td style="width: 100%;">
-                                                      <div ng-repeat = "group in dimension.groupsWithAccess" class="badge ml-1"  style="cursor: default;">
-                                                            <!-- ng-style="generateHSLColour(group.name)" -->
-                                                         {{group.name}}
-                                                         <div ng-class="securityAccessColourMapping(group.access)">
-                                                            {{group.access}}
+                                                      <div ng-repeat = "group in dimension.groupsWithAccess" ng-class="securityAccessColourMapping(group.access)" class="ml-1" style="cursor: default;">
+                                                         <div>
+                                                            {{group.name}}:{{group.access}}
                                                          </div>
                                                       </div>
                                                    </td>
@@ -191,11 +186,9 @@
                                                       {{process.name}}
                                                    </td>
                                                    <td style="width: 100%;">
-                                                      <div ng-repeat = "group in process.groupsWithAccess" class="badge ml-1"  style="cursor: default;">
-                                                            <!-- ng-style="generateHSLColour(group.name)" -->
-                                                         {{group.name}}
-                                                         <div ng-class="securityAccessColourMapping(group.access)">
-                                                            {{group.access}}
+                                                      <div ng-repeat = "group in process.groupsWithAccess" ng-class="securityAccessColourMapping(group.access)" class="ml-1" style="cursor: default;">
+                                                         <div>
+                                                            {{group.name}}:{{group.access}}
                                                          </div>
                                                       </div>
                                                    </td>
@@ -242,10 +235,9 @@
                                                       {{chore.name}}
                                                    </td>
                                                    <td style="width: 100%;">
-                                                      <div ng-repeat = "group in chore.groupsWithAccess" class="badge ml-1"  style="cursor: default;">
-                                                         {{group.name}}
-                                                         <div ng-class="securityAccessColourMapping(group.access)">
-                                                            {{group.access}}
+                                                      <div ng-repeat = "group in chore.groupsWithAccess" ng-class="securityAccessColourMapping(group.access)" class="ml-1" style="cursor: default;">
+                                                         <div>
+                                                            {{group.name}}:{{group.access}}
                                                          </div>
                                                       </div>
                                                    </td>

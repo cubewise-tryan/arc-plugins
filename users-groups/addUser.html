@@ -10,22 +10,64 @@
       <div class="container-fluid">
          <div class="row pt-2 pb-2">
             <div class="col-sm-12">
-               <uib-tabset active="selectedTab">
-                  <uib-tab index="0" heading="{{'ADDUSERTABSETTINGS' | translate}}">
+               <!-- <uib-tabset active="0"> -->
+                  <!-- <uib-tab index="0" heading="{{'ADDUSERTABSETTINGS' | translate}}"> -->
                      <div class="row">
                         <div class="col-sm-12">
                            <div class="card">
+                              <!-- <div class="card-header"> -->
+                                 <!-- <div>New User</div> -->
+                              <!-- </div> -->
                               <div class="card-body pt-0">
                                  <div class="row">
                                     <div class="col-sm-12">
                                        <form >
                                           <div class="form-group row p-2">
-                                             <label class="col-form-label ol-form-label-sm" translate="ADDUSERINPUTNAME"></label>
-                                             <input type="text" class="form-control form-control-sm" placeholder="{{view.name}}" ng-model="view.name">
-                                             <label class="col-form-label ol-form-label-sm" translate="ADDUSERINPUTALIAS"></label>
-                                             <input type="text" class="form-control form-control-sm" placeholder="{{view.alias}}" ng-model="view.alias">
-                                             <label class="col-form-label ol-form-label-sm" translate="ADDUSERINPUTPASSWORD"></label>
-                                             <input type="text" class="form-control form-control-sm" placeholder="{{view.password}}" ng-model="view.password">
+                                             <div class="input-group">
+                                                <span class="input-group-prepend">
+                                                   <label class="col-form-label ol-form-label-sm" style="width: 80px; padding-right: 10px;" translate="ADDUSERINPUTNAME"></label>
+                                                </span>
+                                                <input type="text" class="form-control form-control-sm" placeholder="{{view.name}}" ng-model="view.name">
+                                             </div>
+                                             <div class="input-group pt-2">
+                                                <span class="input-group-prepend">
+                                                   <label class="col-form-label ol-form-label-sm" style="width: 80px; padding-right: 10px;" translate="ADDUSERINPUTALIAS"></label>
+                                                </span>
+                                                <input type="text" class="form-control form-control-sm" placeholder="{{view.alias}}" ng-model="view.alias">
+                                             </div>
+                                             <div class="input-group pt-2">
+                                                <span class="input-group-prepend">
+                                                   <label class="col-form-label ol-form-label-sm" style="width: 80px; padding-right: 10px;" translate="ADDUSERINPUTPASSWORD"></label>
+                                                </span>
+                                                <input ng-show="view.hidePassword" type="password" class="form-control form-control-sm" placeholder="{{view.password}}" ng-model="view.password">
+                                                <input ng-show="!view.hidePassword" type="text" class="form-control form-control-sm" placeholder="{{view.password}}" ng-model="view.password">
+                                                <span class="input-group-append">
+                                                   <button ng-disabled="!view.password.length" class="btn btn-secondary" title="{{'PASSWORDSHOW' | translate}}" ng-click="view.hidePassword = !view.hidePassword">
+                                                      <i ng-show="view.hidePassword" class="fa fa-fw fa-eye"></i>
+                                                      <i ng-show="!view.hidePassword" class="fa fa-fw fa-eye-slash"></i>
+                                                   </button>
+                                                </span>
+                                             </div>
+                                             <div class="input-group pt-2">
+                                                <span class="input-group-prepend">
+                                                   <label class="col-form-label ol-form-label-sm" style="width: 80px; padding-right: 10px;">Clone</label>
+                                                   <!-- <div>Clone</div> -->
+                                                </span>
+                                                   <!-- <input type="text" class="form-control form-control-sm" placeholder="{{view.name}}" ng-model="view.name"> -->
+                                                   <input type="text" class="form-control form-control-sm"
+                                                            ng-model="selectedGroup"
+                                                            uib-typeahead="name as Group.Name for Group in Groups | filter:$viewValue | limitTo:8"
+                                                            typeahead-on-select="addUserToGroup(user.FriendlyName, $item.Name, user.Groups)"
+                                                            placeholder="{{'TYPEGROUP' | translate}}"
+                                                   >
+                                                   <span class="input-group-append">
+                                                      <!-- <label class="col-form-label ol-form-label-sm" style="width: 80px; padding-right: 10px;">Clone</label> -->
+                                                      <button>
+                                                            <i class="fa fa-toggle-off" ></i>
+                                                      </button>
+                                                   </span>
+
+                                             </div>
                                           </div>
                                        </form>
                                     </div>
@@ -33,9 +75,27 @@
                               </div>
                            </div>
                         </div>
+<!--                         <div class="col-sm-6">
+                           <div class="card">
+                              <div class="card-header">
+                                 <div>Clone from user:</div>
+                              </div>
+                              <div class="card-body pt-0">
+                                 <div class="row">
+                                    <div class="col-sm-12">
+                                       <form >
+                                          <div class="form-group row p-2">
+                                             <div class="input-group">
+
+                                             </div>
+                                          </div>
+                                       </form>
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                        </div> -->
                      </div>
-                  </uib-tab>
-                  <uib-tab index="1" heading="{{'ADDUSERTABGROUP' | translate}}">
                      <div class="row">
                         <div class="col-sm-12">
                            <div class="card-body pt-2">
@@ -55,7 +115,17 @@
                                              </span>
                                           </div>
                                           <div style="height: 250px; padding-right: 5px; overflow-y: scroll; overflow-x: hidden;">
-                                             <!-- wip -->
+                                             <div style="width: 100%; text-align: left; margin-top: 5px;"
+                                                      class="btn" ng-class="{'btn-secondary' : item.included, 'btn-primary' : !item.included}" >
+                                                   <!-- ng-repeat="item in dimensions | filter:availableFilter track by item.Name" style="width: 100%; text-align: left; margin-top: 5px;" class="btn" ng-class="{'btn-secondary' : item.included, 'btn-primary' : !item.included}" ng-click="toggleItem(item)" -->
+                                                <span>
+                                                      <i class="fa fa-toggle-off" ></i>
+                                                      <!-- ng-if="!item.included" -->
+                                                      <i class="fa fa-toggle-on" ></i>
+                                                      <!-- ng-if="item.included" -->
+                                                </span>
+                                                <span>testItem</span>
+                                                </div>
                                              <input type="text" ng-model="view.groups" ng-blur="updateGroupsArray(view.groups)" style="width:100%;">
                                           </div>
                                        </div>
@@ -77,7 +147,19 @@
                                              </span>
                                           </div>
                                           <div style="height: 250px; padding-right: 5px; overflow-y: scroll; overflow-x: hidden;">
-                                             <!-- wip -->
+                                             <div  class="btn btn-primary" style="width: 100%; text-align: left; margin-top: 5px; cursor: default;" title="testItem">
+                                                   <!-- ng-repeat="item in options.cubeDimensions | filter:includedFilter track by item.Name" class="btn btn-primary" style="width: 100%; text-align: left; margin-top: 5px; cursor: default;" title="{{item.Name}}" -->
+                                                <a href class="click" ng-click="toggleItem(item)">
+                                                   <i class="fa fa-remove"></i>
+                                                </a>
+                                                <a href class="click" ng-click="up(item)">
+                                                      <i class="fa fa-chevron-circle-up" ></i> 
+                                                </a>
+                                                <a href class="click" ng-click="down(item)">
+                                                      <i class="fa fa-chevron-circle-down"></i>
+                                                </a>
+                                                <span>testItem</span>
+                                             </div>
                                           </div>
                                        </div>
                                     </div>
@@ -86,8 +168,8 @@
                            </div>
                         </div>
                      </div>
-                  </uib-tab>
-               </uib-tabset>
+                  <!-- </uib-tab> -->
+               <!-- </uib-tabset> -->
             </div>
          </div>
 

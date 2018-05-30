@@ -237,9 +237,11 @@ arc.directive("usersGroups", function () {
                      $scope.view = {
                         name : userName,
                         password: "",
+                        hidePassword: true,
                         message:""
                      }
    
+
                      $scope.updatePassword = function(userName, password){
                         var url = "/Users('" + userName + "')";
                         var data = {
@@ -286,19 +288,6 @@ arc.directive("usersGroups", function () {
             }
          }
 
-
-         $scope.inputType = "password";
-         $scope.hidePassword = true;
-         $scope.hideShowPassword = function(){
-            if ($scope.inputType == "password"){
-               $scope.inputType = "text";
-               $scope.hidePassword = false;
-            }else{
-               $scope.inputType = "password";
-               $scope.hidePassword = true;
-            }
-
-         };
 
          $scope.auditUser = function(rowIndex){
             ngDialog.open({
@@ -1291,8 +1280,22 @@ arc.directive("usersGroups", function () {
                      name: '',
                      alias:'',
                      password:'',
+                     hidePassword: true,
                      groups: [],
                   }
+
+
+                  $scope.hideShowPassword = function(currentInputType){
+                     if (currentInputType == "password"){
+                        $scope.view.inputType = "text";
+                        $scope.view.hidePassword = false;
+                     }else{
+                        $scope.view.inputType = "password";
+                        $scope.view.hidePassword = true;
+                     }
+         
+                  };
+
 
                   $scope.createUser = function(userName){
                      var url = "/Users";
@@ -1384,6 +1387,10 @@ arc.directive("usersGroups", function () {
                         $scope.createUser(userName);
                         $scope.ngDialogData.updateUserDisplayName(userName, aliasName);
                         $scope.updatePassword(userName, password);
+
+                        $scope.ngDialogData.inputType = "password";
+                        $scope.ngDialogData.hidePassword = true;
+
                         $scope.closeThisDialog(true);
 
                      }else{
@@ -1400,6 +1407,9 @@ arc.directive("usersGroups", function () {
                   instance : $scope.instance,
                   updateGroupsArray : $scope.updateGroupsArray,
                   updateUserDisplayName : $scope.updateUserDisplayName,
+                  hideShowPassword : $scope.hideShowPassword,
+                  inputType : $scope.inputType,
+                  hidePassword : $scope.hidePassword,
                   load : $scope.load}
             });
 
