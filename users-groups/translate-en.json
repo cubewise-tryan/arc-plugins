@@ -26,6 +26,7 @@
    "BACKUAG":"Back",
    "CANCELUAG":"Cancel",
    "CLEARUAG":"Clear",
+   "CREATEUAG":"Create",
    "DELETEUAG":"Delete",
    "EDITPASSWORD":"Password",
    "EDITPASSWORDHEADING":"Change Password",
@@ -65,6 +66,8 @@
    "NAMEUSER":"Name",
    "PASSWORDHIDE":"Hide Password",
    "PASSWORDSHOW":"Show Password",
+   "REMOVEGROUP":"Remove Group",
+   "REMOVEGROUPS":"Remove Groups",
    "REMOVEUSER":"Remove User",
    "REMOVEUSERFROMGROUP":"Remove User From Group",
    "SAVEUAG":"Save",
@@ -86,6 +89,7 @@
    "TABUSERS":"Users",
    "TABGROUPS":"Groups",
    "TYPEGROUP":"Type group and Select to Add",
+   "TYPEUSER":"Type user and Select to Add",
    "USEREXCLUDE":"User is Excluded",
    "USERINCLUDE":"User is Included"
 }

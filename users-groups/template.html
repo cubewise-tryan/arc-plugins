@@ -97,7 +97,7 @@
                                     <td>
                                        <input type="text" class="form-control form-control-sm"
                                               ng-model="selectedGroup"
-                                              uib-typeahead="name as Group.Name for Group in Groups | filter:$viewValue | limitTo:8"
+                                              uib-typeahead="name as Group.Name for Group in groupsWithUsers | filter:{Name:$viewValue} | limitTo:8"
                                               typeahead-on-select="addUserToGroup(user.FriendlyName, $item.Name, user.Groups)"
                                               placeholder="{{'TYPEGROUP' | translate}}"
                                                >

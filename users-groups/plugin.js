@@ -125,30 +125,6 @@ arc.directive("usersGroups", function () {
                }
             });
 
-            var groupsURL = "/Groups";
-            $http.get(encodeURIComponent($scope.instance) + groupsURL).then(function(success,error){
-               if(success.status == 401){
-                  $scope.reload = true;
-                  return;
-               }else if(success.status < 400){
-                  $scope.Groups = success.data.value;
-
-                  $scope.selectedGroup = undefined;
-                  //ui-typeahead requires a ng-model value, although empty
-
-               }else{
-                  //error to display on page
-                  if(success.data && success.data.error && success.data.error.message){
-                     $scope.message =  success.data.error.message;
-
-                  }else{
-                     $scope.message = success.data;
-                  }
-               }
-               $timeout(function(){
-                  $scope.message = null;
-               },5000);
-            });
 
             var groupsWithUsersURL = "/Groups?$expand=Users";
             $http.get(encodeURIComponent($scope.instance) + groupsWithUsersURL).then(function(success,error){
@@ -238,7 +214,9 @@ arc.directive("usersGroups", function () {
                         name : userName,
                         password: "",
                         hidePassword: true,
-                        message:""
+                        message:"",
+                        messageSuccess : false,
+                        messageWarning : false
                      }
    
 
@@ -249,7 +227,27 @@ arc.directive("usersGroups", function () {
                         };
             
                         $http.patch(encodeURIComponent($scope.instance) + url, data).then(function(success, error){
-                           $scope.closeThisDialog(success);
+                           if(success.status == 401){
+                              return;
+            
+                           }else if(success.status < 400){
+                              $scope.view.message = $translate.instant("EDITUSERPASSWORDSUCCESS");
+                              $scope.view.messageSuccess = true;
+                              $timeout(function(){
+                                 $scope.view.message = null;
+                                 $scope.view.messageSuccess = null;
+                                 $scope.closeThisDialog();
+                              }, 1000);
+            
+                           }else{
+                              if(success.data && success.data.error && success.data.error.message){
+                                 $scope.view.message = success.data.error.message;
+                              }else{
+                                 $scope.view.message = success.data;
+                              }
+                              $scope.view.messageWarning = true;
+                           }
+
                         });
                      }
                   }],
@@ -261,29 +259,6 @@ arc.directive("usersGroups", function () {
                   }
                });
 
-               //display messages on userDash
-               dialog.closePromise.then(function(data){
-                  if(data.value.status == 401){
-                     return;
-   
-                  }else if(data.value.status < 400){
-                     $scope.message = $translate.instant("EDITUSERPASSWORDSUCCESS");
-                     $scope.messageSuccess = true;
-                     $timeout(function(){
-                        $scope.message = null;
-                        $scope.messageSuccess = null;
-                     }, 1000);
-   
-                  }else{
-                     if(data.value.data && data.value.data.error && data.value.data.error.message){
-                        $scope.message = data.value.data.error.message;
-                     }else{
-                        $scope.message = data.value.data;
-                     }
-                     $scope.messageWarning = true;
-                  }
-
-               });
 
             }
          }
@@ -1253,12 +1228,14 @@ arc.directive("usersGroups", function () {
 
 
          $scope.updateGroupsArray = function(newGroup, previousGroups){
-            //used in addUser, addUserToGroup
             var array = [];
-            var arrayElement = "Groups('" + newGroup + "')";
-            array.push(arrayElement);
 
-            if(typeof previousGroups !== 'undefined'){
+            if(newGroup !== null){
+               var arrayElement = "Groups('" + newGroup + "')";
+               array.push(arrayElement);
+            }
+
+            if(typeof previousGroups !== "undefined"){
                for(var i=0; i < previousGroups.length; i++){
                   arrayElement = "Groups('" + previousGroups[i].Name + "')";
                   array.push(arrayElement)
@@ -1272,83 +1249,49 @@ arc.directive("usersGroups", function () {
          $scope.addUser = function(){
             var dialog = ngDialog.open({
                template: "__/plugins/users-groups/addUser.html",
-               className: "ngdialog-theme-default large",
+               className: "ngdialog-theme-default medium",
                scope: $scope,
                controller: ['$rootScope', '$scope', '$http', '$state', '$tm1','$log', function ($rootScope, $scope, $http, $state, $tm1, $log) {
  
                   $scope.view = {
-                     name: '',
-                     alias:'',
-                     password:'',
-                     hidePassword: true,
-                     groups: [],
+                     hidePassword : true,
+                     message : "",
+                     messageSuccess : false,
+                     messageWarning : false
                   }
 
-
-                  $scope.hideShowPassword = function(currentInputType){
-                     if (currentInputType == "password"){
-                        $scope.view.inputType = "text";
-                        $scope.view.hidePassword = false;
-                     }else{
-                        $scope.view.inputType = "password";
-                        $scope.view.hidePassword = true;
-                     }
-         
-                  };
-
-
-                  $scope.createUser = function(userName){
-                     var url = "/Users";
-                     var data = {
-                        "Name" : userName,
-                        "Groups@odata.bind": $scope.ngDialogData.updateGroupsArray($scope.view.groups)
-                     }
-                     $http.post(encodeURIComponent($scope.ngDialogData.instance) + url, data).then(function(success,error){
-                        if(success.status == 401){
-                           $scope.view.message = $translate.instant("FUNCTIONADDUSERERROR");
-                           $scope.view.messageWarning = true;
-                           $timeout(function(){
-                              $scope.view.message = null;
-                              $scope.view.messageWarning = false;
-                           }, 2000);
-                           return;
-                        
-                        }else if(success.status < 400){
-                           $scope.view.message = $translate.instant("FUNCTIONADDUSERSUCCESS");
-                           $scope.view.messageSuccess = true;
-
-                           $timeout(function(){
-                              $scope.view.message = null;
-                              $scope.view.messageSuccess = null;
-                              $scope.closeThisDialog();
-                              $scope.ngDialogData.load();
-                           }, 2000);
-
-                           return;
-
-                        }else{
-                           // Error to display on page
-                           if(success.data && success.data.error && success.data.error.message){
-                              $scope.view.message = success.data.error.message;
-                              $scope.view.messageWarning = true;
-                           }
-                           else {
-                              $scope.view.message = success.data;
-                              $scope.view.messageWarning = true;
-                           }
-                           $timeout(function(){
-                              $scope.view.message = null;
-                              $scope.view.messageWarning = null;
-
-                           }, 2000);
-                        }
-                     });
+                  $scope.newUser = {
+                     name : "",
+                     alias : "",
+                     password : "",
+                     cloneUser : {
+                        name : "",
+                        groups : []
+                     },
+                     groupsAssigned : []
                   }
 
-                  $scope.updatePassword = function(userName, password){
-                     var url = "/Users('" + userName + "')";
+                  $scope.addCloneUserGroupsToNewUser = function(cloneUser){
+                     var cloneUserIndex = _.findIndex($scope.usersWithGroups, function(i) { return i.Name == cloneUser.Name; });
+                     $scope.newUser.groupsAssigned = _.union($scope.newUser.groupsAssigned, $scope.usersWithGroups[cloneUserIndex].Groups);
+                     $scope.newUser.groupsAssigned = _.uniqBy($scope.newUser.groupsAssigned, "Name");
+                  }
+
+                  $scope.addIndividualGroupToNewUser = function(group){
+                     if(_.filter($scope.newUser.groupsAssigned, function(o){return o.Name == group.Name}).length == 0 ){
+                        $scope.newUser.groupsAssigned.push({Name:group.Name});
+                     }
+                  }
+
+                  $scope.removeGroupFromNewUser = function(groupName){
+                     var groupIndex = _.findIndex($scope.newUser.groupsAssigned, function(i){return i.Name == groupName;});
+                     $scope.newUser.groupsAssigned.splice(groupIndex, 1);
+                  }
+
+                  $scope.updatePassword = function(){
+                     var url = "/Users('" + $scope.newUser.name + "')";
                      var data = {
-                        "Password" : password
+                        "Password" : $scope.newUser.password
                      };
          
                      $http.patch(encodeURIComponent($scope.instance) + url, data).then(function(success, error){
@@ -1356,85 +1299,100 @@ arc.directive("usersGroups", function () {
                            return;
          
                         }else if(success.status < 400){
-                           $scope.message = $translate.instant("EDITUSERPASSWORDSUCCESS");
-                           $scope.messageSuccess = true;
-                           $timeout(function(){
-                              $scope.message = null;
-                              $scope.messageSuccess = null;
-                           }, 1000);
+                           $scope.view.message = $translate.instant("EDITUSERPASSWORDSUCCESS");
+                           $scope.view.messageSuccess = true;
+                           return;
          
                         }else{
                            if(success.data && success.data.error && success.data.error.message){
-                              $scope.message = success.data.error.message;
+                              $scope.view.message = success.data.error.message;
                            }else{
-                              $scope.message = success.data;
+                              $scope.view.message = success.data;
                            }
-                           $scope.messageWarning = true;
+                           $scope.view.messageWarning = true;
                         }
 
                      });
                   }
 
+
                   $scope.closeThisDialog = function(){
                      ngDialog.close();
                   }
 
-                  $scope.addCompleteUser = function(userName, aliasName, password){
-                     //new user in group(s), alias, password
 
-                     //check if group has been selected
-                     if($scope.view.groups.length){
-                        $scope.createUser(userName);
-                        $scope.ngDialogData.updateUserDisplayName(userName, aliasName);
-                        $scope.updatePassword(userName, password);
+                  $scope.createUser = function(){
+                     var userExists = _.findIndex($scope.usersWithGroups, function(i) { return i.Name == $scope.newUser.name; });
+                     if(userExists === -1 && $scope.newUser.groupsAssigned.length > 0 && $scope.newUser.password !==""){
+                        var url = "/Users";
+                        var data = {
+                           "Name" : $scope.newUser.name,
+                           "Groups@odata.bind": $scope.ngDialogData.updateGroupsArray(null, $scope.newUser.groupsAssigned)
+                        }
+                        $http.post(encodeURIComponent($scope.ngDialogData.instance) + url, data).then(function(success,error){
+   
+                           if(success.status == 401){
+                              $scope.view.message = $translate.instant("FUNCTIONADDUSERERROR");
+                              $scope.view.messageWarning = true;
+                              $timeout(function(){
+                                 $scope.view.message = null;
+                                 $scope.view.messageWarning = false;
+                              }, 2000);
+                              return;
+                           
+                           }else if(success.status < 400){
+                              $scope.ngDialogData.updateUserDisplayName($scope.newUser.name, $scope.newUser.alias);
+                              $scope.updatePassword($scope.newUser.name, $scope.newUser.password);
+                              
+                              $scope.view.message = $translate.instant("EDITUSERPASSWORDSUCCESS");
+                              $scope.view.message = "User added";
+                              $scope.view.messageSuccess = true;
 
-                        $scope.ngDialogData.inputType = "password";
-                        $scope.ngDialogData.hidePassword = true;
+                              $timeout(function(){
+                                 $scope.view.message = null;
+                                 $scope.view.messageSuccess = null;
+                                 $scope.ngDialogData.load();
+                                 $scope.closeThisDialog();
+                              }, 2000);
 
-                        $scope.closeThisDialog(true);
+
+                           }else{
+                              // Error to display on page
+                              if(success.data && success.data.error && success.data.error.message){
+                                 $scope.view.message = success.data.error.message;
+                                 $scope.view.messageWarning = true;
+                              }
+                              else {
+                                 $scope.view.message = success.data;
+                                 $scope.view.messageWarning = true;
+                              }
+                              $timeout(function(){
+                                 $scope.view.message = null;
+                                 $scope.view.messageWarning = null;
+   
+                              }, 2000);
+                           }
+                        });
 
                      }else{
-                        $scope.closeThisDialog(false);
+                        $scope.view.messageWarning = true;
+                        $scope.view.message = "Check Inputs";
+                        $timeout(function(){
+                           $scope.view.messageWarning = null;
+                           $scope.view.message = null;
+                        }, 1000);
 
                      }
-
-
                   }
-                  
+
                }],
                data: {
                   view : $scope.view,
                   instance : $scope.instance,
+                  addUserToGroup : $scope.addUserToGroup,
                   updateGroupsArray : $scope.updateGroupsArray,
                   updateUserDisplayName : $scope.updateUserDisplayName,
-                  hideShowPassword : $scope.hideShowPassword,
-                  inputType : $scope.inputType,
-                  hidePassword : $scope.hidePassword,
                   load : $scope.load}
-            });
-
-            //display messages on userDash
-            dialog.closePromise.then(function(data){
-               if(data.value){
-                  // $scope.message = $translate.instant("EDITUSERPASSWORDSUCCESS");
-                  $scope.message = "User added";
-                  $scope.messageSuccess = true;
-                  $timeout(function(){
-                     $scope.message = null;
-                     $scope.messageSuccess = null;
-                  }, 1000);
-                  
-               }else{
-                  // $scope.message = $translate.instant("EDITUSERPASSWORDSUCCESS");
-                  $scope.message = "No group selected";
-                  $scope.messageWarning = true;
-                  $timeout(function(){
-                     $scope.message = null;
-                     $scope.messageWarning = null;
-                  }, 1000);
-
-               }
-
             });
 
          }

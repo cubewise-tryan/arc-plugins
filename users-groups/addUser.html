@@ -10,166 +10,116 @@
       <div class="container-fluid">
          <div class="row pt-2 pb-2">
             <div class="col-sm-12">
-               <!-- <uib-tabset active="0"> -->
-                  <!-- <uib-tab index="0" heading="{{'ADDUSERTABSETTINGS' | translate}}"> -->
-                     <div class="row">
-                        <div class="col-sm-12">
-                           <div class="card">
-                              <!-- <div class="card-header"> -->
-                                 <!-- <div>New User</div> -->
-                              <!-- </div> -->
-                              <div class="card-body pt-0">
-                                 <div class="row">
-                                    <div class="col-sm-12">
-                                       <form >
-                                          <div class="form-group row p-2">
-                                             <div class="input-group">
-                                                <span class="input-group-prepend">
-                                                   <label class="col-form-label ol-form-label-sm" style="width: 80px; padding-right: 10px;" translate="ADDUSERINPUTNAME"></label>
-                                                </span>
-                                                <input type="text" class="form-control form-control-sm" placeholder="{{view.name}}" ng-model="view.name">
-                                             </div>
-                                             <div class="input-group pt-2">
-                                                <span class="input-group-prepend">
-                                                   <label class="col-form-label ol-form-label-sm" style="width: 80px; padding-right: 10px;" translate="ADDUSERINPUTALIAS"></label>
-                                                </span>
-                                                <input type="text" class="form-control form-control-sm" placeholder="{{view.alias}}" ng-model="view.alias">
-                                             </div>
-                                             <div class="input-group pt-2">
-                                                <span class="input-group-prepend">
-                                                   <label class="col-form-label ol-form-label-sm" style="width: 80px; padding-right: 10px;" translate="ADDUSERINPUTPASSWORD"></label>
-                                                </span>
-                                                <input ng-show="view.hidePassword" type="password" class="form-control form-control-sm" placeholder="{{view.password}}" ng-model="view.password">
-                                                <input ng-show="!view.hidePassword" type="text" class="form-control form-control-sm" placeholder="{{view.password}}" ng-model="view.password">
-                                                <span class="input-group-append">
-                                                   <button ng-disabled="!view.password.length" class="btn btn-secondary" title="{{'PASSWORDSHOW' | translate}}" ng-click="view.hidePassword = !view.hidePassword">
-                                                      <i ng-show="view.hidePassword" class="fa fa-fw fa-eye"></i>
-                                                      <i ng-show="!view.hidePassword" class="fa fa-fw fa-eye-slash"></i>
-                                                   </button>
-                                                </span>
-                                             </div>
-                                             <div class="input-group pt-2">
-                                                <span class="input-group-prepend">
-                                                   <label class="col-form-label ol-form-label-sm" style="width: 80px; padding-right: 10px;">Clone</label>
-                                                   <!-- <div>Clone</div> -->
-                                                </span>
-                                                   <!-- <input type="text" class="form-control form-control-sm" placeholder="{{view.name}}" ng-model="view.name"> -->
-                                                   <input type="text" class="form-control form-control-sm"
-                                                            ng-model="selectedGroup"
-                                                            uib-typeahead="name as Group.Name for Group in Groups | filter:$viewValue | limitTo:8"
-                                                            typeahead-on-select="addUserToGroup(user.FriendlyName, $item.Name, user.Groups)"
-                                                            placeholder="{{'TYPEGROUP' | translate}}"
-                                                   >
-                                                   <span class="input-group-append">
-                                                      <!-- <label class="col-form-label ol-form-label-sm" style="width: 80px; padding-right: 10px;">Clone</label> -->
-                                                      <button>
-                                                            <i class="fa fa-toggle-off" ></i>
-                                                      </button>
-                                                   </span>
-
-                                             </div>
-                                          </div>
-                                       </form>
+               <div class="row">
+                  <div class="col-sm-5">
+                     <div class="card">
+                        <div class="card-header">
+                           <label>General</label>
+                        </div>
+                        <div class="card-body pt-0" >
+                              <!-- style="margin-bottom: 150px;" -->
+                           <div class="row">
+                              <div class="col-sm-12">
+                                 <form >
+                                    <div class="form-group row p-2">
+                                       <div class="input-group">
+                                          <span class="input-group-prepend">
+                                             <label class="col-form-label ol-form-label-sm" style="width:90px; padding-right: 10px;" translate="ADDUSERINPUTNAME"></label>
+                                             <!-- <span><i class="fa fa-asterisk text-danger"></i></span> -->
+                                          </span>
+                                          <input type="text" class="form-control form-control-sm" placeholder="{{newUser.name}}" ng-model="newUser.name">
+                                       </div>
+                                       <div class="input-group pt-2">
+                                          <span class="input-group-prepend">
+                                             <label class="col-form-label ol-form-label-sm" style="width:90px; padding-right: 10px;" translate="ADDUSERINPUTALIAS"></label>
+                                          </span>
+                                          <input ng-disabled="!newUser.name.length > 0" type="text" class="form-control form-control-sm" placeholder="{{newUser.alias}}" ng-model="newUser.alias">
+                                       </div>
+                                       <div class="input-group pt-2">
+                                          <span class="input-group-prepend">
+                                             <label class="col-form-label ol-form-label-sm" style="width:90px; padding-right: 10px;" translate="ADDUSERINPUTPASSWORD"></label>
+                                          </span>
+                                          <input ng-disabled="!newUser.name.length > 0 || !newUser.alias.length > 0" ng-show="view.hidePassword" type="password" class="form-control form-control-sm" placeholder="{{newUser.password}}" ng-model="newUser.password">
+                                          <input ng-disabled="!newUser.name.length > 0 || !newUser.alias.length > 0" ng-show="!view.hidePassword" type="text" class="form-control form-control-sm" placeholder="{{newUser.password}}" ng-model="newUser.password">
+                                          <span class="input-group-append">
+                                             <button ng-disabled="!newUser.password.length" class="btn btn-secondary" title="{{'PASSWORDSHOW' | translate}}" ng-click="view.hidePassword = !view.hidePassword">
+                                                <i ng-show="view.hidePassword" class="fa fa-fw fa-eye"></i>
+                                                <i ng-show="!view.hidePassword" class="fa fa-fw fa-eye-slash"></i>
+                                             </button>
+                                          </span>
+                                       </div>
+                                       <div class="input-group pt-2">
+                                          <span class="input-group-prepend">
+                                             <label class="col-form-label ol-form-label-sm" style="width:90px; padding-right: 10px;">Clone</label>
+                                          </span>
+                                             <input ng-disabled="!newUser.name.length > 0 || !newUser.alias.length > 0 || !newUser.password.length > 0"
+                                                      type="text" class="form-control form-control-sm"
+                                                      ng-model="selectedUser"
+                                                      uib-typeahead="name as User.Name for User in usersWithGroups | filter:{Name : $viewValue} | limitTo:4"
+                                                      typeahead-on-select="addCloneUserGroupsToNewUser($item)"
+                                                      placeholder="{{'TYPEUSER' | translate}}">
+                                       </div>
+                                       <div class="input-group pt-2">
+                                          <span class="input-group-prepend">
+                                             <label class="col-form-label ol-form-label-sm" style="width:90px; padding-right: 10px;">Add Group</label>
+                                          </span>
+                                          <input ng-disabled="!newUser.name.length > 0 || !newUser.alias.length > 0 || !newUser.password.length > 0"
+                                                   type="text" class="form-control form-control-sm"
+                                                   ng-model="selectedGroup"
+                                                   uib-typeahead="name as Group.Name for Group in groupsWithUsers | filter:{Name : $viewValue} | limitTo:4"
+                                                   typeahead-on-select="addIndividualGroupToNewUser($item)"
+                                                   placeholder="{{'TYPEGROUP' | translate}}">
+                                       </div>
+                                    </div>
+                                 </form>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="col-sm-7  pl-0">
+                     <div class="card">
+                        <div class="card-header pb-0">
+                           <div class="row">
+                              <div class="col-sm-10">
+                                 <label>Added Groups</label>
+                              </div>
+                              <div class="col-sm-2">
+                                 <div class="toolbar">
+                                    <div class="btn-toolbar pull-right" >
+                                       <div class="btn-group">
+                                          <button class="btn btn-secondary"  title="{{'REMOVEGROUPS' | translate}}" ng-click="newUser.groupsAssigned = [];">
+                                             <i class="fa fa-trash"></i>
+                                          </button>
+                                       </div>
                                     </div>
                                  </div>
                               </div>
                            </div>
                         </div>
-<!--                         <div class="col-sm-6">
-                           <div class="card">
-                              <div class="card-header">
-                                 <div>Clone from user:</div>
-                              </div>
-                              <div class="card-body pt-0">
-                                 <div class="row">
-                                    <div class="col-sm-12">
-                                       <form >
-                                          <div class="form-group row p-2">
-                                             <div class="input-group">
-
-                                             </div>
-                                          </div>
-                                       </form>
-                                    </div>
-                                 </div>
-                              </div>
-                           </div>
-                        </div> -->
-                     </div>
-                     <div class="row">
-                        <div class="col-sm-12">
-                           <div class="card-body pt-2">
-                              <div class="row">
-                                 <div class="col-sm-6">
-                                    <div class="card">
-                                       <div class="card-header p-2">
-                                          <label translate="ADDUSERGROUPSEXCLUDEDFROM"></label>
-                                       </div>
-                                       <div class="card-body pt-2">
-                                          <div class="input-group mb-1">
-                                             <input type="text" class="form-control" ng-model="temp1" placeholder="{{'SEARCHUAG' | translate}}">
-                                             <span class="input-group-append">
-                                                <button ng-disabled="!options.availableFilter.length" class="btn btn-secondary" title="" ng-click="" disabled="disabled">
-                                                   <i class="fa fa-fw fa-remove"></i>
-                                                </button>
-                                             </span>
-                                          </div>
-                                          <div style="height: 250px; padding-right: 5px; overflow-y: scroll; overflow-x: hidden;">
-                                             <div style="width: 100%; text-align: left; margin-top: 5px;"
-                                                      class="btn" ng-class="{'btn-secondary' : item.included, 'btn-primary' : !item.included}" >
-                                                   <!-- ng-repeat="item in dimensions | filter:availableFilter track by item.Name" style="width: 100%; text-align: left; margin-top: 5px;" class="btn" ng-class="{'btn-secondary' : item.included, 'btn-primary' : !item.included}" ng-click="toggleItem(item)" -->
-                                                <span>
-                                                      <i class="fa fa-toggle-off" ></i>
-                                                      <!-- ng-if="!item.included" -->
-                                                      <i class="fa fa-toggle-on" ></i>
-                                                      <!-- ng-if="item.included" -->
-                                                </span>
-                                                <span>testItem</span>
+                        <div class="card-body pt-0" style="display:block; height:300px; overflow-y:auto; width:100%;">
+                           <div class="row">
+                              <div class="col-sm-12">
+                                 <form>
+                                    <div class="form-group row p-2">
+                                       <div class="input-group">
+                                          <div ng-repeat="group in newUser.groupsAssigned | orderBy:'Name'" >
+                                             <div style="float:left;">
+                                                <div class="badge ml-1" ng-style="generateHSLColour(group.Name)" style="cursor : default;">
+                                                   {{group.Name}}
+                                                   <a><i class="fa fa-fw fa-remove" ng-click="removeGroupFromNewUser(group.Name)" title="{{'REMOVEGROUP' | translate}}"></i></a>
                                                 </div>
-                                             <input type="text" ng-model="view.groups" ng-blur="updateGroupsArray(view.groups)" style="width:100%;">
-                                          </div>
-                                       </div>
-
-                                    </div>
-                                 </div>
-                                 <div class="col-sm-6">
-                                    <div class="card">
-                                       <div class="card-header p-2">
-                                          <label translate="ADDUSERGROUPSMEMBEROF"></label>
-                                       </div>
-                                       <div class="card-body pt-2">
-                                          <div class="input-group mb-1">
-                                             <input type="text" class="form-control" ng-model="temp2" placeholder="{{'SEARCHUAG' | translate}}">
-                                             <span class="input-group-append">
-                                                <button ng-disabled="!options.availableFilter.length" class="btn btn-secondary" title="" ng-click="" disabled="disabled">
-                                                   <i class="fa fa-fw fa-remove"></i>
-                                                </button>
-                                             </span>
-                                          </div>
-                                          <div style="height: 250px; padding-right: 5px; overflow-y: scroll; overflow-x: hidden;">
-                                             <div  class="btn btn-primary" style="width: 100%; text-align: left; margin-top: 5px; cursor: default;" title="testItem">
-                                                   <!-- ng-repeat="item in options.cubeDimensions | filter:includedFilter track by item.Name" class="btn btn-primary" style="width: 100%; text-align: left; margin-top: 5px; cursor: default;" title="{{item.Name}}" -->
-                                                <a href class="click" ng-click="toggleItem(item)">
-                                                   <i class="fa fa-remove"></i>
-                                                </a>
-                                                <a href class="click" ng-click="up(item)">
-                                                      <i class="fa fa-chevron-circle-up" ></i> 
-                                                </a>
-                                                <a href class="click" ng-click="down(item)">
-                                                      <i class="fa fa-chevron-circle-down"></i>
-                                                </a>
-                                                <span>testItem</span>
                                              </div>
                                           </div>
                                        </div>
                                     </div>
-                                 </div>
+                                 </form>
                               </div>
                            </div>
                         </div>
                      </div>
-                  <!-- </uib-tab> -->
-               <!-- </uib-tabset> -->
+                  </div>
+               </div>
             </div>
          </div>
 
@@ -187,7 +137,7 @@
       <div class="row">
          <div class="col-md-12">
             <button class="btn action ng-scope" ng-click="closeThisDialog()" translate="CANCEL"></button>
-            <button class="btn btn-primary action ng-scope" ng-click="addCompleteUser(view.name, view.alias, view.password)" translate="SAVEUAG">Save</button>
+            <button class="btn btn-primary action ng-scope" ng-click="createUser()" translate="CREATEUAG"></button>
          </div>
       </div>
 
