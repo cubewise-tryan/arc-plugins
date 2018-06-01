@@ -91,5 +91,6 @@
    "TYPEGROUP":"Type group and Select to Add",
    "TYPEUSER":"Type user and Select to Add",
    "USEREXCLUDE":"User is Excluded",
-   "USERINCLUDE":"User is Included"
+   "USERINCLUDE":"User is Included",
+   "WARNINGDUPLICATEDISPLAYNAMES" : "Duplicate User DisplayName(s) on: "
 }
