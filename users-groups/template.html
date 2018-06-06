@@ -11,7 +11,7 @@
    </div>
 
    <div class="tm1-usersGroups-Body">
-      <uib-tabset active="0">
+      <uib-tabset active="1">
          <uib-tab index="0" heading="{{'TABUSERS' | translate}}" class="tm1-usersTab">
             <div class="row" class="tm1-usersTab-Tools">
                <div class="col-4">
@@ -206,7 +206,7 @@
                                        </div>
                                     </td>
                                     <td style="width:500px;">
-                                       <div ng-repeat="user in group.Users | orderBy:'Name' " >
+                                       <div ng-repeat="user in group.Users | limitTo:group.usersDisplay | orderBy:'Name' " >
                                           <div style="float:left;">
                                              <div class="badge ml-1" title="{{'REMOVEUSERFROMGROUP' | translate}}" ng-style="generateHSLColour(user.Name)" ng-click="removeUserFromGroup(user.Name,group.Name)">
                                                 {{user.Name}}
@@ -215,10 +215,10 @@
                                              </div>
                                           </div>
                                        </div>
-                                       <div style="float:left;" class="tm1-showMoreGroups" ng-if="user.groupsRemaining">
-                                          <a class="badge badge-secondary badge-sm ml-1" style="color:#fff;" title="{{'GROUPSSHOWMORE' | translate}}" ng-click="showMoreGroups($index)">
-                                             {{user.groupsRemaining}} more
-                                             <i class="fa fa-arrow-right" ></i>
+                                       <div style="float:left;" class="tm1-showMoreGroups" ng-if="group.usersRemaining">
+                                          <a class="badge badge-secondary badge-sm ml-1" style="color:#fff;" title="{{'GROUPSSHOWMORE' | translate}}" ng-click="showMoreUsers($index)">
+                                             {{group.usersRemaining}} show all
+                                             <i class="fa fa-arrow-up" ></i>
                                           </a>
                                        </div>
                                     </td>

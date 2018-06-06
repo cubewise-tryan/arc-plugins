@@ -1,0 +1,83 @@
+<div class="tm1-showUsers">
+   <div class="modal-header text-dark bg-white">
+      <span>
+         <i class="fa fa-search"></i>
+         <span translate="SHOWUSERSHEADING"></span>
+         : {{view.name}}
+      </span>
+   </div>
+
+   <div class="modal-body p-0 m-0">
+      <div class="container-fluid">
+         <div class="row pt-2 pb-2">
+            <div class="col-sm-12">
+               <div class="card">
+                  <div class="card-header p-2">
+                     <div class="input-group">
+                        <span class="input-group-prepend">
+                           <label style="padding-right: 10px;" translate="SEARCHUSERNAME"></label>
+                        </span>
+                        <input type="text" class="form-control" ng-model="selections.filterUser" placeholder="{{'SEARCHUSER' | translate}}">
+                        <span class="input-group-append">
+                           <button ng-disabled="!selections.filterUser.length" class="btn btn-secondary" title="{{'CLEARUAG' | translate}}" ng-click="selections.filterUser=''" disabled="disabled">
+                              <i class="fa fa-fw fa-remove"></i>
+                           </button>
+                        </span>
+                     </div>
+                  </div>
+                  <div class="card-body pt-2">
+                     <table class="table table-hover table-sm">
+                        <thead style="display: block;">
+                           <th style="min-width: 200px;" translate="SHOWUSERSNAME"></th>
+                           <th style="width: 100%;" translate="SHOWUSERSALIAS"></th>
+                        </thead>
+                        <tbody style="display: block; height:120px; overflow-y:auto; width:100%; overflow-x: auto;">
+                              <!--  -->
+                              <!-- <tr>{{view.users}}</tr> -->
+                           <tr ng-repeat="user in view.users | filter:userFilter">
+                                 <!-- | filter:userFilter track by $index-->
+                              <!-- <td style="min-width: 400px;" ng-class="{'bg-secondary' : cube.name == cubeSelected}"> -->
+                                 <!-- <a href ng-click="getDimensionsPerCube(cube.name);" -->
+                                    <!-- ng-class="{'text-light font-weight-bold' : cube.name == cubeSelected}" -->
+                                    <!-- title="{{'AUDITUSERFILTERDIMENSIONS' | translate}}">{{cube.name}}</a> -->
+                              <!-- </td> -->
+                              <!-- <td style="width: 100%" ng-class="{'bg-secondary' : cube.name == cubeSelected}"> -->
+                                 <!-- <div ng-repeat = "group in cube.groupsWithAccess" ng-class="securityAccessColourMapping(group.access)" class="ml-1" style="cursor: default;"> -->
+                                 <td style="min-width: 200px;">
+                                    {{user.Name}}
+                                 </td>
+                                 <td>
+                                    {{user.FriendlyName}}
+                                 </td>
+                                 <!-- </div> -->
+                              <!-- </td> -->
+                           </tr>
+                        </tbody>
+                     </table>
+                  </div>
+               </div>
+            </div>
+         </div>
+
+      </div>
+   </div>
+   
+   <div class="modal-footer">
+      <div class="row">
+         <div class="col-md-12">
+            <button ng-class="{'btn btn-success':view.messageSuccess,'btn btn-warning':view.messageWarning}" ng-if="view.message">
+               <span ng-class="{'fa fa-check':view.messageSuccess,'fa fa-warning':view.messageWarning}" aria-hidden="true"></span><span>{{view.message}}</span>
+            </button>
+         </div>
+      </div>
+      <div class="row">
+         <div class="col-md-12">
+            <button class="btn action ng-scope" ng-click="closeThisDialog()" translate="CANCEL"></button>
+            <button class="btn btn-primary action ng-scope" ng-click="createUser()" translate="CREATEUAG"></button>
+         </div>
+      </div>
+
+   </div>
+
+
+</div>

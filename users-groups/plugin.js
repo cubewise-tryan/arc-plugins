@@ -1,4 +1,3 @@
-
 arc.run(['$rootScope', function($rootScope) {
 
     $rootScope.plugin("usersGroups", "Users and Groups", "page", {
@@ -34,10 +33,13 @@ arc.directive("usersGroups", function () {
             filterProcess : "",
             filterChore : "",
             filterGroupGroup : "",
-            filterGroupUser : ""
+            filterGroupUser : "",
+            filterUser : ""
          };
 
          $rootScope.uiPrefs.groupsDisplayNumber = 2;
+         //for now make 2, as test model does not have enough groups. Later make default 20
+         $rootScope.uiPrefs.usersDisplayNumber = 2;
          //for now make 2, as test model does not have enough groups. Later make default 20
 
 
@@ -137,6 +139,16 @@ arc.directive("usersGroups", function () {
                
                }else if(success.status < 400){
                   $scope.groupsWithUsers = success.data.value;
+
+                  //add properties to object to control number of display users
+                  for(var i = 0; i < $scope.groupsWithUsers.length; i++){
+                     $scope.groupsWithUsers[i].usersMax = $scope.groupsWithUsers[i].Users.length;
+                     $scope.groupsWithUsers[i].usersDisplay = $rootScope.uiPrefs.usersDisplayNumber;
+
+                     $scope.groupsWithUsers[i].usersRemaining = $scope.groupsWithUsers[i].usersMax - $rootScope.uiPrefs.usersDisplayNumber;
+                     if($scope.groupsWithUsers[i].usersRemaining < 0){$scope.groupsWithUsers[i].usersRemaining = 0};
+
+                  }
                   $log.log($scope.groupsWithUsers);
 
                }else{
@@ -1543,6 +1555,56 @@ arc.directive("usersGroups", function () {
                });
             }
 
+         }
+
+
+         $scope.showMoreUsers = function(groupIndex){
+            //WORK IN PROGRESS
+            ngDialog.open({
+               template: "__/plugins/users-groups/showUsers.html",
+               className: "ngdialog-theme-default small",
+               scope: $scope,
+               controller: ['$rootScope', '$scope', '$http', '$state', '$tm1','$log', function ($rootScope, $scope, $http, $state, $tm1, $log) {
+ 
+                  $scope.view = {
+                     name: $scope.groupsWithUsers[groupIndex].Name,
+                     users: $scope.groupsWithUsers[groupIndex].Users
+                  }
+
+
+                  $scope.userFilter = function(user, index){
+                     if(!$scope.selections.filterUser){
+                        return true;
+                     }else{
+                        if(user.Name.toLowerCase().indexOf($scope.selections.filterUser.toLowerCase())!==-1){
+                           return true;
+                        }else{
+                           return false;
+                        }
+                     }
+                  }
+
+                  // $scope.getDisplayNameFromObject = function(userName){
+                  // }
+                  // var currentUserNameIndex = _.findIndex($scope.usersWithGroups, function(i){
+                     // return i.Name === userName;
+                  // });
+                  // $scope.usersWithGroups[currentUserNameIndex].displayName = $scope.usersWithGroups[currentUserNameIndex].displayNamePrevious;
+
+
+
+                  $scope.closeThisDialog = function(){
+                     ngDialog.close();
+                  }
+
+              
+               }],
+               data: {
+                  view : $scope.view,
+                  groupsWithUsers : $scope.groupsWithUsers,
+                  usersWithGroups : $scope.usersWithGroups
+               }
+            });
          }
 
 
