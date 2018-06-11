@@ -1,6 +1,8 @@
 {
    "ADDGROUP":"Add Group",
    "ADDUSER":"Add User",
+   "ADDUSERCLONEUSER":"Clone",
+   "ADDUSERADDGROUP":"Add Group",
    "ADDUSERGROUPSASSIGNMENTS":"Group Assignments",
    "ADDUSERGROUPSEXCLUDEDFROM":"Excluded from",
    "ADDUSERGROUPSMEMBEROF":"Member of",
@@ -89,6 +91,7 @@
    "SETTINGSUSERTABCLIENTSETTINGS":"Client Settings",
    "SHOWUSERSHEADING":"All Users for Group ",
    "SHOWUSERSALIAS":"Alias",
+   "SHOWUSERSALL":"Display All Users",
    "SHOWUSERSNAME":"Name",
    "TABUSERS":"Users",
    "TABGROUPS":"Groups",
