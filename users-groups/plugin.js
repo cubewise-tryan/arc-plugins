@@ -129,7 +129,6 @@ arc.directive("usersGroups", function () {
                }
             });
 
-
             var groupsWithUsersURL = "/Groups?$expand=Users";
             $http.get(encodeURIComponent($scope.instance) + groupsWithUsersURL).then(function(success,error){
                if(success.status == 401){
@@ -164,6 +163,106 @@ arc.directive("usersGroups", function () {
                   }, 5000);
                }
             });
+
+
+            var cubesURL = "/Cubes?$select=Name";
+            $http.get(encodeURIComponent($scope.instance) + cubesURL).then(function(success,error){
+               if(success.status == 401){
+                  // Set reload to true to refresh after the user logs in
+                  $scope.reload = true;
+                  return;
+               
+               }else if(success.status < 400){
+                  $scope.cubes = success.data.value;
+
+               }else{
+                  // Error to display on page
+                  if(success.data && success.data.error && success.data.error.message){
+                     $scope.message = success.data.error.message;
+                  }
+                  else {
+                     $scope.message = success.data;
+                  }
+                  $timeout(function(){
+                     $scope.message = null;
+                  }, 5000);
+               }
+            });
+            
+            var dimensionsURL = "/Dimensions?$select=Name";
+            $http.get(encodeURIComponent($scope.instance) + dimensionsURL).then(function(success,error){
+               if(success.status == 401){
+                  // Set reload to true to refresh after the user logs in
+                  $scope.reload = true;
+                  return;
+               
+               }else if(success.status < 400){
+                  $scope.dimensions = success.data.value;
+
+               }else{
+                  // Error to display on page
+                  if(success.data && success.data.error && success.data.error.message){
+                     $scope.message = success.data.error.message;
+                  }
+                  else {
+                     $scope.message = success.data;
+                  }
+                  $timeout(function(){
+                     $scope.message = null;
+                  }, 5000);
+               }
+            });
+
+
+            var processesURL = "/Processes?$select=Name";
+            $http.get(encodeURIComponent($scope.instance) + processesURL).then(function(success,error){
+               if(success.status == 401){
+                  // Set reload to true to refresh after the user logs in
+                  $scope.reload = true;
+                  return;
+               
+               }else if(success.status < 400){
+                  $scope.processes = success.data.value;
+
+               }else{
+                  // Error to display on page
+                  if(success.data && success.data.error && success.data.error.message){
+                     $scope.message = success.data.error.message;
+                  }
+                  else {
+                     $scope.message = success.data;
+                  }
+                  $timeout(function(){
+                     $scope.message = null;
+                  }, 5000);
+               }
+            });
+
+
+            var choresURL = "/Processes?$select=Name";
+            $http.get(encodeURIComponent($scope.instance) + choresURL).then(function(success,error){
+               if(success.status == 401){
+                  // Set reload to true to refresh after the user logs in
+                  $scope.reload = true;
+                  return;
+               
+               }else if(success.status < 400){
+                  $scope.chores = success.data.value;
+
+               }else{
+                  // Error to display on page
+                  if(success.data && success.data.error && success.data.error.message){
+                     $scope.message = success.data.error.message;
+                  }
+                  else {
+                     $scope.message = success.data;
+                  }
+                  $timeout(function(){
+                     $scope.message = null;
+                  }, 5000);
+               }
+            });
+
 
          };
          // Load for first time: usersWithGroups, Groups
@@ -1691,6 +1790,7 @@ arc.directive("usersGroups", function () {
 
 
          $scope.addGroup = function(){
+            //WORK IN PROGRESS
             ngDialog.open({
                template: "__/plugins/users-groups/addGroup.html",
                className: "ngdialog-theme-default large",
@@ -1698,12 +1798,10 @@ arc.directive("usersGroups", function () {
                controller: ['$rootScope', '$scope', '$http', '$state', '$tm1','$log', function ($rootScope, $scope, $http, $state, $tm1, $log) {
  
                   $scope.view = {
-                     name: '',
-                     groups: [],
+                     name: ''
                   }
 
                   $scope.createGroup = function(){
-                     //WORK IN PROGRESS
                      var url = "/Users";
                      var data = {
                         "Name" : $scope.view.name,
@@ -1744,6 +1842,9 @@ arc.directive("usersGroups", function () {
                      // });
 
                   }
+
+
+
 
                   $scope.closeThisDialog = function(){
                      ngDialog.close();

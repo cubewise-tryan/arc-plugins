@@ -1,4 +1,4 @@
-<div class="tm1-editUset">
+<div class="tm1-addGroup">
       <div class="modal-header text-dark bg-white">
          <span>
             <i class="fa fa-plus"></i>
@@ -10,87 +10,336 @@
          <div class="container-fluid">
             <div class="row pt-2 pb-2">
                <div class="col-sm-12">
-                  <uib-tabset active="selectedTab">
-                     <uib-tab index="0" heading="{{'ADDUSERTABSETTINGS' | translate}}">
-                        <div class="row">
-                           <div class="col-sm-12">
-                              <div class="card">
-                                 <div class="card-body pt-0">
-                                    <div class="row">
-                                       <div class="col-sm-12">
-                                          <form >
-                                             <div class="form-group row p-2">
-                                                <label class="col-form-label ol-form-label-sm" translate="ADDUSERINPUTNAME"></label>
-                                                <input type="text" class="form-control form-control-sm" placeholder="{{view.name}}" ng-model="view.name">
-                                                <label class="col-form-label ol-form-label-sm" translate="ADDUSERINPUTALIAS"></label>
-                                                <input type="text" class="form-control form-control-sm" placeholder="{{view.alias}}" ng-model="view.alias">
-                                                <label class="col-form-label ol-form-label-sm" translate="ADDUSERINPUTPASSWORD"></label>
-                                                <input type="text" class="form-control form-control-sm" placeholder="{{view.password}}" ng-model="view.password">
-                                             </div>
-                                          </form>
-                                       </div>
+                  <div class="row">
+                     <div class="col-sm-5">
+                        <div class="card">
+                           <div class="card-header">
+                              <label translate="ADDGROUPHEADINGGENERAL"></label>
+                           </div>
+                           <div class="card-body pt-2" >
+                              <div class="row">
+                                 <div class="col-sm-4">
+                                    <span class="input-group-prepend">
+                                       <label class="control-label" translate="ADDGROUPINPUTNAME"></label>
+                                    </span>
+                                 </div>
+                                 <div class="col-sm-8">
+                                    <div class="input-group">
+                                       <input type="text" class="form-control form-control-sm" style="min-height: 33.5px;" placeholder="{{view.name}}" ng-model="view.name">
                                     </div>
                                  </div>
                               </div>
-                           </div>
-                        </div>
-                     </uib-tab>
-                     <uib-tab index="1" heading="{{'ADDUSERTABGROUP' | translate}}">
-                        <div class="row">
-                           <div class="col-sm-12">
-                              <div class="card-body pt-2">
-                                 <div class="row">
-                                    <div class="col-sm-6">
-                                       <div class="card">
-                                          <div class="card-header p-2">
-                                             <label translate="ADDUSERGROUPSEXCLUDEDFROM"></label>
-                                          </div>
-                                          <div class="card-body pt-2">
-                                             <div class="input-group mb-1">
-                                                <input type="text" class="form-control" ng-model="temp1" placeholder="{{'SEARCHUAG' | translate}}">
-                                                <span class="input-group-append">
-                                                   <button ng-disabled="!options.availableFilter.length" class="btn btn-secondary" title="" ng-click="" disabled="disabled">
-                                                      <i class="fa fa-fw fa-remove"></i>
-                                                   </button>
-                                                </span>
-                                             </div>
-                                             <div style="height: 250px; padding-right: 5px; overflow-y: scroll; overflow-x: hidden;">
-                                                <!-- wip -->
-                                                <input type="text" ng-model="view.groups" ng-blur="updateGroupsArray(view.groups)" style="width:100%;">
-                                             </div>
-                                          </div>
    
-                                       </div>
+                              <div class="row pt-2">
+                                 <div class="col-sm-4">
+                                    <span class="input-group-prepend">
+                                       <label class="control-label" translate="ADDGROUPCLONEALL"></label>
+                                    </span>
+                                 </div>
+                                 <div class="col-sm-8">
+                                    <div class="input-group">
+                                       <input type="text" class="form-control " 
+                                          ng-disabled="!view.name.length > 0"
+                                          ng-model="selectedUser"
+                                          uib-typeahead="name as User.Name for User in usersWithGroups | filter:{Name : $viewValue} | limitTo:4"
+                                          typeahead-on-select="addCloneUserGroupsToNewUser($item)"
+                                          placeholder="{{'ADDGROUPCLONEGROUP' | translate}}">
+                                       <span class="input-group-append">
+                                          <button ng-disabled="!newUser.password.length" class="btn btn-secondary" title="{{'ADDGROUPREMOVEALL' | translate}}" ng-click="view.hidePassword = !view.hidePassword">
+                                             <i class="fa fa-trash"></i>
+                                          </button>
+                                       </span>
                                     </div>
-                                    <div class="col-sm-6">
-                                       <div class="card">
-                                          <div class="card-header p-2">
-                                             <label translate="ADDUSERGROUPSMEMBEROF"></label>
-                                          </div>
-                                          <div class="card-body pt-2">
-                                             <div class="input-group mb-1">
-                                                <input type="text" class="form-control" ng-model="temp2" placeholder="{{'SEARCHUAG' | translate}}">
-                                                <span class="input-group-append">
-                                                   <button ng-disabled="!options.availableFilter.length" class="btn btn-secondary" title="" ng-click="" disabled="disabled">
-                                                      <i class="fa fa-fw fa-remove"></i>
-                                                   </button>
-                                                </span>
-                                             </div>
-                                             <div style="height: 250px; padding-right: 5px; overflow-y: scroll; overflow-x: hidden;">
-                                                <!-- wip -->
-                                             </div>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="col-sm-7  pl-0">
+                        <div class="card">
+                           <div class="card-header pb-0">
+                              <div class="row">
+                                 <div class="col-sm-3 pr-0" >
+                                    <label translate="ADDGROUPHEADINGAPPLICATIONS"></label>
+                                 </div>
+                                 <div class="col-sm-4 pl-0 pr-0">
+                                    <input type="text" class="form-control " 
+                                       ng-disabled="!view.name.length > 0"
+                                       ng-model="selectedUser"
+                                       uib-typeahead="name as User.Name for User in usersWithGroups | filter:{Name : $viewValue} | limitTo:4"
+                                       typeahead-on-select="addCloneUserGroupsToNewUser($item)"
+                                       placeholder="{{'ADDGROUPCLONEGROUP' | translate}}">
+                                 </div>
+                                 <div class="col-sm-4  pl-2 pr-0">
+                                    <input type="text" class="form-control"
+                                       ng-disabled="!view.name.length > 0"
+                                       ng-model="selectedGroup"
+                                       uib-typeahead="name as Group.Name for Group in groupsWithUsers | filter:{Name : $viewValue} | limitTo:4"
+                                       typeahead-on-select="addIndividualGroupToNewUser($item)"
+                                       placeholder="{{'ADDGROUPAPPLICATION' | translate}}">
+                                 </div>
+                                 <div class="col-sm-1 pl-2 pr-2">
+                                    <div class="toolbar">
+                                       <div class="btn-toolbar pull-right" >
+                                          <div class="btn-group">
+                                             <button class="btn btn-secondary"  title="{{'ADDGROUPREMOVEAPPLICATIONS' | translate}}" ng-click="newUser.groupsAssigned = [];">
+                                                <i class="fa fa-trash"></i>
+                                             </button>
                                           </div>
                                        </div>
                                     </div>
                                  </div>
                               </div>
                            </div>
+                           <div class="card-body pt-0" style="display:block; height:100px; overflow-y:auto; width:100%;">
+                              <div class="row">
+                                 <div class="col-sm-12">
+                                    <form>
+                                       <div class="form-group row p-2">
+                                          <div class="input-group">
+                                             <div ng-repeat="group in newUser.groupsAssigned | orderBy:'Name'" >
+                                                <div style="float:left;">
+                                                   <div class="badge ml-1" ng-style="generateHSLColour(group.Name)" style="cursor : default;">
+                                                      {{group.Name}}
+                                                      <a><i class="fa fa-fw fa-remove" ng-click="removeGroupFromNewUser(group.Name)" title="{{'REMOVEGROUP' | translate}}"></i></a>
+                                                   </div>
+                                                </div>
+                                             </div>
+                                          </div>
+                                       </div>
+                                    </form>
+                                 </div>
+                              </div>
+                           </div>
                         </div>
-                     </uib-tab>
-                  </uib-tabset>
+                        <div class="card mt-2">
+                           <div class="card-header pb-0">
+                              <div class="row">
+                                 <div class="col-sm-3 pr-0" >
+                                    <label translate="ADDGROUPHEADINGCUBES"></label>
+                                 </div>
+                                 <div class="col-sm-4 pl-0 pr-0">
+                                    <input type="text" class="form-control " 
+                                       ng-disabled="!view.name.length > 0"
+                                       ng-model="selectedUser"
+                                       uib-typeahead="name as User.Name for User in usersWithGroups | filter:{Name : $viewValue} | limitTo:4"
+                                       typeahead-on-select="addCloneUserGroupsToNewUser($item)"
+                                       placeholder="{{'ADDGROUPCLONEGROUP' | translate}}">
+                                 </div>
+                                 <div class="col-sm-4  pl-2 pr-0">
+                                    <input type="text" class="form-control"
+                                       ng-disabled="!view.name.length > 0"
+                                       ng-model="selectedGroup"
+                                       uib-typeahead="name as Group.Name for Group in groupsWithUsers | filter:{Name : $viewValue} | limitTo:4"
+                                       typeahead-on-select="addIndividualGroupToNewUser($item)"
+                                       placeholder="{{'ADDGROUPCUBE' | translate}}">
+                                 </div>
+                                 <div class="col-sm-1 pl-2 pr-2">
+                                    <div class="toolbar">
+                                       <div class="btn-toolbar pull-right" >
+                                          <div class="btn-group">
+                                             <button class="btn btn-secondary"  title="{{'ADDGROUPREMOVECUBES' | translate}}" ng-click="newUser.groupsAssigned = [];">
+                                                <i class="fa fa-trash"></i>
+                                             </button>
+                                          </div>
+                                       </div>
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                           <div class="card-body pt-0" style="display:block; height:100px; overflow-y:auto; width:100%;">
+                              <div class="row">
+                                 <div class="col-sm-12">
+                                    <form>
+                                       <div class="form-group row p-2">
+                                          <div class="input-group">
+                                             <div ng-repeat="group in newUser.groupsAssigned | orderBy:'Name'" >
+                                                <div style="float:left;">
+                                                   <div class="badge ml-1" ng-style="generateHSLColour(group.Name)" style="cursor : default;">
+                                                      {{group.Name}}
+                                                      <a><i class="fa fa-fw fa-remove" ng-click="removeGroupFromNewUser(group.Name)" title="{{'REMOVEGROUP' | translate}}"></i></a>
+                                                   </div>
+                                                </div>
+                                             </div>
+                                          </div>
+                                       </div>
+                                    </form>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                        <div class="card mt-2">
+                           <div class="card-header pb-0">
+                              <div class="row">
+                                 <div class="col-sm-3 pr-0" >
+                                    <label translate="ADDGROUPHEADINGDIMENSIONS"></label>
+                                 </div>
+                                 <div class="col-sm-4 pl-0 pr-0">
+                                    <input type="text" class="form-control " 
+                                       ng-disabled="!view.name.length > 0"
+                                       ng-model="selectedUser"
+                                       uib-typeahead="name as User.Name for User in usersWithGroups | filter:{Name : $viewValue} | limitTo:4"
+                                       typeahead-on-select="addCloneUserGroupsToNewUser($item)"
+                                       placeholder="{{'ADDGROUPCLONEGROUP' | translate}}">
+                                 </div>
+                                 <div class="col-sm-4  pl-2 pr-0">
+                                    <input type="text" class="form-control"
+                                       ng-disabled="!view.name.length > 0"
+                                       ng-model="selectedGroup"
+                                       uib-typeahead="name as Group.Name for Group in groupsWithUsers | filter:{Name : $viewValue} | limitTo:4"
+                                       typeahead-on-select="addIndividualGroupToNewUser($item)"
+                                       placeholder="{{'ADDGROUPDIMENSION' | translate}}">
+                                 </div>
+                                 <div class="col-sm-1 pl-2 pr-2">
+                                    <div class="toolbar">
+                                       <div class="btn-toolbar pull-right" >
+                                          <div class="btn-group">
+                                             <button class="btn btn-secondary"  title="{{'ADDGROUPREMOVEDIMENSIONS' | translate}}" ng-click="newUser.groupsAssigned = [];">
+                                                <i class="fa fa-trash"></i>
+                                             </button>
+                                          </div>
+                                       </div>
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                           <div class="card-body pt-0" style="display:block; height:100px; overflow-y:auto; width:100%;">
+                              <div class="row">
+                                 <div class="col-sm-12">
+                                    <form>
+                                       <div class="form-group row p-2">
+                                          <div class="input-group">
+                                             <div ng-repeat="group in newUser.groupsAssigned | orderBy:'Name'" >
+                                                <div style="float:left;">
+                                                   <div class="badge ml-1" ng-style="generateHSLColour(group.Name)" style="cursor : default;">
+                                                      {{group.Name}}
+                                                      <a><i class="fa fa-fw fa-remove" ng-click="removeGroupFromNewUser(group.Name)" title="{{'REMOVEGROUP' | translate}}"></i></a>
+                                                   </div>
+                                                </div>
+                                             </div>
+                                          </div>
+                                       </div>
+                                    </form>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                        <div class="card mt-2">
+                           <div class="card-header pb-0">
+                              <div class="row">
+                                 <div class="col-sm-3 pr-0" >
+                                    <label translate="ADDGROUPHEADINGPROCESSES"></label>
+                                 </div>
+                                 <div class="col-sm-4 pl-0 pr-0">
+                                    <input type="text" class="form-control " 
+                                       ng-disabled="!view.name.length > 0"
+                                       ng-model="selectedUser"
+                                       uib-typeahead="name as User.Name for User in usersWithGroups | filter:{Name : $viewValue} | limitTo:4"
+                                       typeahead-on-select="addCloneUserGroupsToNewUser($item)"
+                                       placeholder="{{'ADDGROUPCLONEGROUP' | translate}}">
+                                 </div>
+                                 <div class="col-sm-4  pl-2 pr-0">
+                                    <input type="text" class="form-control"
+                                       ng-disabled="!view.name.length > 0"
+                                       ng-model="selectedGroup"
+                                       uib-typeahead="name as Group.Name for Group in groupsWithUsers | filter:{Name : $viewValue} | limitTo:4"
+                                       typeahead-on-select="addIndividualGroupToNewUser($item)"
+                                       placeholder="{{'ADDGROUPPROCESS' | translate}}">
+                                 </div>
+                                 <div class="col-sm-1 pl-2 pr-2">
+                                    <div class="toolbar">
+                                       <div class="btn-toolbar pull-right" >
+                                          <div class="btn-group">
+                                             <button class="btn btn-secondary"  title="{{'ADDGROUPREMOVEPROCESSES' | translate}}" ng-click="newUser.groupsAssigned = [];">
+                                                <i class="fa fa-trash"></i>
+                                             </button>
+                                          </div>
+                                       </div>
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                           <div class="card-body pt-0" style="display:block; height:100px; overflow-y:auto; width:100%;">
+                              <div class="row">
+                                 <div class="col-sm-12">
+                                    <form>
+                                       <div class="form-group row p-2">
+                                          <div class="input-group">
+                                             <div ng-repeat="group in newUser.groupsAssigned | orderBy:'Name'" >
+                                                <div style="float:left;">
+                                                   <div class="badge ml-1" ng-style="generateHSLColour(group.Name)" style="cursor : default;">
+                                                      {{group.Name}}
+                                                      <a><i class="fa fa-fw fa-remove" ng-click="removeGroupFromNewUser(group.Name)" title="{{'REMOVEGROUP' | translate}}"></i></a>
+                                                   </div>
+                                                </div>
+                                             </div>
+                                          </div>
+                                       </div>
+                                    </form>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                        <div class="card mt-2">
+                           <div class="card-header pb-0">
+                              <div class="row">
+                                 <div class="col-sm-3 pr-0" >
+                                    <label translate="ADDGROUPHEADINGCHORES"></label>
+                                 </div>
+                                 <div class="col-sm-4 pl-0 pr-0">
+                                    <input type="text" class="form-control " 
+                                       ng-disabled="!view.name.length > 0"
+                                       ng-model="selectedUser"
+                                       uib-typeahead="name as User.Name for User in usersWithGroups | filter:{Name : $viewValue} | limitTo:4"
+                                       typeahead-on-select="addCloneUserGroupsToNewUser($item)"
+                                       placeholder="{{'ADDGROUPCLONEGROUP' | translate}}">
+                                 </div>
+                                 <div class="col-sm-4  pl-2 pr-0">
+                                    <input type="text" class="form-control"
+                                       ng-disabled="!view.name.length > 0"
+                                       ng-model="selectedGroup"
+                                       uib-typeahead="name as Group.Name for Group in groupsWithUsers | filter:{Name : $viewValue} | limitTo:4"
+                                       typeahead-on-select="addIndividualGroupToNewUser($item)"
+                                       placeholder="{{'ADDGROUPCHORE' | translate}}">
+                                 </div>
+                                 <div class="col-sm-1 pl-2 pr-2">
+                                    <div class="toolbar">
+                                       <div class="btn-toolbar pull-right" >
+                                          <div class="btn-group">
+                                             <button class="btn btn-secondary"  title="{{'ADDGROUPREMOVECHORES' | translate}}" ng-click="newUser.groupsAssigned = [];">
+                                                <i class="fa fa-trash"></i>
+                                             </button>
+                                          </div>
+                                       </div>
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                           <div class="card-body pt-0" style="display:block; height:100px; overflow-y:auto; width:100%;">
+                              <div class="row">
+                                 <div class="col-sm-12">
+                                    <form>
+                                       <div class="form-group row p-2">
+                                          <div class="input-group">
+                                             <div ng-repeat="group in newUser.groupsAssigned | orderBy:'Name'" >
+                                                <div style="float:left;">
+                                                   <div class="badge ml-1" ng-style="generateHSLColour(group.Name)" style="cursor : default;">
+                                                      {{group.Name}}
+                                                      <a><i class="fa fa-fw fa-remove" ng-click="removeGroupFromNewUser(group.Name)" title="{{'REMOVEGROUP' | translate}}"></i></a>
+                                                   </div>
+                                                </div>
+                                             </div>
+                                          </div>
+                                       </div>
+                                    </form>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
                </div>
             </div>
-   
          </div>
       </div>
       
@@ -105,7 +354,7 @@
          <div class="row">
             <div class="col-md-12">
                <button class="btn action ng-scope" ng-click="closeThisDialog()" translate="CANCEL"></button>
-               <button class="btn btn-primary action ng-scope" ng-click="createUser() &amp;&amp; closeThisDialog()" translate="SAVEUSERCHANGES">Save</button>
+               <button class="btn btn-primary action ng-scope" ng-click="createGroup()" translate="CREATEUAG"></button>
             </div>
          </div>
    

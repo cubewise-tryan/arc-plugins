@@ -38,27 +38,15 @@
                            <th style="width: 100%;" translate="SHOWUSERSALIAS"></th>
                         </thead>
                         <tbody style="display: block; height:120px; overflow-y:auto; width:100%; overflow-x: auto;">
-                              <!--  -->
-                              <!-- <tr>{{view.users}}</tr> -->
                            <tr ng-repeat="user in view.users | filter:userFilter">
-                                 <!-- | filter:userFilter track by $index-->
-                              <!-- <td style="min-width: 400px;" ng-class="{'bg-secondary' : cube.name == cubeSelected}"> -->
-                                 <!-- <a href ng-click="getDimensionsPerCube(cube.name);" -->
-                                    <!-- ng-class="{'text-light font-weight-bold' : cube.name == cubeSelected}" -->
-                                    <!-- title="{{'AUDITUSERFILTERDIMENSIONS' | translate}}">{{cube.name}}</a> -->
-                              <!-- </td> -->
-                              <!-- <td style="width: 100%" ng-class="{'bg-secondary' : cube.name == cubeSelected}"> -->
-                                 <!-- <div ng-repeat = "group in cube.groupsWithAccess" ng-class="securityAccessColourMapping(group.access)" class="ml-1" style="cursor: default;"> -->
-                                 <td style="min-width: 200px;">
-                                    {{user.Name}}
-                                 </td>
-                                 <td style="width: 100%">
-                                    <div>
-                                       {{ getDisplayNameFromObject(user.Name) }}
-                                    </div>
-                                 </td>
-                                 <!-- </div> -->
-                              <!-- </td> -->
+                              <td style="min-width: 200px;">
+                                 {{user.Name}}
+                              </td>
+                              <td style="width: 100%">
+                                 <div>
+                                    {{ getDisplayNameFromObject(user.Name) }}
+                                 </div>
+                              </td>
                            </tr>
                         </tbody>
                      </table>
