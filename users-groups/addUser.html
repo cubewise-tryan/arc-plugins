@@ -64,43 +64,6 @@
                                  </div>
                               </div>
                            </div>
-
-                           <div class="row pt-2">
-                              <div class="col-sm-4">
-                                 <span class="input-group-prepend">
-                                    <label class="control-label" translate="ADDUSERCLONEUSER"></label>
-                                 </span>
-                              </div>
-                              <div class="col-sm-8">
-                                 <div class="input-group">
-                                    <input type="text" class="form-control form-control-sm" style="border-top-right-radius: 2.8px; border-bottom-right-radius: 2.8px; min-height: 33.5px;"
-                                       ng-disabled="!newUser.name.length > 0 || !newUser.alias.length > 0 || !newUser.password.length > 0"
-                                       ng-model="selectedUser"
-                                       uib-typeahead="name as User.Name for User in usersWithGroups | filter:{Name : $viewValue} | limitTo:4"
-                                       typeahead-on-select="addCloneUserGroupsToNewUser($item)"
-                                       placeholder="{{'TYPEUSER' | translate}}">
-                                 </div>
-                              </div>
-                           </div>
-
-                           <div class="row pt-2">
-                              <div class="col-sm-4">
-                                 <span class="input-group-prepend">
-                                    <label class="control-label" translate="ADDUSERADDGROUP"></label>
-                                 </span>
-                              </div>
-                              <div class="col-sm-8">
-                                 <div class="input-group">
-                                    <input type="text" class="form-control form-control-sm" style="border-top-right-radius: 2.8px; border-bottom-right-radius: 2.8px; min-height: 33.5px;"
-                                       ng-disabled="!newUser.name.length > 0 || !newUser.alias.length > 0 || !newUser.password.length > 0"
-                                       ng-model="selectedGroup"
-                                       uib-typeahead="name as Group.Name for Group in groupsWithUsers | filter:{Name : $viewValue} | limitTo:4"
-                                       typeahead-on-select="addIndividualGroupToNewUser($item)"
-                                       placeholder="{{'TYPEGROUP' | translate}}">
-                                 </div>
-                              </div>
-                           </div>
-
                         </div>
                      </div>
                   </div>
@@ -108,10 +71,26 @@
                      <div class="card">
                         <div class="card-header pb-0">
                            <div class="row">
-                              <div class="col-sm-10">
+                              <div class="col-sm-3 pr-0" >
                                  <label>Added Groups</label>
                               </div>
-                              <div class="col-sm-2">
+                              <div class="col-sm-4 pl-0 pr-0">
+                                 <input type="text" class="form-control " 
+                                    ng-disabled="!newUser.name.length > 0 || !newUser.alias.length > 0 || !newUser.password.length > 0"
+                                    ng-model="selectedUser"
+                                    uib-typeahead="name as User.Name for User in usersWithGroups | filter:{Name : $viewValue} | limitTo:4"
+                                    typeahead-on-select="addCloneUserGroupsToNewUser($item)"
+                                    placeholder="{{'ADDUSERCLONEUSER' | translate}}">
+                              </div>
+                              <div class="col-sm-4  pl-2 pr-0">
+                                 <input type="text" class="form-control"
+                                    ng-disabled="!newUser.name.length > 0 || !newUser.alias.length > 0 || !newUser.password.length > 0"
+                                    ng-model="selectedGroup"
+                                    uib-typeahead="name as Group.Name for Group in groupsWithUsers | filter:{Name : $viewValue} | limitTo:4"
+                                    typeahead-on-select="addIndividualGroupToNewUser($item)"
+                                    placeholder="{{'ADDUSERADDGROUP' | translate}}">
+                              </div>
+                              <div class="col-sm-1 pl-2 pr-2">
                                  <div class="toolbar">
                                     <div class="btn-toolbar pull-right" >
                                        <div class="btn-group">

@@ -1559,7 +1559,6 @@ arc.directive("usersGroups", function () {
 
 
          $scope.showMoreUsers = function(groupIndex){
-            //WORK IN PROGRESS
             ngDialog.open({
                template: "__/plugins/users-groups/showUsers.html",
                className: "ngdialog-theme-default small",
@@ -1578,19 +1577,26 @@ arc.directive("usersGroups", function () {
                      }else{
                         if(user.Name.toLowerCase().indexOf($scope.selections.filterUser.toLowerCase())!==-1){
                            return true;
+
                         }else{
-                           return false;
+                           var displayName = $scope.getDisplayNameFromObject(user.Name);
+                           if(displayName.toLowerCase().indexOf($scope.selections.filterUser.toLowerCase())!==-1){
+                              return true;
+                           }else{
+                              return false;
+                           }
                         }
                      }
                   }
 
-                  // $scope.getDisplayNameFromObject = function(userName){
-                  // }
-                  // var currentUserNameIndex = _.findIndex($scope.usersWithGroups, function(i){
-                     // return i.Name === userName;
-                  // });
-                  // $scope.usersWithGroups[currentUserNameIndex].displayName = $scope.usersWithGroups[currentUserNameIndex].displayNamePrevious;
 
+                  $scope.getDisplayNameFromObject = function(userName){
+                     var currentUserNameIndex = _.findIndex($scope.usersWithGroups, function(i){
+                        return i.Name === userName;
+                     });
+
+                     return $scope.usersWithGroups[currentUserNameIndex].displayName;
+                  }
 
 
                   $scope.closeThisDialog = function(){
