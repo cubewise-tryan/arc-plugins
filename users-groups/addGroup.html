@@ -40,9 +40,9 @@
                                     <div class="input-group">
                                        <input type="text" class="form-control " 
                                           ng-disabled="!view.name.length > 0"
-                                          ng-model="selectedUser"
-                                          uib-typeahead="name as User.Name for User in usersWithGroups | filter:{Name : $viewValue} | limitTo:4"
-                                          typeahead-on-select="addCloneUserGroupsToNewUser($item)"
+                                          ng-model="selectedGroupCloneAll"
+                                          uib-typeahead="name as Group.Name for Group in groupsWithUsers | filter:{Name : $viewValue} | limitTo:4"
+                                          typeahead-on-select=""
                                           placeholder="{{'ADDGROUPCLONEGROUP' | translate}}">
                                        <span class="input-group-append">
                                           <button ng-disabled="!newUser.password.length" class="btn btn-secondary" title="{{'ADDGROUPREMOVEALL' | translate}}" ng-click="view.hidePassword = !view.hidePassword">
@@ -73,7 +73,7 @@
                                  <div class="col-sm-4  pl-2 pr-0">
                                     <input type="text" class="form-control"
                                        ng-disabled="!view.name.length > 0"
-                                       ng-model="selectedGroup"
+                                       ng-model="selectedApplication"
                                        uib-typeahead="name as Group.Name for Group in groupsWithUsers | filter:{Name : $viewValue} | limitTo:4"
                                        typeahead-on-select="addIndividualGroupToNewUser($item)"
                                        placeholder="{{'ADDGROUPAPPLICATION' | translate}}">
@@ -82,7 +82,7 @@
                                     <div class="toolbar">
                                        <div class="btn-toolbar pull-right" >
                                           <div class="btn-group">
-                                             <button class="btn btn-secondary"  title="{{'ADDGROUPREMOVEAPPLICATIONS' | translate}}" ng-click="newUser.groupsAssigned = [];">
+                                             <button class="btn btn-secondary"  title="{{'ADDGROUPREMOVEAPPLICATIONS' | translate}}" ng-click="newGroup.applications.itemsAssigned = [];">
                                                 <i class="fa fa-trash"></i>
                                              </button>
                                           </div>
@@ -97,10 +97,10 @@
                                     <form>
                                        <div class="form-group row p-2">
                                           <div class="input-group">
-                                             <div ng-repeat="group in newUser.groupsAssigned | orderBy:'Name'" >
+                                             <div ng-repeat="process in newGroup.applications.itemsAssigned | orderBy:'Name'" >
                                                 <div style="float:left;">
                                                    <div class="badge ml-1" ng-style="generateHSLColour(group.Name)" style="cursor : default;">
-                                                      {{group.Name}}
+                                                      {{process.Name}}
                                                       <a><i class="fa fa-fw fa-remove" ng-click="removeGroupFromNewUser(group.Name)" title="{{'REMOVEGROUP' | translate}}"></i></a>
                                                    </div>
                                                 </div>
@@ -123,22 +123,22 @@
                                        ng-disabled="!view.name.length > 0"
                                        ng-model="selectedUser"
                                        uib-typeahead="name as User.Name for User in usersWithGroups | filter:{Name : $viewValue} | limitTo:4"
-                                       typeahead-on-select="addCloneUserGroupsToNewUser($item)"
+                                       typeahead-on-select="addCloneGroupsToNewGroup('cubes', $item)"
                                        placeholder="{{'ADDGROUPCLONEGROUP' | translate}}">
                                  </div>
                                  <div class="col-sm-4  pl-2 pr-0">
                                     <input type="text" class="form-control"
                                        ng-disabled="!view.name.length > 0"
-                                       ng-model="selectedGroup"
-                                       uib-typeahead="name as Group.Name for Group in groupsWithUsers | filter:{Name : $viewValue} | limitTo:4"
-                                       typeahead-on-select="addIndividualGroupToNewUser($item)"
+                                       ng-model="selectedCube"
+                                       uib-typeahead="name as cube.Name for cube in cubes | filter:{Name : $viewValue} | limitTo:4"
+                                       typeahead-on-select="addIndividualTm1SectionItemToNewGroup('cubes', $item)"
                                        placeholder="{{'ADDGROUPCUBE' | translate}}">
                                  </div>
                                  <div class="col-sm-1 pl-2 pr-2">
                                     <div class="toolbar">
                                        <div class="btn-toolbar pull-right" >
                                           <div class="btn-group">
-                                             <button class="btn btn-secondary"  title="{{'ADDGROUPREMOVECUBES' | translate}}" ng-click="newUser.groupsAssigned = [];">
+                                             <button class="btn btn-secondary" title="{{'ADDGROUPREMOVECUBES' | translate}}" ng-click="newGroup.cubes = [];">
                                                 <i class="fa fa-trash"></i>
                                              </button>
                                           </div>
@@ -153,11 +153,13 @@
                                     <form>
                                        <div class="form-group row p-2">
                                           <div class="input-group">
-                                             <div ng-repeat="group in newUser.groupsAssigned | orderBy:'Name'" >
+                                             <div ng-repeat="cube in newGroup.cubes | orderBy:'Name'" >
                                                 <div style="float:left;">
-                                                   <div class="badge ml-1" ng-style="generateHSLColour(group.Name)" style="cursor : default;">
-                                                      {{group.Name}}
-                                                      <a><i class="fa fa-fw fa-remove" ng-click="removeGroupFromNewUser(group.Name)" title="{{'REMOVEGROUP' | translate}}"></i></a>
+                                                   <div class="badge badge-md ml-1" ng-class="securityAccessColourMapping(cube.access)" class="ml-1" style="cursor: default; user-select: none;">
+                                                      <a><i class="fa fa-arrow-up" ng-click="previousAccess('cubes', cube.name, cube.access)" title="{{'ADDGROUPPREVIOUSACCESS' | translate}}"></i></a>
+                                                      <a><i class="fa fa-arrow-down" ng-click="nextAccess('cubes', cube.name, cube.access)" title="{{'ADDGROUPNEXTACCESS' | translate}}"></i></a>
+                                                      {{cube.name}}:{{cube.access}}
+                                                      <a><i class="fa fa-fw fa-remove" ng-click="removeTm1SectionItemFromNewGroup('cubes', cube.name)" title="{{'REMOVEGROUP' | translate}}"></i></a>
                                                    </div>
                                                 </div>
                                              </div>
@@ -185,16 +187,16 @@
                                  <div class="col-sm-4  pl-2 pr-0">
                                     <input type="text" class="form-control"
                                        ng-disabled="!view.name.length > 0"
-                                       ng-model="selectedGroup"
-                                       uib-typeahead="name as Group.Name for Group in groupsWithUsers | filter:{Name : $viewValue} | limitTo:4"
-                                       typeahead-on-select="addIndividualGroupToNewUser($item)"
+                                       ng-model="selectedDimension"
+                                       uib-typeahead="name as dimension.Name for dimension in dimensions | filter:{Name : $viewValue} | limitTo:4"
+                                       typeahead-on-select="addIndividualTm1SectionItemToNewGroup('dimensions', $item)"
                                        placeholder="{{'ADDGROUPDIMENSION' | translate}}">
                                  </div>
                                  <div class="col-sm-1 pl-2 pr-2">
                                     <div class="toolbar">
                                        <div class="btn-toolbar pull-right" >
                                           <div class="btn-group">
-                                             <button class="btn btn-secondary"  title="{{'ADDGROUPREMOVEDIMENSIONS' | translate}}" ng-click="newUser.groupsAssigned = [];">
+                                             <button class="btn btn-secondary"  title="{{'ADDGROUPREMOVEDIMENSIONS' | translate}}" ng-click="newGroup.dimensions = [];">
                                                 <i class="fa fa-trash"></i>
                                              </button>
                                           </div>
@@ -209,11 +211,13 @@
                                     <form>
                                        <div class="form-group row p-2">
                                           <div class="input-group">
-                                             <div ng-repeat="group in newUser.groupsAssigned | orderBy:'Name'" >
+                                             <div ng-repeat="dimension in newGroup.dimensions | orderBy:'Name'" >
                                                 <div style="float:left;">
-                                                   <div class="badge ml-1" ng-style="generateHSLColour(group.Name)" style="cursor : default;">
-                                                      {{group.Name}}
-                                                      <a><i class="fa fa-fw fa-remove" ng-click="removeGroupFromNewUser(group.Name)" title="{{'REMOVEGROUP' | translate}}"></i></a>
+                                                   <div class="badge ml-1" ng-class="securityAccessColourMapping(dimension.access)" class="ml-1" style="cursor: default; user-select: none;">
+                                                      <a><i class="fa fa-arrow-up" ng-click="previousAccess('dimensions', dimension.name, dimension.access)" title="{{'ADDGROUPPREVIOUSACCESS' | translate}}"></i></a>
+                                                      <a><i class="fa fa-arrow-down" ng-click="nextAccess('dimensions', dimension.name, dimension.access)" title="{{'ADDGROUPNEXTACCESS' | translate}}"></i></a>
+                                                      {{dimension.name}}:{{dimension.access}}
+                                                      <a><i class="fa fa-fw fa-remove" ng-click="removeTm1SectionItemFromNewGroup('dimensions', dimension.Name)" title="{{'REMOVEGROUP' | translate}}"></i></a>
                                                    </div>
                                                 </div>
                                              </div>
@@ -241,16 +245,16 @@
                                  <div class="col-sm-4  pl-2 pr-0">
                                     <input type="text" class="form-control"
                                        ng-disabled="!view.name.length > 0"
-                                       ng-model="selectedGroup"
-                                       uib-typeahead="name as Group.Name for Group in groupsWithUsers | filter:{Name : $viewValue} | limitTo:4"
-                                       typeahead-on-select="addIndividualGroupToNewUser($item)"
+                                       ng-model="selectedProcess"
+                                       uib-typeahead="name as process.Name for process in processes | filter:{Name : $viewValue} | limitTo:4"
+                                       typeahead-on-select="addIndividualTm1SectionItemToNewGroup('processes', $item)"
                                        placeholder="{{'ADDGROUPPROCESS' | translate}}">
                                  </div>
                                  <div class="col-sm-1 pl-2 pr-2">
                                     <div class="toolbar">
                                        <div class="btn-toolbar pull-right" >
                                           <div class="btn-group">
-                                             <button class="btn btn-secondary"  title="{{'ADDGROUPREMOVEPROCESSES' | translate}}" ng-click="newUser.groupsAssigned = [];">
+                                             <button class="btn btn-secondary"  title="{{'ADDGROUPREMOVEPROCESSES' | translate}}" ng-click="newGroup.processes = [];">
                                                 <i class="fa fa-trash"></i>
                                              </button>
                                           </div>
@@ -265,11 +269,13 @@
                                     <form>
                                        <div class="form-group row p-2">
                                           <div class="input-group">
-                                             <div ng-repeat="group in newUser.groupsAssigned | orderBy:'Name'" >
+                                             <div ng-repeat="process in newGroup.processes | orderBy:'Name'" >
                                                 <div style="float:left;">
-                                                   <div class="badge ml-1" ng-style="generateHSLColour(group.Name)" style="cursor : default;">
-                                                      {{group.Name}}
-                                                      <a><i class="fa fa-fw fa-remove" ng-click="removeGroupFromNewUser(group.Name)" title="{{'REMOVEGROUP' | translate}}"></i></a>
+                                                   <div class="badge ml-1" ng-class="securityAccessColourMapping(process.access)" class="ml-1" style="cursor: default; user-select: none;">
+                                                      <a><i class="fa fa-arrow-up" ng-click="previousAccess('processes', process.name, process.access)" title="{{'ADDGROUPPREVIOUSACCESS' | translate}}"></i></a>
+                                                      <a><i class="fa fa-arrow-down" ng-click="nextAccess('processes', process.name, process.access)" title="{{'ADDGROUPNEXTACCESS' | translate}}"></i></a>
+                                                      {{process.name}}:{{process.access}}
+                                                      <a><i class="fa fa-fw fa-remove" ng-click="removeTm1SectionItemFromNewGroup('processes', process.name)" title="{{'REMOVEGROUP' | translate}}"></i></a>
                                                    </div>
                                                 </div>
                                              </div>
@@ -297,16 +303,16 @@
                                  <div class="col-sm-4  pl-2 pr-0">
                                     <input type="text" class="form-control"
                                        ng-disabled="!view.name.length > 0"
-                                       ng-model="selectedGroup"
-                                       uib-typeahead="name as Group.Name for Group in groupsWithUsers | filter:{Name : $viewValue} | limitTo:4"
-                                       typeahead-on-select="addIndividualGroupToNewUser($item)"
+                                       ng-model="selectedChore"
+                                       uib-typeahead="name as chore.Name for chore in chores | filter:{Name : $viewValue} | limitTo:4"
+                                       typeahead-on-select="addIndividualTm1SectionItemToNewGroup('chores',$item)"
                                        placeholder="{{'ADDGROUPCHORE' | translate}}">
                                  </div>
                                  <div class="col-sm-1 pl-2 pr-2">
                                     <div class="toolbar">
                                        <div class="btn-toolbar pull-right" >
                                           <div class="btn-group">
-                                             <button class="btn btn-secondary"  title="{{'ADDGROUPREMOVECHORES' | translate}}" ng-click="newUser.groupsAssigned = [];">
+                                             <button class="btn btn-secondary"  title="{{'ADDGROUPREMOVECHORES' | translate}}" ng-click="newGroup.chores = [];">
                                                 <i class="fa fa-trash"></i>
                                              </button>
                                           </div>
@@ -321,11 +327,13 @@
                                     <form>
                                        <div class="form-group row p-2">
                                           <div class="input-group">
-                                             <div ng-repeat="group in newUser.groupsAssigned | orderBy:'Name'" >
+                                             <div ng-repeat="chore in newGroup.chores | orderBy:'Name'" >
                                                 <div style="float:left;">
-                                                   <div class="badge ml-1" ng-style="generateHSLColour(group.Name)" style="cursor : default;">
-                                                      {{group.Name}}
-                                                      <a><i class="fa fa-fw fa-remove" ng-click="removeGroupFromNewUser(group.Name)" title="{{'REMOVEGROUP' | translate}}"></i></a>
+                                                   <div class="badge ml-1" ng-class="securityAccessColourMapping(chore.access)" class="ml-1" style="cursor: default; user-select: none;">
+                                                      <a><i class="fa fa-arrow-up" ng-click="previousAccess('chores', chore.name, chore.access)" title="{{'ADDGROUPPREVIOUSACCESS' | translate}}"></i></a>
+                                                      <a><i class="fa fa-arrow-down" ng-click="nextAccess('chores', chore.name, chore.access)" title="{{'ADDGROUPNEXTACCESS' | translate}}"></i></a>
+                                                      {{chore.name}}:{{chore.access}}
+                                                      <a><i class="fa fa-fw fa-remove" ng-click="removeTm1SectionItemFromNewGroup('chores', chore.name)" title="{{'REMOVEGROUP' | translate}}"></i></a>
                                                    </div>
                                                 </div>
                                              </div>

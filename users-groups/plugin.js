@@ -239,7 +239,7 @@ arc.directive("usersGroups", function () {
             });
 
 
-            var choresURL = "/Processes?$select=Name";
+            var choresURL = "/Chores?$select=Name";
             $http.get(encodeURIComponent($scope.instance) + choresURL).then(function(success,error){
                if(success.status == 401){
                   // Set reload to true to refresh after the user logs in
@@ -1797,14 +1797,172 @@ arc.directive("usersGroups", function () {
                scope: $scope,
                controller: ['$rootScope', '$scope', '$http', '$state', '$tm1','$log', function ($rootScope, $scope, $http, $state, $tm1, $log) {
  
-                  $scope.view = {
-                     name: ''
+                  //default objects/arrays
+                  $scope.newGroup = {
+                     name:"",
+                     applications:[],
+                     cubes: [],
+                     dimensions:[],
+                     processes:[],
+                     chores:[]
                   }
+
+                  var assignedAccessObj = {
+                     "NONE":0,
+                     "READ":1,
+                     "WRITE":2,
+                     "ADMIN":3
+                  }
+
+                  var assignedAccessArray = [
+                     "NONE",
+                     "READ",
+                     "WRITE",
+                     "ADMIN",
+                  ];
+
+                  var currentIndex = 0;
+                  var nextIndex = 0;
+                  var previousIndex = 0;
+
+                  $scope.nextAccess = function(tm1Section, itemName, currentAccess){
+                     currentIndex = assignedAccessObj[currentAccess];
+                     nextIndex = currentIndex+1;
+
+                     var itemIndex = _.findIndex($scope.newGroup[tm1Section], function(i){return i.name == itemName;});
+
+                     if(nextIndex > 3){
+                        $scope.newGroup[tm1Section][itemIndex].access = assignedAccessArray[0];
+                     }else{
+                        $scope.newGroup[tm1Section][itemIndex].access = assignedAccessArray[nextIndex];
+                     }
+                  }
+
+                  $scope.previousAccess = function(tm1Section, itemName, currentAccess){
+                     currentIndex = assignedAccessObj[currentAccess];
+                     previousIndex = currentIndex-1;
+                     
+                     var itemIndex = _.findIndex($scope.newGroup[tm1Section], function(i){return i.name == itemName;});
+
+                     if(previousIndex < 0){
+                        $scope.newGroup[tm1Section][itemIndex].access = assignedAccessArray[3];
+                     }else{
+                        $scope.newGroup[tm1Section][itemIndex].access = assignedAccessArray[previousIndex];
+                     }
+                  }
+
+
+                  // var test123 = _.map($scope.cubes, test);
+                  // $log.log(test123);
+
+                  // itemsAssigned : []
+/*                   addItem: function(Tm1Instance, item){
+                     var defaultItem = {
+                        name:"",
+                        access:"NONE"
+                     }
+                     $scope.newGroup[Tm1Instance].itemsAssigned.push(defaultItem);
+                  },
+                  cycleAccess:function(){
+
+                  }, */
+
+
+
+                  $scope.getTm1InstanceItemsPerGroup = function(tm1Instance, group){
+                     //WIP
+                     // var groupsMDX = groupsArrayToGroupsMDX($scope.view.groups);
+
+                     // if(typeof groupsMDX != "undefined"){
+                        var url = "/ExecuteMDX?$expand=Axes($expand=Hierarchies($select=Name;$expand=Dimension($select=Name)),Tuples($expand=Members($select=Name,UniqueName,Ordinal,Attributes;$expand=Parent($select=Name);$expand=Element($select=Name,Type,Level)))),Cells($select=Value,Updateable,Consolidated,RuleDerived,HasPicklist,FormatString,FormattedValue)";
+                        var mdx = "SELECT NON EMPTY" + groupsMDX + "ON COLUMNS, NON EMPTY {TM1SUBSETALL( [}Cubes] )} ON ROWS FROM [}CubeSecurity]"
+                        var data = { 
+                           "MDX" : mdx
+                         };
+                         
+                        $http.post(encodeURIComponent($scope.instance)+url, data).then(function(success, error){
+                           if(success.status == 401){
+                              // Set reload to true to refresh after the user logs in
+                              $scope.reload = true;
+                              return;
+                           
+                           }else if(success.status < 400){
+/*                               var options = {
+                                 alias: {},
+                                 suppressZeroRows: 1,
+                                 suppressZeroColumns: 1,
+                                 maxRows: 50
+                              };
+                              var cubeName = "}CubeSecurity";
+                              $scope.cubeSecurityResult = $tm1.resultsetTransform($scope.instance, cubeName, success.data, options);
+   
+                              $scope.cubes = [];
+                              for(var i = 0; i < $scope.cubeSecurityResult.rows.length; i++){
+                                 var item = {
+                                    name : "",
+                                    groupsWithAccess : []
+                                 }
+   
+                                 item.name = $scope.cubeSecurityResult.rows[i]["}Cubes"].name;
+   
+                                 for(var j = 0; j < $scope.cubeSecurityResult.rows[i].cells.length; j++){
+                                    var group = {
+                                       name:"",
+                                       access:""
+                                    };
+                                    if($scope.cubeSecurityResult.rows[i].cells[j].value){
+                                       group.name = $scope.cubeSecurityResult.rows[i].cells[j].key;
+                                       group.access = $scope.cubeSecurityResult.rows[i].cells[j].value;
+                                       item.groupsWithAccess.push(group);
+                                    }
+                                    
+                                 }
+   
+                                 $scope.cubes.push(item);
+                              } */
+   
+                           }else{
+                              if(success.data && success.data.error && success.data.error.message){
+                                 $scope.view.message = success.data.error.message;
+                              }else{
+                                 $scope.view.message = success.data;
+                              }
+                              $scope.view.messageWarning = true;
+   
+                           }
+   
+                        })
+
+                     // }
+
+                  }
+
+
+
+                  $scope.addCloneGroupsToNewGroup = function(tm1Section, cloneUser){
+                     // WIP
+                     var cloneUserIndex = _.findIndex($scope.usersWithGroups, function(i) { return i.Name == cloneUser.Name; });
+                     $scope.newUser.itemsAssigned = _.union($scope.newUser.itemsAssigned, $scope.usersWithGroups[cloneUserIndex].Groups);
+                     $scope.newUser.itemsAssigned = _.uniqBy($scope.newUser.itemsAssigned, "Name");
+                  }
+
+                  $scope.addIndividualTm1SectionItemToNewGroup = function(tm1Section, group){
+                     if(_.filter($scope.newGroup[tm1Section], function(o){return o.Name == group.Name}).length == 0 ){
+                        $scope.newGroup[tm1Section].push({name:group.Name, access:"NONE"});
+                     }
+                  }
+
+                  $scope.removeTm1SectionItemFromNewGroup = function(tm1Section, groupName){
+                     var groupIndex = _.findIndex($scope.newGroup[tm1Section], function(i){return i.Name == groupName;});
+                     $scope.newGroup[tm1Section].splice(groupIndex, 1);
+                  }
+
+
 
                   $scope.createGroup = function(){
                      var url = "/Users";
                      var data = {
-                        "Name" : $scope.view.name,
+                        "Name" : $scope.newGroup.name,
                         "Groups@odata.bind": $scope.ngDialogData.updateGroupsArray($scope.view.groups)
                      }
                      // $http.post(encodeURIComponent($scope.$parent.instance) + url, data).then(function(success,error){
@@ -1860,6 +2018,7 @@ arc.directive("usersGroups", function () {
             });
 
          }
+
 
 
          $scope.deleteGroup = function(group){
