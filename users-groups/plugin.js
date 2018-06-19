@@ -173,7 +173,7 @@ arc.directive("usersGroups", function () {
                   return;
                
                }else if(success.status < 400){
-                  $scope.cubes = success.data.value;
+                  $scope.cubesList = success.data.value;
 
                }else{
                   // Error to display on page
@@ -197,7 +197,7 @@ arc.directive("usersGroups", function () {
                   return;
                
                }else if(success.status < 400){
-                  $scope.dimensions = success.data.value;
+                  $scope.dimensionsList = success.data.value;
 
                }else{
                   // Error to display on page
@@ -222,7 +222,7 @@ arc.directive("usersGroups", function () {
                   return;
                
                }else if(success.status < 400){
-                  $scope.processes = success.data.value;
+                  $scope.processesList = success.data.value;
 
                }else{
                   // Error to display on page
@@ -247,7 +247,7 @@ arc.directive("usersGroups", function () {
                   return;
                
                }else if(success.status < 400){
-                  $scope.chores = success.data.value;
+                  $scope.choresList = success.data.value;
 
                }else{
                   // Error to display on page
@@ -463,7 +463,7 @@ arc.directive("usersGroups", function () {
               
 
                   $scope.getApplicationSecurityPerUser = function(){
-                     var groupsMDX = groupsArrayToGroupsMDX($scope.view.groups);
+                     var groupsMDX = $scope.ngDialogData.groupsArrayToGroupsMDX($scope.view.groups);
 
                      if(typeof groupsMDX !== "undefined"){
                         var url = "/ExecuteMDX?$expand=Axes($expand=Hierarchies($select=Name;$expand=Dimension($select=Name)),Tuples($expand=Members($select=Name,UniqueName,Ordinal,Attributes;$expand=Parent($select=Name);$expand=Element($select=Name,Type,Level)))),Cells($select=Value,Updateable,Consolidated,RuleDerived,HasPicklist,FormatString,FormattedValue)";
@@ -541,7 +541,7 @@ arc.directive("usersGroups", function () {
 
 
                   $scope.getCubeSecurityPerUser = function(){
-                     var groupsMDX = groupsArrayToGroupsMDX($scope.view.groups);
+                     var groupsMDX = $scope.ngDialogData.groupsArrayToGroupsMDX($scope.view.groups);
 
                      if(typeof groupsMDX != "undefined"){
                         var url = "/ExecuteMDX?$expand=Axes($expand=Hierarchies($select=Name;$expand=Dimension($select=Name)),Tuples($expand=Members($select=Name,UniqueName,Ordinal,Attributes;$expand=Parent($select=Name);$expand=Element($select=Name,Type,Level)))),Cells($select=Value,Updateable,Consolidated,RuleDerived,HasPicklist,FormatString,FormattedValue)";
@@ -621,7 +621,7 @@ arc.directive("usersGroups", function () {
 
 
                   $scope.getDimesionSecurityPerUser = function(){
-                     var groupsMDX = groupsArrayToGroupsMDX($scope.view.groups);
+                     var groupsMDX = $scope.ngDialogData.groupsArrayToGroupsMDX($scope.view.groups);
 
                      if(typeof groupsMDX !== "undefined"){
                         var url = "/ExecuteMDX?$expand=Axes($expand=Hierarchies($select=Name;$expand=Dimension($select=Name)),Tuples($expand=Members($select=Name,UniqueName,Ordinal,Attributes;$expand=Parent($select=Name);$expand=Element($select=Name,Type,Level)))),Cells($select=Value,Updateable,Consolidated,RuleDerived,HasPicklist,FormatString,FormattedValue)";
@@ -645,7 +645,6 @@ arc.directive("usersGroups", function () {
                               };
                               var cubeName = "}DimensionSecurity";
                               $scope.dimensionSecurityResult = $tm1.resultsetTransform($scope.instance, cubeName, success.data, options);
-                              $log.log($scope.dimensionSecurityResult);
    
                               $scope.dimensions = [];
                               for(var i = 0; i < $scope.dimensionSecurityResult.rows.length; i++){
@@ -721,7 +720,6 @@ arc.directive("usersGroups", function () {
 
                   $scope.dimensionFilter = function(dimension, index){
                      if($scope.cubeSelected.length || ($scope.cubeSelected.length && !$scope.selections.filterDimension.length)){
-                        // 
                         if($scope.dimensionsInCube){
                            for(var i = 0; i < $scope.dimensionsInCube.length; i++){
                               if($scope.dimensionsInCube[i].Name.toLowerCase().indexOf(dimension.name.toLowerCase())!==-1){
@@ -746,7 +744,7 @@ arc.directive("usersGroups", function () {
                   }
 
                   $scope.getProcessSecurityPerUser = function(){
-                     var groupsMDX = groupsArrayToGroupsMDX($scope.view.groups);
+                     var groupsMDX = $scope.ngDialogData.groupsArrayToGroupsMDX($scope.view.groups);
 
                      if(typeof groupsMDX!== "undefined"){
                         var url = "/ExecuteMDX?$expand=Axes($expand=Hierarchies($select=Name;$expand=Dimension($select=Name)),Tuples($expand=Members($select=Name,UniqueName,Ordinal,Attributes;$expand=Parent($select=Name);$expand=Element($select=Name,Type,Level)))),Cells($select=Value,Updateable,Consolidated,RuleDerived,HasPicklist,FormatString,FormattedValue)";
@@ -825,7 +823,7 @@ arc.directive("usersGroups", function () {
 
 
                   $scope.getChoreSecurityPerUser = function(){
-                     var groupsMDX = groupsArrayToGroupsMDX($scope.view.groups);
+                     var groupsMDX = $scope.ngDialogData.groupsArrayToGroupsMDX($scope.view.groups);
 
                      if(typeof groupsMDX !== "undefined"){
                         var url = "/ExecuteMDX?$expand=Axes($expand=Hierarchies($select=Name;$expand=Dimension($select=Name)),Tuples($expand=Members($select=Name,UniqueName,Ordinal,Attributes;$expand=Parent($select=Name);$expand=Element($select=Name,Type,Level)))),Cells($select=Value,Updateable,Consolidated,RuleDerived,HasPicklist,FormatString,FormattedValue)";
@@ -901,27 +899,37 @@ arc.directive("usersGroups", function () {
                      }
                   }
 
-                  var groupsArrayToGroupsMDX = function(userGroupsArray){
-                     var groupsMDX = "";
-                     if(userGroupsArray.length>0){
-                        angular.forEach(userGroupsArray, function(value, key){
-                           groupsMDX = groupsMDX + "[}Groups].[" + value.Name + "],";
-                        })
-                        groupsMDX = "{" + groupsMDX.slice(0, -1) + "}";
-                        return groupsMDX;
-                     }
-                  }
-
-
                }],
                data: {
                   usersWithGroups : $scope.usersWithGroups,
                   view : $scope.view,
                   instance : $scope.instance,
+                  groupsArrayToGroupsMDX : $scope.groupsArrayToGroupsMDX
                }
             });
 
          }
+
+
+         $scope.groupsArrayToGroupsMDX = function(userGroupsArray){
+            var groupsMDX = "";
+
+            if(userGroupsArray.constructor === Array){   
+               if(userGroupsArray.length>0){
+                  angular.forEach(userGroupsArray, function(value, key){
+                     groupsMDX = groupsMDX + "[}Groups].[" + value.Name + "],";
+                  })
+                  groupsMDX = "{" + groupsMDX.slice(0, -1) + "}";
+                  return groupsMDX;
+               }
+            }else{
+               groupsMDX = "{[}Groups].[" + userGroupsArray + "]}";
+               return groupsMDX;
+            }
+
+
+         }
+
 
 
          $scope.settingsUser = function(rowIndex){
@@ -1797,6 +1805,12 @@ arc.directive("usersGroups", function () {
                scope: $scope,
                controller: ['$rootScope', '$scope', '$http', '$state', '$tm1','$log', function ($rootScope, $scope, $http, $state, $tm1, $log) {
  
+                  $scope.view = {
+                     message:"",
+                     messageWarning:"",
+                     messageSuccess:""
+                  }
+
                   //default objects/arrays
                   $scope.newGroup = {
                      name:"",
@@ -1852,34 +1866,16 @@ arc.directive("usersGroups", function () {
                   }
 
 
-                  // var test123 = _.map($scope.cubes, test);
-                  // $log.log(test123);
+                  $scope.addCloneGroupsToNewGroupCubes = function(cloneGroup){
+                     var groupsMDX = $scope.ngDialogData.groupsArrayToGroupsMDX(cloneGroup);
 
-                  // itemsAssigned : []
-/*                   addItem: function(Tm1Instance, item){
-                     var defaultItem = {
-                        name:"",
-                        access:"NONE"
-                     }
-                     $scope.newGroup[Tm1Instance].itemsAssigned.push(defaultItem);
-                  },
-                  cycleAccess:function(){
-
-                  }, */
-
-
-
-                  $scope.getTm1InstanceItemsPerGroup = function(tm1Instance, group){
-                     //WIP
-                     // var groupsMDX = groupsArrayToGroupsMDX($scope.view.groups);
-
-                     // if(typeof groupsMDX != "undefined"){
+                     if(typeof groupsMDX != "undefined"){
                         var url = "/ExecuteMDX?$expand=Axes($expand=Hierarchies($select=Name;$expand=Dimension($select=Name)),Tuples($expand=Members($select=Name,UniqueName,Ordinal,Attributes;$expand=Parent($select=Name);$expand=Element($select=Name,Type,Level)))),Cells($select=Value,Updateable,Consolidated,RuleDerived,HasPicklist,FormatString,FormattedValue)";
-                        var mdx = "SELECT NON EMPTY" + groupsMDX + "ON COLUMNS, NON EMPTY {TM1SUBSETALL( [}Cubes] )} ON ROWS FROM [}CubeSecurity]"
+                        var mdx = "SELECT NON EMPTY " + groupsMDX + " ON COLUMNS, NON EMPTY {TM1SUBSETALL( [}Cubes] )} ON ROWS FROM [}CubeSecurity]"
                         var data = { 
                            "MDX" : mdx
-                         };
-                         
+                           };
+                           
                         $http.post(encodeURIComponent($scope.instance)+url, data).then(function(success, error){
                            if(success.status == 401){
                               // Set reload to true to refresh after the user logs in
@@ -1887,40 +1883,35 @@ arc.directive("usersGroups", function () {
                               return;
                            
                            }else if(success.status < 400){
-/*                               var options = {
+                              var options = {
                                  alias: {},
                                  suppressZeroRows: 1,
                                  suppressZeroColumns: 1,
                                  maxRows: 50
                               };
+
                               var cubeName = "}CubeSecurity";
-                              $scope.cubeSecurityResult = $tm1.resultsetTransform($scope.instance, cubeName, success.data, options);
-   
-                              $scope.cubes = [];
-                              for(var i = 0; i < $scope.cubeSecurityResult.rows.length; i++){
-                                 var item = {
-                                    name : "",
-                                    groupsWithAccess : []
-                                 }
-   
-                                 item.name = $scope.cubeSecurityResult.rows[i]["}Cubes"].name;
-   
-                                 for(var j = 0; j < $scope.cubeSecurityResult.rows[i].cells.length; j++){
-                                    var group = {
+                              $scope.groupCubeSecurityResult = $tm1.resultsetTransform($scope.instance, cubeName, success.data, options);
+
+                              for(var i = 0; i < $scope.groupCubeSecurityResult.rows.length; i++){   
+                                 for(var j = 0; j < $scope.groupCubeSecurityResult.rows[i].cells.length; j++){
+                                    var cube = {
                                        name:"",
                                        access:""
                                     };
-                                    if($scope.cubeSecurityResult.rows[i].cells[j].value){
-                                       group.name = $scope.cubeSecurityResult.rows[i].cells[j].key;
-                                       group.access = $scope.cubeSecurityResult.rows[i].cells[j].value;
-                                       item.groupsWithAccess.push(group);
+                                    if($scope.groupCubeSecurityResult.rows[i].cells[j].value){
+                                       cube.name = $scope.groupCubeSecurityResult.rows[i]["}Cubes"].key;
+                                       cube.access = $scope.groupCubeSecurityResult.rows[i].cells[j].value;
+                                       $scope.newGroup.cubes.push(cube);
                                     }
                                     
                                  }
    
-                                 $scope.cubes.push(item);
-                              } */
-   
+                              }
+
+                              //remove duplicates
+                              $scope.newGroup.cubes = _.uniqBy($scope.newGroup.cubes, "name");
+
                            }else{
                               if(success.data && success.data.error && success.data.error.message){
                                  $scope.view.message = success.data.error.message;
@@ -1933,21 +1924,202 @@ arc.directive("usersGroups", function () {
    
                         })
 
-                     // }
+                     }
+   
+                  };
 
-                  }
+
+                  $scope.addCloneGroupsToNewGroupDimensions = function(cloneGroup){
+                     var groupsMDX = $scope.ngDialogData.groupsArrayToGroupsMDX(cloneGroup);
+
+                     if(typeof groupsMDX != "undefined"){
+                        var url = "/ExecuteMDX?$expand=Axes($expand=Hierarchies($select=Name;$expand=Dimension($select=Name)),Tuples($expand=Members($select=Name,UniqueName,Ordinal,Attributes;$expand=Parent($select=Name);$expand=Element($select=Name,Type,Level)))),Cells($select=Value,Updateable,Consolidated,RuleDerived,HasPicklist,FormatString,FormattedValue)";
+                        var mdx = "SELECT NON EMPTY " + groupsMDX + " ON COLUMNS, NON EMPTY {TM1SUBSETALL( [}Dimensions] )} ON ROWS FROM [}DimensionSecurity]"
+                        var data = { 
+                           "MDX" : mdx
+                           };
+                           
+                        $http.post(encodeURIComponent($scope.instance)+url, data).then(function(success, error){
+                           if(success.status == 401){
+                              // Set reload to true to refresh after the user logs in
+                              $scope.reload = true;
+                              return;
+                           
+                           }else if(success.status < 400){
+                              var options = {
+                                 alias: {},
+                                 suppressZeroRows: 1,
+                                 suppressZeroColumns: 1,
+                                 maxRows: 50
+                              };
+
+                              var dimensionName = "}DimensionSecurity";
+                              $scope.groupDimensionSecurityResult = $tm1.resultsetTransform($scope.instance, dimensionName, success.data, options);
+
+                              for(var i = 0; i < $scope.groupDimensionSecurityResult.rows.length; i++){   
+                                 for(var j = 0; j < $scope.groupDimensionSecurityResult.rows[i].cells.length; j++){
+                                    var dimension = {
+                                       name:"",
+                                       access:""
+                                    };
+                                    if($scope.groupDimensionSecurityResult.rows[i].cells[j].value){
+                                       dimension.name = $scope.groupDimensionSecurityResult.rows[i]["}Cubes"].key;
+                                       dimension.access = $scope.groupDimensionSecurityResult.rows[i].cells[j].value;
+                                       $scope.newGroup.dimensions.push(dimension);
+                                    }
+                                    
+                                 }
+   
+                              }
+
+                              //remove duplicates
+                              $scope.newGroup.dimensions = _.uniqBy($scope.newGroup.dimensions, "name");
+
+                           }else{
+                              if(success.data && success.data.error && success.data.error.message){
+                                 $scope.view.message = success.data.error.message;
+                              }else{
+                                 $scope.view.message = success.data;
+                              }
+                              $scope.view.messageWarning = true;
+   
+                           }
+   
+                        })
+
+                     }
+   
+                  };
 
 
+                  $scope.addCloneGroupsToNewGroupProcesses = function(cloneGroup){
+                     var groupsMDX = $scope.ngDialogData.groupsArrayToGroupsMDX(cloneGroup);
 
-                  $scope.addCloneGroupsToNewGroup = function(tm1Section, cloneUser){
-                     // WIP
-                     var cloneUserIndex = _.findIndex($scope.usersWithGroups, function(i) { return i.Name == cloneUser.Name; });
-                     $scope.newUser.itemsAssigned = _.union($scope.newUser.itemsAssigned, $scope.usersWithGroups[cloneUserIndex].Groups);
-                     $scope.newUser.itemsAssigned = _.uniqBy($scope.newUser.itemsAssigned, "Name");
-                  }
+                     if(typeof groupsMDX != "undefined"){
+                        var url = "/ExecuteMDX?$expand=Axes($expand=Hierarchies($select=Name;$expand=Dimension($select=Name)),Tuples($expand=Members($select=Name,UniqueName,Ordinal,Attributes;$expand=Parent($select=Name);$expand=Element($select=Name,Type,Level)))),Cells($select=Value,Updateable,Consolidated,RuleDerived,HasPicklist,FormatString,FormattedValue)";
+                        var mdx = "SELECT NON EMPTY " + groupsMDX + " ON COLUMNS, NON EMPTY {TM1SUBSETALL( [}Processes] )} ON ROWS FROM [}ProcessSecurity]"
+                        var data = { 
+                           "MDX" : mdx
+                           };
+                           
+                        $http.post(encodeURIComponent($scope.instance)+url, data).then(function(success, error){
+                           if(success.status == 401){
+                              // Set reload to true to refresh after the user logs in
+                              $scope.reload = true;
+                              return;
+                           
+                           }else if(success.status < 400){
+                              var options = {
+                                 alias: {},
+                                 suppressZeroRows: 1,
+                                 suppressZeroColumns: 1,
+                                 maxRows: 50
+                              };
+
+                              var processName = "}ProcessSecurity";
+                              $scope.groupProcessSecurityResult = $tm1.resultsetTransform($scope.instance, processName, success.data, options);
+
+                              for(var i = 0; i < $scope.groupProcessSecurityResult.rows.length; i++){   
+                                 for(var j = 0; j < $scope.groupProcessSecurityResult.rows[i].cells.length; j++){
+                                    var processItem = {
+                                       name:"",
+                                       access:""
+                                    };
+                                    if($scope.groupProcessSecurityResult.rows[i].cells[j].value){
+                                       processItem.name = $scope.groupProcessSecurityResult.rows[i]["}Cubes"].key;
+                                       processItem.access = $scope.groupProcessSecurityResult.rows[i].cells[j].value;
+                                       $scope.newGroup.processes.push(processItem);
+                                    }
+                                    
+                                 }
+   
+                              }
+
+                              //remove duplicates
+                              $scope.newGroup.processes = _.uniqBy($scope.newGroup.processes, "name");
+
+                           }else{
+                              if(success.data && success.data.error && success.data.error.message){
+                                 $scope.view.message = success.data.error.message;
+                              }else{
+                                 $scope.view.message = success.data;
+                              }
+                              $scope.view.messageWarning = true;
+   
+                           }
+   
+                        })
+
+                     }
+   
+                  };
+
+
+                  $scope.addCloneGroupsToNewGroupChores = function(cloneGroup){
+                     var groupsMDX = $scope.ngDialogData.groupsArrayToGroupsMDX(cloneGroup);
+
+                     if(typeof groupsMDX != "undefined"){
+                        var url = "/ExecuteMDX?$expand=Axes($expand=Hierarchies($select=Name;$expand=Dimension($select=Name)),Tuples($expand=Members($select=Name,UniqueName,Ordinal,Attributes;$expand=Parent($select=Name);$expand=Element($select=Name,Type,Level)))),Cells($select=Value,Updateable,Consolidated,RuleDerived,HasPicklist,FormatString,FormattedValue)";
+                        var mdx = "SELECT NON EMPTY " + groupsMDX + " ON COLUMNS, NON EMPTY {TM1SUBSETALL( [}Chores] )} ON ROWS FROM [}ChoreSecurity]"
+                        var data = { 
+                           "MDX" : mdx
+                           };
+                           
+                        $http.post(encodeURIComponent($scope.instance)+url, data).then(function(success, error){
+                           if(success.status == 401){
+                              // Set reload to true to refresh after the user logs in
+                              $scope.reload = true;
+                              return;
+                           
+                           }else if(success.status < 400){
+                              var options = {
+                                 alias: {},
+                                 suppressZeroRows: 1,
+                                 suppressZeroColumns: 1,
+                                 maxRows: 50
+                              };
+
+                              var choreName = "}ChoreSecurity";
+                              $scope.groupChoreSecurityResult = $tm1.resultsetTransform($scope.instance, choreName, success.data, options);
+
+                              for(var i = 0; i < $scope.groupChoreSecurityResult.rows.length; i++){   
+                                 for(var j = 0; j < $scope.groupChoreSecurityResult.rows[i].cells.length; j++){
+                                    var chore = {
+                                       name:"",
+                                       access:""
+                                    };
+                                    if($scope.groupChoreSecurityResult.rows[i].cells[j].value){
+                                       chore.name = $scope.groupChoreSecurityResult.rows[i]["}Cubes"].key;
+                                       chore.access = $scope.groupChoreSecurityResult.rows[i].cells[j].value;
+                                       $scope.newGroup.chores.push(chore);
+                                    }
+                                    
+                                 }
+   
+                              }
+
+                              //remove duplicates
+                              $scope.newGroup.chores = _.uniqBy($scope.newGroup.chores, "name");
+
+                           }else{
+                              if(success.data && success.data.error && success.data.error.message){
+                                 $scope.view.message = success.data.error.message;
+                              }else{
+                                 $scope.view.message = success.data;
+                              }
+                              $scope.view.messageWarning = true;
+   
+                           }
+   
+                        })
+
+                     }
+   
+                  };
+
 
                   $scope.addIndividualTm1SectionItemToNewGroup = function(tm1Section, group){
-                     if(_.filter($scope.newGroup[tm1Section], function(o){return o.Name == group.Name}).length == 0 ){
+                     if(_.filter($scope.newGroup[tm1Section], function(o){return o.name == group.Name}).length == 0 ){
                         $scope.newGroup[tm1Section].push({name:group.Name, access:"NONE"});
                      }
                   }
@@ -2013,7 +2185,8 @@ arc.directive("usersGroups", function () {
                data: {
                   view : $scope.view,
                   updateGroupsArray : $scope.updateGroupsArray,
-                  load : $scope.load
+                  load : $scope.load,
+                  groupsArrayToGroupsMDX : $scope.groupsArrayToGroupsMDX
                }
             });
 

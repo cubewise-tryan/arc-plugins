@@ -89,7 +89,7 @@
                                                 <th style="width: 100%;" translate="AUDITUSERGROUPS"></th>
                                              </thead>
                                              <tbody style="display: block; height:120px; overflow-y:auto; width:100%; overflow-x: auto;">
-                                                <tr ng-repeat="cube in cubes | filter:cubeFilter track by $index">
+                                                <tr ng-repeat="cube in cubes | filter:cubeFilter track by cube.name">
                                                    <td style="min-width: 400px;" ng-class="{'bg-secondary' : cube.name == cubeSelected}">
                                                       <a href ng-click="getDimensionsPerCube(cube.name);"
                                                          ng-class="{'text-light font-weight-bold' : cube.name == cubeSelected}"
