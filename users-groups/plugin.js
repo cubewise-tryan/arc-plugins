@@ -165,6 +165,32 @@ arc.directive("usersGroups", function () {
             });
 
 
+            var applicationsURL = "/Contents('Applications')?$select=Name&$expand=tm1.Folder/Contents($expand=tm1.Folder/Contents($expand=tm1.Folder/Contents($expand=tm1.Folder/Contents($expand=tm1.Folder/Contents($expand=tm1.Folder/Contents($expand=tm1.Folder/Contents($expand=tm1.Folder/Contents($expand=tm1.Folder/Contents($expand=tm1.Folder/Contents)))))))))";
+            //at time of writing REST API does not support $levels for recursive call = for now make 10 levels deep
+            $http.get(encodeURIComponent($scope.instance) + applicationsURL).then(function(success,error){
+               if(success.status == 401){
+                  // Set reload to true to refresh after the user logs in
+                  $scope.reload = true;
+                  return;
+               
+               }else if(success.status < 400){
+                  $log.log(success.data);
+                  // $scope.applicationsList = success.data.value;
+
+               }else{
+                  // Error to display on page
+                  if(success.data && success.data.error && success.data.error.message){
+                     $scope.message = success.data.error.message;
+                  }
+                  else {
+                     $scope.message = success.data;
+                  }
+                  $timeout(function(){
+                     $scope.message = null;
+                  }, 5000);
+               }
+            });
+
             var cubesURL = "/Cubes?$select=Name";
             $http.get(encodeURIComponent($scope.instance) + cubesURL).then(function(success,error){
                if(success.status == 401){
@@ -1866,6 +1892,81 @@ arc.directive("usersGroups", function () {
                   }
 
 
+                  $scope.addIndividualTm1SectionItemToNewGroup = function(tm1Section, group){
+                     if(_.filter($scope.newGroup[tm1Section], function(o){return o.name == group.Name}).length == 0 ){
+                        $scope.newGroup[tm1Section].push({name:group.Name, access:"NONE"});
+                     }
+                  }
+
+                  $scope.removeTm1SectionItemFromNewGroup = function(tm1Section, groupName){
+                     var groupIndex = _.findIndex($scope.newGroup[tm1Section], function(i){return i.Name == groupName;});
+                     $scope.newGroup[tm1Section].splice(groupIndex, 1);
+                  }
+
+
+                  $scope.addCloneGroupsToNewGroupApplications = function(cloneGroup){
+                     var groupsMDX = $scope.ngDialogData.groupsArrayToGroupsMDX(cloneGroup);
+
+                     if(typeof groupsMDX !== "undefined"){
+                        var url = "/ExecuteMDX?$expand=Axes($expand=Hierarchies($select=Name;$expand=Dimension($select=Name)),Tuples($expand=Members($select=Name,UniqueName,Ordinal,Attributes;$expand=Parent($select=Name);$expand=Element($select=Name,Type,Level)))),Cells($select=Value,Updateable,Consolidated,RuleDerived,HasPicklist,FormatString,FormattedValue)";
+                        var mdx = "SELECT NON EMPTY" + groupsMDX + "ON COLUMNS, NON EMPTY {TM1SUBSETALL( [}ApplicationEntries] )} ON ROWS FROM [}ApplicationSecurity]"
+                        var data = { 
+                           "MDX" : mdx
+                         };
+                           
+                        $http.post(encodeURIComponent($scope.instance)+url, data).then(function(success, error){
+                           if(success.status == 401){
+                              // Set reload to true to refresh after the user logs in
+                              $scope.reload = true;
+                              return;
+                           
+                           }else if(success.status < 400){
+                              var options = {
+                                 alias: {},
+                                 suppressZeroRows: 1,
+                                 suppressZeroColumns: 1,
+                                 maxRows: 50
+                              };
+
+                              var applicationName = "}ApplicationSecurity";
+                              $scope.groupApplicationSecurityResult = $tm1.resultsetTransform($scope.instance, applicationName, success.data, options);
+
+                              for(var i = 0; i < $scope.groupApplicationSecurityResult.rows.length; i++){   
+                                 for(var j = 0; j < $scope.groupApplicationSecurityResult.rows[i].cells.length; j++){
+                                    var application = {
+                                       name:"",
+                                       access:""
+                                    };
+                                    if($scope.groupApplicationSecurityResult.rows[i].cells[j].value){
+                                       application.name = $scope.groupApplicationSecurityResult.rows[i]["}ApplicationEntries"].key;
+                                       application.access = $scope.groupApplicationSecurityResult.rows[i].cells[j].value;
+                                       $scope.newGroup.applications.push(application);
+                                    }
+                                    
+                                 }
+   
+                              }
+
+                              //remove duplicates
+                              $scope.newGroup.applications = _.uniqBy($scope.newGroup.applications, "name");
+
+                           }else{
+                              if(success.data && success.data.error && success.data.error.message){
+                                 $scope.view.message = success.data.error.message;
+                              }else{
+                                 $scope.view.message = success.data;
+                              }
+                              $scope.view.messageWarning = true;
+   
+                           }
+   
+                        })
+
+                     }
+   
+                  };
+
+
                   $scope.addCloneGroupsToNewGroupCubes = function(cloneGroup){
                      var groupsMDX = $scope.ngDialogData.groupsArrayToGroupsMDX(cloneGroup);
 
@@ -1963,7 +2064,7 @@ arc.directive("usersGroups", function () {
                                        access:""
                                     };
                                     if($scope.groupDimensionSecurityResult.rows[i].cells[j].value){
-                                       dimension.name = $scope.groupDimensionSecurityResult.rows[i]["}Cubes"].key;
+                                       dimension.name = $scope.groupDimensionSecurityResult.rows[i]["}Dimensions"].key;
                                        dimension.access = $scope.groupDimensionSecurityResult.rows[i].cells[j].value;
                                        $scope.newGroup.dimensions.push(dimension);
                                     }
@@ -2026,7 +2127,7 @@ arc.directive("usersGroups", function () {
                                        access:""
                                     };
                                     if($scope.groupProcessSecurityResult.rows[i].cells[j].value){
-                                       processItem.name = $scope.groupProcessSecurityResult.rows[i]["}Cubes"].key;
+                                       processItem.name = $scope.groupProcessSecurityResult.rows[i]["}Processes"].key;
                                        processItem.access = $scope.groupProcessSecurityResult.rows[i].cells[j].value;
                                        $scope.newGroup.processes.push(processItem);
                                     }
@@ -2089,7 +2190,7 @@ arc.directive("usersGroups", function () {
                                        access:""
                                     };
                                     if($scope.groupChoreSecurityResult.rows[i].cells[j].value){
-                                       chore.name = $scope.groupChoreSecurityResult.rows[i]["}Cubes"].key;
+                                       chore.name = $scope.groupChoreSecurityResult.rows[i]["}Chores"].key;
                                        chore.access = $scope.groupChoreSecurityResult.rows[i].cells[j].value;
                                        $scope.newGroup.chores.push(chore);
                                     }
@@ -2118,17 +2219,22 @@ arc.directive("usersGroups", function () {
                   };
 
 
-                  $scope.addIndividualTm1SectionItemToNewGroup = function(tm1Section, group){
-                     if(_.filter($scope.newGroup[tm1Section], function(o){return o.name == group.Name}).length == 0 ){
-                        $scope.newGroup[tm1Section].push({name:group.Name, access:"NONE"});
-                     }
+                  $scope.addCloneGroupsToNewGroupAll = function(cloneGroup){
+                     $scope.clearCLoneGroupsToNewGroupAll();
+
+                     $scope.addCloneGroupsToNewGroupCubes(cloneGroup);
+                     $scope.addCloneGroupsToNewGroupDimensions(cloneGroup);
+                     $scope.addCloneGroupsToNewGroupProcesses(cloneGroup);
+                     $scope.addCloneGroupsToNewGroupChores(cloneGroup);
                   }
 
-                  $scope.removeTm1SectionItemFromNewGroup = function(tm1Section, groupName){
-                     var groupIndex = _.findIndex($scope.newGroup[tm1Section], function(i){return i.Name == groupName;});
-                     $scope.newGroup[tm1Section].splice(groupIndex, 1);
+                  $scope.clearCLoneGroupsToNewGroupAll = function(){
+                     $scope.newGroup.applications = [];
+                     $scope.newGroup.cubes = [];
+                     $scope.newGroup.dimensions = [];
+                     $scope.newGroup.processes = [];
+                     $scope.newGroup.chores = [];
                   }
-
 
 
                   $scope.createGroup = function(){

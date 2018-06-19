@@ -42,10 +42,10 @@
                                           ng-disabled="!newGroup.name.length > 0"
                                           ng-model="selectedGroupCloneAll"
                                           uib-typeahead="name as Group.Name for Group in groupsWithUsers | filter:{Name : $viewValue} | limitTo:4"
-                                          typeahead-on-select=""
+                                          typeahead-on-select="addCloneGroupsToNewGroupAll($item.Name)"
                                           placeholder="{{'ADDGROUPCLONEGROUP' | translate}}">
                                        <span class="input-group-append">
-                                          <button ng-disabled="!newUser.password.length" class="btn btn-secondary" title="{{'ADDGROUPREMOVEALL' | translate}}" ng-click="view.hidePassword = !view.hidePassword">
+                                          <button ng-disabled="!newGroup.name.length" class="btn btn-secondary" title="{{'ADDGROUPREMOVEALL' | translate}}" ng-click="clearCLoneGroupsToNewGroupAll();">
                                              <i class="fa fa-trash"></i>
                                           </button>
                                        </span>
@@ -66,8 +66,8 @@
                                     <input type="text" class="form-control " 
                                        ng-disabled="!newGroup.name.length > 0"
                                        ng-model="selectedCloneGroupApplication"
-                                       uib-typeahead="name as User.Name for User in usersWithGroups | filter:{Name : $viewValue} | limitTo:4"
-                                       typeahead-on-select="addCloneGroupsToNewGroupApplications('applications', $item)"
+                                       uib-typeahead="name as Group.Name for Group in groupsWithUsers | filter:{Name : $viewValue} | limitTo:4"
+                                       typeahead-on-select="addCloneGroupsToNewGroupApplications($item.Name)"
                                        placeholder="{{'ADDGROUPCLONEGROUP' | translate}}">
                                  </div>
                                  <div class="col-sm-4  pl-2 pr-0">
@@ -82,7 +82,7 @@
                                     <div class="toolbar">
                                        <div class="btn-toolbar pull-right" >
                                           <div class="btn-group">
-                                             <button class="btn btn-secondary"  title="{{'ADDGROUPREMOVEAPPLICATIONS' | translate}}" ng-click="newGroup.applications.itemsAssigned = [];">
+                                             <button class="btn btn-secondary"  title="{{'ADDGROUPREMOVEAPPLICATIONS' | translate}}" ng-click="newGroup.applications = [];">
                                                 <i class="fa fa-trash"></i>
                                              </button>
                                           </div>
