@@ -174,8 +174,41 @@ arc.directive("usersGroups", function () {
                   return;
                
                }else if(success.status < 400){
-                  $log.log(success.data);
-                  // $scope.applicationsList = success.data.value;
+                  $scope.applicationsList = [];
+
+                  var parent = "";
+
+                  var recursivelyBuildList = function myself(retrievedObject, previousParentName){
+
+                     _.each(retrievedObject, function(nestedObject){
+                        // $log.log(nestedObject);
+
+                        var buildString = function(previous, current){
+                           if(previous==""){
+                              return current;
+                           }else{
+                              return previous + "\\" + current ;
+                           }
+                        }
+
+                        var fullString = buildString(previousParentName, nestedObject.ID);
+
+                        $scope.applicationsList.push(
+                           {Name : fullString}
+                        );
+
+
+                        if(nestedObject.hasOwnProperty("Contents")){
+                           myself(nestedObject.Contents, fullString);
+                        }else{
+                           return;
+                        }
+
+                     });
+
+
+                  };
+                  recursivelyBuildList(success.data.Contents, parent);
 
                }else{
                   // Error to display on page
@@ -2221,7 +2254,7 @@ arc.directive("usersGroups", function () {
 
                   $scope.addCloneGroupsToNewGroupAll = function(cloneGroup){
                      $scope.clearCLoneGroupsToNewGroupAll();
-
+                     $scope.addCloneGroupsToNewGroupApplications(cloneGroup);
                      $scope.addCloneGroupsToNewGroupCubes(cloneGroup);
                      $scope.addCloneGroupsToNewGroupDimensions(cloneGroup);
                      $scope.addCloneGroupsToNewGroupProcesses(cloneGroup);

@@ -74,8 +74,8 @@
                                     <input type="text" class="form-control"
                                        ng-disabled="!newGroup.name.length > 0"
                                        ng-model="selectedSingleApplication"
-                                       uib-typeahead="name as Group.Name for Group in groupsWithUsers | filter:{Name : $viewValue} | limitTo:4"
-                                       typeahead-on-select="addIndividualGroupToNewUser($item)"
+                                       uib-typeahead="name as application.Name for application in applicationsList | filter:{Name : $viewValue} | limitTo:4"
+                                       typeahead-on-select="addIndividualTm1SectionItemToNewGroup('applications', $item)"
                                        placeholder="{{'ADDGROUPAPPLICATION' | translate}}">
                                  </div>
                                  <div class="col-sm-1 pl-2 pr-2">
@@ -97,11 +97,13 @@
                                     <form>
                                        <div class="form-group row p-2">
                                           <div class="input-group">
-                                             <div ng-repeat="process in newGroup.applications.itemsAssigned | orderBy:'Name'" >
+                                             <div ng-repeat="application in newGroup.applications | orderBy:'name'" >
                                                 <div style="float:left;">
-                                                   <div class="badge ml-1" ng-style="generateHSLColour(group.Name)" style="cursor : default;">
-                                                      {{process.Name}}
-                                                      <a><i class="fa fa-fw fa-remove" ng-click="removeGroupFromNewUser(group.Name)" title="{{'REMOVEGROUP' | translate}}"></i></a>
+                                                   <div class="badge ml-1" ng-class="securityAccessColourMapping(application.access)" class="ml-1" style="cursor: default; user-select: none;">
+                                                      <a><i class="fa fa-arrow-up" ng-click="previousAccess('applications', application.name, application.access)" title="{{'ADDGROUPPREVIOUSACCESS' | translate}}"></i></a>
+                                                      <a><i class="fa fa-arrow-down" ng-click="nextAccess('applications', application.name, application.access)" title="{{'ADDGROUPNEXTACCESS' | translate}}"></i></a>
+                                                      {{application.name}}:{{application.access}}
+                                                      <a><i class="fa fa-fw fa-remove" ng-click="removeTm1SectionItemFromNewGroup('applications', application.name)" title="{{'REMOVEGROUP' | translate}}"></i></a>
                                                    </div>
                                                 </div>
                                              </div>
@@ -153,7 +155,7 @@
                                     <form>
                                        <div class="form-group row p-2">
                                           <div class="input-group">
-                                             <div ng-repeat="cube in newGroup.cubes | orderBy:'Name'" >
+                                             <div ng-repeat="cube in newGroup.cubes | orderBy:'name'" >
                                                 <div style="float:left;">
                                                    <div class="badge badge-md ml-1" ng-class="securityAccessColourMapping(cube.access)" class="ml-1" style="cursor: default; user-select: none;">
                                                       <a><i class="fa fa-arrow-up" ng-click="previousAccess('cubes', cube.name, cube.access)" title="{{'ADDGROUPPREVIOUSACCESS' | translate}}"></i></a>
@@ -211,7 +213,7 @@
                                     <form>
                                        <div class="form-group row p-2">
                                           <div class="input-group">
-                                             <div ng-repeat="dimension in newGroup.dimensions | orderBy:'Name'" >
+                                             <div ng-repeat="dimension in newGroup.dimensions | orderBy:'name'" >
                                                 <div style="float:left;">
                                                    <div class="badge ml-1" ng-class="securityAccessColourMapping(dimension.access)" class="ml-1" style="cursor: default; user-select: none;">
                                                       <a><i class="fa fa-arrow-up" ng-click="previousAccess('dimensions', dimension.name, dimension.access)" title="{{'ADDGROUPPREVIOUSACCESS' | translate}}"></i></a>
@@ -269,7 +271,7 @@
                                     <form>
                                        <div class="form-group row p-2">
                                           <div class="input-group">
-                                             <div ng-repeat="process in newGroup.processes | orderBy:'Name'" >
+                                             <div ng-repeat="process in newGroup.processes | orderBy:'name'" >
                                                 <div style="float:left;">
                                                    <div class="badge ml-1" ng-class="securityAccessColourMapping(process.access)" class="ml-1" style="cursor: default; user-select: none;">
                                                       <a><i class="fa fa-arrow-up" ng-click="previousAccess('processes', process.name, process.access)" title="{{'ADDGROUPPREVIOUSACCESS' | translate}}"></i></a>
@@ -327,7 +329,7 @@
                                     <form>
                                        <div class="form-group row p-2">
                                           <div class="input-group">
-                                             <div ng-repeat="chore in newGroup.chores | orderBy:'Name'" >
+                                             <div ng-repeat="chore in newGroup.chores | orderBy:'name'" >
                                                 <div style="float:left;">
                                                    <div class="badge ml-1" ng-class="securityAccessColourMapping(chore.access)" class="ml-1" style="cursor: default; user-select: none;">
                                                       <a><i class="fa fa-arrow-up" ng-click="previousAccess('chores', chore.name, chore.access)" title="{{'ADDGROUPPREVIOUSACCESS' | translate}}"></i></a>
