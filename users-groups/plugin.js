@@ -1932,7 +1932,7 @@ arc.directive("usersGroups", function () {
                   }
 
                   $scope.removeTm1SectionItemFromNewGroup = function(tm1Section, groupName){
-                     var groupIndex = _.findIndex($scope.newGroup[tm1Section], function(i){return i.Name == groupName;});
+                     var groupIndex = _.findIndex($scope.newGroup[tm1Section], function(i){return i.name == groupName;});
                      $scope.newGroup[tm1Section].splice(groupIndex, 1);
                   }
 
