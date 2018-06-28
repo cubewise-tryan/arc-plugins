@@ -1866,8 +1866,8 @@ arc.directive("usersGroups", function () {
  
                   $scope.view = {
                      message:"",
-                     messageWarning:"",
-                     messageSuccess:""
+                     messageWarning:false,
+                     messageSuccess:false
                   }
 
                   //default objects/arrays
@@ -2171,6 +2171,7 @@ arc.directive("usersGroups", function () {
 
                               //remove duplicates
                               $scope.newGroup.processes = _.uniqBy($scope.newGroup.processes, "name");
+                              $log.log($scope.newGroup.processes);
 
                            }else{
                               if(success.data && success.data.error && success.data.error.message){
@@ -2270,13 +2271,90 @@ arc.directive("usersGroups", function () {
                   }
 
 
-                  $scope.createGroup = function(){
-                     var url = "/Users";
-                     var data = {
-                        "Name" : $scope.newGroup.name,
-                        "Groups@odata.bind": $scope.ngDialogData.updateGroupsArray($scope.view.groups)
+                  //example  object:::PROCESSES::ASIA::
+                  var test = [
+                     {
+                        access : "READ",
+                        name : "create_Y2Ksales_cube"
+                     },
+                     {
+                        access : "READ",
+                        name : "}src_clients_export"
+                     },
+                     {
+                        access : "READ",
+                        name : "}src_dim_export_data"
+                     },
+                     {
+                        access : "READ",
+                        name : "}src_save"
                      }
-                     // $http.post(encodeURIComponent($scope.$parent.instance) + url, data).then(function(success,error){
+                  ];
+                  var test2 = ["create_Y2Ksales_cube","}src_clients_export","}src_dim_export_data","}src_save"];
+                  var test3 = ["READ","READ","READ","READ"];
+
+                  //psuedo plan:::::
+                  //add group---DONE
+                  //create cellset
+                  //load data against cellset
+                  //remove cellset
+
+                  $scope.addNewGroup = function(groupName){
+                     var url = "/Groups";
+                     var data = {
+                        "Name" : groupName
+                     }
+
+                     $http.post(encodeURIComponent($scope.instance)+ url, data).then(function(success, error){
+                        if(success.status == 401){
+                           $scope.view.message = $translate.instant("FUNCTIONADDGROUPERROR");
+                           $scope.view.messageWarning = true;
+                           $timeout(function(){
+                              $scope.view.message = null;
+                              $scope.view.messageWarning = false;
+                           }, 2000);
+                           
+                           return;
+                        
+                        }else if(success.status < 400){
+                           $scope.view.message = $translate.instant("FUNCTIONADDGROUPSUCCESS");;
+                           $scope.view.messageSuccess = true;
+
+                           $timeout(function(){
+                              $scope.view.message = null;
+                              $scope.view.messageSuccess = false;
+                           }, 2000);
+
+                           return;
+
+                        }else{
+                           // Error to display on page
+                           if(success.data && success.data.error && success.data.error.message){
+                              $scope.view.message = success.data.error.message;
+                              $scope.view.messageWarning = true;
+                           }
+                           else {
+                              $scope.view.message = success.data;
+                              $scope.view.messageWarning = true;
+                           }
+                           $timeout(function(){
+                              $scope.view.message = null;
+                              $scope.view.messageWarning = false;
+                           }, 2000);
+                        }
+                     });
+
+
+                  }
+
+
+                  $scope.createCellSet = function(){
+                     var url = "/ExecuteMDX";
+                     var data = {
+                        "MDX" : ""
+                     }
+
+                     // $http.post(encodeURIComponent($scope.instance) + url, data).then(function(success,error){
                         // if(success.status == 401){
                            // $scope.view.message = "User Exists";
                            // $timeout(function(){
@@ -2309,6 +2387,23 @@ arc.directive("usersGroups", function () {
                            // }, 2000);
                         // }
                      // });
+
+
+                  }
+
+
+
+                  $scope.createGroup = function(){
+
+                     if($scope.newGroup.name!==""){
+
+                        $scope.addNewGroup($scope.newGroup.name);
+
+                        $scope.createCellSet();
+
+                     }
+
+
 
                   }
 

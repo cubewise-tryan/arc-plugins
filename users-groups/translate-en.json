@@ -80,6 +80,8 @@
    "FUNCTIONDELETEUSERSUCCESS":"User Removed",
    "FUNCTIONREMOVEUSERFROMGROUPERROR":"User Does not Exist",
    "FUNCTIONREMOVEUSERFROMGROUPSUCCESS":"User removed from Group",
+   "FUNCTIONADDGROUPSUCCESS":"Group Added",
+   "FUNCTIONADDGROUPERROR":"Group Exists",
    "GROUPSUSER":"Groups",
    "GROUPSSHOWLESS":"Display Less Groups",
    "GROUPSSHOWMORE":"Display Additional Groups",
