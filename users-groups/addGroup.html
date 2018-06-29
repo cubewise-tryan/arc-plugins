@@ -369,7 +369,7 @@
                </div>
                <div class="col-md-4 pr-0">
                   <div class="float-right">
-                     <button class="btn btn-primary action ng-scope" ng-click="createGroup()" translate="CREATEUAG"></button>                     
+                     <button class="btn btn-primary action ng-scope" ng-disabled="!newGroup.name.length > 0" ng-click="createGroup()" translate="CREATEUAG"></button>                     
                      <button class="btn action ng-scope " ng-click="closeThisDialog()" translate="CANCEL"></button>
                   </div>
                </div>

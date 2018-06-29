@@ -1862,7 +1862,7 @@ arc.directive("usersGroups", function () {
                template: "__/plugins/users-groups/addGroup.html",
                className: "ngdialog-theme-default large",
                scope: $scope,
-               controller: ['$rootScope', '$scope', '$http', '$state', '$tm1','$log', function ($rootScope, $scope, $http, $state, $tm1, $log) {
+               controller: ['$rootScope', '$scope', '$http', '$state', '$tm1','$q','$log', function ($rootScope, $scope, $http, $state, $tm1, $q, $log) {
  
                   $scope.view = {
                      message:"",
@@ -2272,6 +2272,122 @@ arc.directive("usersGroups", function () {
 
 
                   //example  object:::PROCESSES::ASIA::
+
+
+                  //psuedo plan:::::
+                  //add group---DONE
+                  //create cellset---DONE
+                  //load data against cellset---DONE
+                  //remove cellset
+
+                  $scope.addNewGroup = function(groupName){
+
+                     //defered object
+                     var deferred = $q.defer();
+
+                     var url = "/Groups";
+                     var data = {
+                        "Name" : groupName
+                     }
+
+                     return $http.post(encodeURIComponent($scope.instance)+ url, data).then(function(success, error){
+                        if(success.status == 401){
+                           $scope.view.message = $translate.instant("FUNCTIONADDGROUPERROR");
+                           $scope.view.messageWarning = true;
+                           $timeout(function(){
+                              $scope.view.message = null;
+                              $scope.view.messageWarning = false;
+                           }, 2000);
+                           
+
+                           deferred.reject($translate.instant("FUNCTIONADDGROUPERROR"));
+                           
+                        }else if(success.status < 400){
+                           // $scope.view.message = $translate.instant("FUNCTIONADDGROUPSUCCESS");;
+                           // $scope.view.messageSuccess = true;
+
+                           // $timeout(function(){
+                              // $scope.view.message = null;
+                              // $scope.view.messageSuccess = false;
+                           // }, 2000);
+
+                           deferred.resolve(groupName);
+
+                        }else{
+                           // Error to display on page
+                           if(success.data && success.data.error && success.data.error.message){
+                              // $scope.view.message = success.data.error.message;
+                              // $scope.view.messageWarning = true;
+
+                              deferred.reject();
+
+                           }
+                           else {
+                              // $scope.view.message = success.data;
+                              // $scope.view.messageWarning = true;
+
+                              deferred.reject();
+                           }
+                           // $timeout(function(){
+                              // $scope.view.message = null;
+                              // $scope.view.messageWarning = false;
+                           // }, 2000);
+                        }
+
+                        return deferred.promise;
+
+                     });
+
+
+                  }
+
+
+                  $scope.createCellSet = function(groupName){
+
+                     //defered object
+                     var deferred = $q.defer();
+
+                     // groupName, tm1ColumnArray
+                     var url = "/ExecuteMDX";
+                     var mdxColumn = "{[}Groups].[" + groupName + "]}";
+                     var mdxRow = "{[}Processes].[create_Y2Ksales_cube],[}Processes].[}src_clients_export],[}Processes].[}src_dim_export_data],[}Processes].[}src_save] }";
+                     var mdxFrom = "[}ProcessSecurity]";
+                     var mdxFull = "SELECT "+ mdxColumn +" ON COLUMNS, " + mdxRow + " ON ROWS FROM " + mdxFrom;
+                     var data = {
+                        "MDX" : mdxFull
+                     }
+
+                     return $http.post(encodeURIComponent($scope.instance) + url, data).then(function(success,error){
+
+                        if(success.status < 400){
+
+                           // $scope.cellSetID = success.data.ID;
+
+                           deferred.resolve(success.data.ID);
+
+                        }else{
+                           // Error to display on page
+                           if(success.data && success.data.error && success.data.error.message){
+                              // $scope.view.message = success.data.error.message;
+                              deferred.reject(success.data.error.message);
+                           }
+                           else {
+                              // $scope.view.message = success.data;
+                              deferred.reject(success.data);
+                              
+                           }
+                           // $timeout(function(){
+                              // $scope.view.message = null;
+                           // }, 2000);
+                        }
+
+                        return deferred.promise;
+
+                     });
+
+                  }
+
+
                   var test = [
                      {
                         access : "READ",
@@ -2293,113 +2409,106 @@ arc.directive("usersGroups", function () {
                   var test2 = ["create_Y2Ksales_cube","}src_clients_export","}src_dim_export_data","}src_save"];
                   var test3 = ["READ","READ","READ","READ"];
 
-                  //psuedo plan:::::
-                  //add group---DONE
-                  //create cellset
-                  //load data against cellset
-                  //remove cellset
 
-                  $scope.addNewGroup = function(groupName){
-                     var url = "/Groups";
-                     var data = {
-                        "Name" : groupName
-                     }
 
-                     $http.post(encodeURIComponent($scope.instance)+ url, data).then(function(success, error){
-                        if(success.status == 401){
-                           $scope.view.message = $translate.instant("FUNCTIONADDGROUPERROR");
-                           $scope.view.messageWarning = true;
-                           $timeout(function(){
-                              $scope.view.message = null;
-                              $scope.view.messageWarning = false;
-                           }, 2000);
-                           
-                           return;
-                        
-                        }else if(success.status < 400){
-                           $scope.view.message = $translate.instant("FUNCTIONADDGROUPSUCCESS");;
-                           $scope.view.messageSuccess = true;
+                  $scope.loadCellSet = function(cellSetID){
+                     $log.log(cellSetID);
 
-                           $timeout(function(){
-                              $scope.view.message = null;
-                              $scope.view.messageSuccess = false;
-                           }, 2000);
+                     var test4 =  [
+                        {
+                          "Ordinal":0,
+                          "Value":"READ"
+                        },
+                        {
+                          "Ordinal":1,
+                          "Value":"READ"
+                        },
+                        {
+                          "Ordinal":2,
+                          "Value":"READ"
+                        },
+                        {
+                          "Ordinal":3,
+                          "Value":"READ"
+                        }
+                      ];
 
-                           return;
+                     //defered object
+                     var deferred = $q.defer();
+
+
+                     // groupName, tm1ColumnArray
+                     var url = "/Cellsets('" + cellSetID + "')/Cells";
+                     var data = test4;
+
+                     $http.patch(encodeURIComponent($scope.instance) + url, data).then(function(success,error){
+
+                        if(success.status < 400){
+                           // $scope.view.message = "User added";
+                           // $scope.view.messageSuccess = true;
+
+                           $scope.cellSetID = success.data.ID;
+
+                           // deferred.resolve(success.data.ID);
+                           deferred.resolve(cellSetID);
 
                         }else{
                            // Error to display on page
                            if(success.data && success.data.error && success.data.error.message){
-                              $scope.view.message = success.data.error.message;
-                              $scope.view.messageWarning = true;
+                              // $scope.view.message = success.data.error.message;
+                              deferred.reject(success.data.error.message);
                            }
                            else {
-                              $scope.view.message = success.data;
-                              $scope.view.messageWarning = true;
+                              // $scope.view.message = success.data;
+                              deferred.reject(success.data);
+                              
                            }
-                           $timeout(function(){
-                              $scope.view.message = null;
-                              $scope.view.messageWarning = false;
-                           }, 2000);
+                           // $timeout(function(){
+                              // $scope.view.message = null;
+                           // }, 2000);
                         }
                      });
 
-
                   }
 
 
-                  $scope.createCellSet = function(){
-                     var url = "/ExecuteMDX";
-                     var data = {
-                        "MDX" : ""
-                     }
+                  $scope.removeCellSet = function(cellSetID){
+                     var url = "/Cellsets('" + cellSetID + "')";
 
-                     // $http.post(encodeURIComponent($scope.instance) + url, data).then(function(success,error){
-                        // if(success.status == 401){
-                           // $scope.view.message = "User Exists";
-                           // $timeout(function(){
-                              // $scope.view.message = null;
-                           // }, 2000);
-                           // return;
-                        
-                        // }else if(success.status < 400){
-                           // $scope.view.message = "User added";
-
-                           // $timeout(function(){
-                              // $scope.view.message = null;
-                              // $scope.closeThisDialog();
-                              // $scope.ngDialogData.load();
-                           // }, 2000);
-
-                           // return;
-
-                        // }else{
+                     $http.delete(encodeURIComponent($scope.instance) + url).then(function(success, error){
+                        if(success.status < 400){
+                           $log.log(success);
+                        }else{
                            // Error to display on page
-                           // if(success.data && success.data.error && success.data.error.message){
+                           if(success.data && success.data.error && success.data.error.message){
                               // $scope.view.message = success.data.error.message;
-                           // }
-                           // else {
+                              $log.log(error);
+                           }
+                           else {
                               // $scope.view.message = success.data;
+                              $log.log(error);
                               
-                           // }
+                           }
                            // $timeout(function(){
                               // $scope.view.message = null;
                            // }, 2000);
-                        // }
-                     // });
-
+                        }
+                     });
 
                   }
-
 
 
                   $scope.createGroup = function(){
 
                      if($scope.newGroup.name!==""){
 
-                        $scope.addNewGroup($scope.newGroup.name);
-
-                        $scope.createCellSet();
+                        $scope.addNewGroup($scope.newGroup.name)
+                           .then($scope.createCellSet)
+                           .then($scope.loadCellSet)
+                           .then($scope.removeCellSet)
+                           .catch(function(response){
+                              $log.log(response);
+                           });
 
                      }
 
