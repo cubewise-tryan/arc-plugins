@@ -2280,14 +2280,14 @@ arc.directive("usersGroups", function () {
                   //load data against cellset---DONE
                   //remove cellset---DONE
 
-                  $scope.addNewGroup = function(groupName){
+                  $scope.addNewGroup = function(){
 
                      //defered object
                      var deferred = $q.defer();
 
                      var url = "/Groups";
                      var data = {
-                        "Name" : groupName
+                        "Name" : $scope.newGroup.name
                      }
 
                      return $http.post(encodeURIComponent($scope.instance)+ url, data).then(function(success, error){
@@ -2311,7 +2311,8 @@ arc.directive("usersGroups", function () {
                               // $scope.view.messageSuccess = false;
                            // }, 2000);
 
-                           deferred.resolve(groupName);
+                           // deferred.resolve(groupName);
+                           deferred.resolve();
 
                         }else{
                            // Error to display on page
@@ -2342,7 +2343,7 @@ arc.directive("usersGroups", function () {
                   }
 
 
-                  $scope.createCellSet = function(groupName, rowName, cubeName, tm1ItemArray){
+                  $scope.createCellSet = function(rowName, cubeName, tm1ItemArray){
                      var deferred = $q.defer();
 
                      var buildRows = function(tm1ItemArray){
@@ -2375,7 +2376,7 @@ arc.directive("usersGroups", function () {
 
                      // groupName, tm1ColumnArray
                      var url = "/ExecuteMDX";
-                     var mdxColumn = "{[}Groups].[" + groupName + "]}";
+                     var mdxColumn = "{[}Groups].[" + $scope.newGroup.name + "]}";
                      // var mdxRow = "{[" + rowName + "].[create_Y2Ksales_cube],[" + rowName + "].[}src_clients_export],[" + rowName + "].[}src_dim_export_data],[" + rowName + "].[}src_save] }";
                      // var mdxRow = "{" + updateMdxRow(tm1ItemArray) + "}";
                      var mdxRow = "{" + $scope.arraysObject.mdxRow + "}";
@@ -2420,25 +2421,6 @@ arc.directive("usersGroups", function () {
                   $scope.loadCellSet = function(fromCreateCellSet){
                      $log.log(fromCreateCellSet);
 
-                     var test4 =  [
-                        {
-                          "Ordinal":0,
-                          "Value":"READ"
-                        },
-                        {
-                          "Ordinal":1,
-                          "Value":"READ"
-                        },
-                        {
-                          "Ordinal":2,
-                          "Value":"READ"
-                        },
-                        {
-                          "Ordinal":3,
-                          "Value":"READ"
-                        }
-                      ];
-
                      //defered object
                      var deferred = $q.defer();
 
@@ -2482,70 +2464,97 @@ arc.directive("usersGroups", function () {
 
 
                   $scope.removeCellSet = function(cellSetID){
+
+                     var deferred = $q.defer();
+
                      var url = "/Cellsets('" + cellSetID + "')";
 
-                     $http.delete(encodeURIComponent($scope.instance) + url).then(function(success, error){
+                     return $http.delete(encodeURIComponent($scope.instance) + url).then(function(success, error){
                         if(success.status < 400){
                            $log.log(success);
+                           deferred.resolve();
+
                         }else{
                            // Error to display on page
                            if(success.data && success.data.error && success.data.error.message){
                               // $scope.view.message = success.data.error.message;
                               $log.log(error);
+                              deferred.reject();
                            }
                            else {
                               // $scope.view.message = success.data;
                               $log.log(error);
+                              deferred.reject();
                               
                            }
                            // $timeout(function(){
                               // $scope.view.message = null;
                            // }, 2000);
                         }
+
+                        return deferred.promise;
                      });
 
                   }
 
 
-                  $scope.addTm1Item = function(groupName){
 
-                     // var deferred = $q.defer();
-
-                     //applications
-
-                     //cubes
-
-
-                     //dimensions
-
-
-
-
-                     //processes
-                        $scope.createCellSet(groupName, "}Processes", "}ProcessSecurity", $scope.newGroup["processes"])
-                           .then($scope.loadCellSet)
-                           .then($scope.removeCellSet);
-                     
-
-
-                     //chores
-
-                        $scope.createCellSet(groupName, "}Chores", "}ChoreSecurity", $scope.newGroup["chores"])
-                           .then($scope.loadCellSet)
-                           .then($scope.removeCellSet);
-
-                     // return deferred.promise;
-
-
+                  $scope.addApplications = function(){
+                     if($scope.newGroup["applications"].length > 0){
+                        return $scope.createCellSet("}ApplicationEntries", "}ApplicationSecurity", $scope.newGroup["applications"])
+                        .then($scope.loadCellSet)
+                        .then($scope.removeCellSet);
+                     }
                   }
+
+
+                  $scope.addDimensions = function(){
+                     if($scope.newGroup["dimensions"].length > 0){
+                        return $scope.createCellSet("}Dimensions", "}DimensionSecurity", $scope.newGroup["dimensions"])
+                        .then($scope.loadCellSet)
+                        .then($scope.removeCellSet);
+                     }
+                  }
+
+
+                  $scope.addCubes = function(){
+                     if($scope.newGroup["cubes"].length > 0){
+                        return $scope.createCellSet("}Cubes", "}CubeSecurity", $scope.newGroup["cubes"])
+                        .then($scope.loadCellSet)
+                        .then($scope.removeCellSet);
+                     }
+                  }
+
+
+                  $scope.addProcesses = function(){
+                     if($scope.newGroup["processes"].length > 0){
+                        return $scope.createCellSet("}Processes", "}ProcessSecurity", $scope.newGroup["processes"])
+                        .then($scope.loadCellSet)
+                        .then($scope.removeCellSet);
+                     }
+                  }
+
+
+                  $scope.addChores = function(){
+                     if($scope.newGroup["chores"].length > 0){
+                        return $scope.createCellSet("}Chores", "}ChoreSecurity", $scope.newGroup["chores"])
+                        .then($scope.loadCellSet)
+                        .then($scope.removeCellSet);
+                     }
+                  }
+
 
 
                   $scope.createGroup = function(){
 
                      if($scope.newGroup.name!==""){
 
-                        $scope.addNewGroup($scope.newGroup.name)
-                           .then($scope.addTm1Item)
+                        $scope.addNewGroup()
+                           .then($scope.addApplications)
+                           .then($scope.addDimensions)
+                           .then($scope.addCubes)
+                           .then($scope.addProcesses)
+                           .then($scope.addChores)
                            .catch(function(response){
                               $log.log(response);
                            });
