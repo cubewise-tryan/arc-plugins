@@ -81,7 +81,7 @@
    "FUNCTIONREMOVEUSERFROMGROUPERROR":"User Does not Exist",
    "FUNCTIONREMOVEUSERFROMGROUPSUCCESS":"User removed from Group",
    "FUNCTIONADDGROUPSUCCESS":"Group Added",
-   "FUNCTIONADDGROUPERROR":"Group Exists",
+   "FUNCTIONADDGROUPERROR":"An Error Has Occurred Adding the Group",
    "GROUPSUSER":"Groups",
    "GROUPSSHOWLESS":"Display Less Groups",
    "GROUPSSHOWMORE":"Display Additional Groups",
