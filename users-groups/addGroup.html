@@ -42,10 +42,10 @@
                                           ng-disabled="!newGroup.name.length > 0"
                                           ng-model="selectedGroupCloneAll"
                                           uib-typeahead="name as Group.Name for Group in groupsWithUsers | filter:{Name : $viewValue} | limitTo:4"
-                                          typeahead-on-select="addCloneGroupsToNewGroupAll($item.Name)"
+                                          typeahead-on-select="addCloneGroupsToNewGroupAll(newGroup, $item.Name)"
                                           placeholder="{{'ADDGROUPCLONEGROUP' | translate}}">
                                        <span class="input-group-append">
-                                          <button ng-disabled="!newGroup.name.length" class="btn btn-secondary" title="{{'ADDGROUPREMOVEALL' | translate}}" ng-click="clearCLoneGroupsToNewGroupAll();">
+                                          <button ng-disabled="!newGroup.name.length" class="btn btn-secondary" title="{{'ADDGROUPREMOVEALL' | translate}}" ng-click="clearCLoneGroupsToNewGroupAll(newGroup);">
                                              <i class="fa fa-trash"></i>
                                           </button>
                                        </span>
@@ -65,7 +65,7 @@
                                        ng-disabled="!newGroup.name.length > 0"
                                        ng-model="selectedCloneGroupApplication"
                                        uib-typeahead="name as Group.Name for Group in groupsWithUsers | filter:{Name : $viewValue} | limitTo:4"
-                                       typeahead-on-select="addCloneGroupsToNewGroupApplications($item.Name)"
+                                       typeahead-on-select="addCloneGroupsToNewGroupApplications(newGroup, $item.Name)"
                                        placeholder="{{'ADDGROUPCLONEGROUP' | translate}}">
                                  </div>
                                  <div class="col-sm-4  pl-2 pr-0">
@@ -73,14 +73,14 @@
                                        ng-disabled="!newGroup.name.length > 0"
                                        ng-model="selectedSingleApplication"
                                        uib-typeahead="name as application.Name for application in applicationsList | filter:{Name : $viewValue} | limitTo:4"
-                                       typeahead-on-select="addIndividualTm1SectionItemToNewGroup('applications', $item)"
+                                       typeahead-on-select="addIndividualTm1SectionItemToNewGroup(newGroup, 'applications', $item)"
                                        placeholder="{{'ADDGROUPAPPLICATION' | translate}}">
                                  </div>
                                  <div class="col-sm-1 pl-2 pr-2">
                                     <div class="toolbar">
                                        <div class="btn-toolbar pull-right" >
                                           <div class="btn-group">
-                                             <button class="btn btn-secondary"  title="{{'ADDGROUPREMOVEAPPLICATIONS' | translate}}" ng-click="newGroup.applications = [];">
+                                             <button class="btn btn-secondary" ng-disabled="!newGroup.applications.length > 0" title="{{'ADDGROUPREMOVEAPPLICATIONS' | translate}}" ng-click="newGroup.applications = [];">
                                                 <i class="fa fa-trash"></i>
                                              </button>
                                           </div>
@@ -98,10 +98,10 @@
                                              <div ng-repeat="application in newGroup.applications | orderBy:'name'" >
                                                 <div style="float:left;">
                                                    <div class="badge ml-1" ng-class="securityAccessColourMapping(application.access)" class="ml-1" style="cursor: default; user-select: none;">
-                                                      <a><i class="fa fa-arrow-up" ng-click="previousAccess('applications', application.name, application.access)" title="{{'ADDGROUPPREVIOUSACCESS' | translate}}"></i></a>
-                                                      <a><i class="fa fa-arrow-down" ng-click="nextAccess('applications', application.name, application.access)" title="{{'ADDGROUPNEXTACCESS' | translate}}"></i></a>
+                                                      <a><i class="fa fa-arrow-up" ng-click="previousAccess(newGroup, 'applications', application.name, application.access)" title="{{'ADDGROUPPREVIOUSACCESS' | translate}}"></i></a>
+                                                      <a><i class="fa fa-arrow-down" ng-click="nextAccess(newGroup, 'applications', application.name, application.access)" title="{{'ADDGROUPNEXTACCESS' | translate}}"></i></a>
                                                       {{application.name}}:{{application.access}}
-                                                      <a><i class="fa fa-fw fa-remove" ng-click="removeTm1SectionItemFromNewGroup('applications', application.name)" title="{{'REMOVEGROUP' | translate}}"></i></a>
+                                                      <a><i class="fa fa-fw fa-remove" ng-click="removeTm1SectionItemFromNewGroup(newGroup, 'applications', application.name)" title="{{'REMOVEGROUP' | translate}}"></i></a>
                                                    </div>
                                                 </div>
                                              </div>
@@ -123,7 +123,7 @@
                                        ng-disabled="!newGroup.name.length > 0"
                                        ng-model="selectedCloneGroupDimension"
                                        uib-typeahead="name as Group.Name for Group in groupsWithUsers | filter:{Name : $viewValue} | limitTo:4"
-                                       typeahead-on-select="addCloneGroupsToNewGroupDimensions($item.Name)"
+                                       typeahead-on-select="addCloneGroupsToNewGroupDimensions(newGroup, $item.Name)"
                                        placeholder="{{'ADDGROUPCLONEGROUP' | translate}}">
                                  </div>
                                  <div class="col-sm-4  pl-2 pr-0">
@@ -131,14 +131,14 @@
                                        ng-disabled="!newGroup.name.length > 0"
                                        ng-model="selectedSingleDimension"
                                        uib-typeahead="name as dimension.Name for dimension in dimensionsList | filter:{Name : $viewValue} | limitTo:4"
-                                       typeahead-on-select="addIndividualTm1SectionItemToNewGroup('dimensions', $item)"
+                                       typeahead-on-select="addIndividualTm1SectionItemToNewGroup(newGroup, 'dimensions', $item)"
                                        placeholder="{{'ADDGROUPDIMENSION' | translate}}">
                                  </div>
                                  <div class="col-sm-1 pl-2 pr-2">
                                     <div class="toolbar">
                                        <div class="btn-toolbar pull-right" >
                                           <div class="btn-group">
-                                             <button class="btn btn-secondary"  title="{{'ADDGROUPREMOVEDIMENSIONS' | translate}}" ng-click="newGroup.dimensions = [];">
+                                             <button class="btn btn-secondary" ng-disabled="!newGroup.dimensions.length > 0" title="{{'ADDGROUPREMOVEDIMENSIONS' | translate}}" ng-click="newGroup.dimensions = [];">
                                                 <i class="fa fa-trash"></i>
                                              </button>
                                           </div>
@@ -156,10 +156,10 @@
                                              <div ng-repeat="dimension in newGroup.dimensions | orderBy:'name'" >
                                                 <div style="float:left;">
                                                    <div class="badge ml-1" ng-class="securityAccessColourMapping(dimension.access)" class="ml-1" style="cursor: default; user-select: none;">
-                                                      <a><i class="fa fa-arrow-up" ng-click="previousAccess('dimensions', dimension.name, dimension.access)" title="{{'ADDGROUPPREVIOUSACCESS' | translate}}"></i></a>
-                                                      <a><i class="fa fa-arrow-down" ng-click="nextAccess('dimensions', dimension.name, dimension.access)" title="{{'ADDGROUPNEXTACCESS' | translate}}"></i></a>
+                                                      <a><i class="fa fa-arrow-up" ng-click="previousAccess(newGroup, 'dimensions', dimension.name, dimension.access)" title="{{'ADDGROUPPREVIOUSACCESS' | translate}}"></i></a>
+                                                      <a><i class="fa fa-arrow-down" ng-click="nextAccess(newGroup, 'dimensions', dimension.name, dimension.access)" title="{{'ADDGROUPNEXTACCESS' | translate}}"></i></a>
                                                       {{dimension.name}}:{{dimension.access}}
-                                                      <a><i class="fa fa-fw fa-remove" ng-click="removeTm1SectionItemFromNewGroup('dimensions', dimension.Name)" title="{{'REMOVEGROUP' | translate}}"></i></a>
+                                                      <a><i class="fa fa-fw fa-remove" ng-click="removeTm1SectionItemFromNewGroup(newGroup, 'dimensions', dimension.name)" title="{{'REMOVEGROUP' | translate}}"></i></a>
                                                    </div>
                                                 </div>
                                              </div>
@@ -183,7 +183,7 @@
                                        ng-disabled="!newGroup.name.length > 0"
                                        ng-model="selectedCloneGroupCube"
                                        uib-typeahead="name as Group.Name for Group in groupsWithUsers | filter:{Name : $viewValue} | limitTo:4"
-                                       typeahead-on-select="addCloneGroupsToNewGroupCubes($item.Name)"
+                                       typeahead-on-select="addCloneGroupsToNewGroupCubes(newGroup, $item.Name)"
                                        placeholder="{{'ADDGROUPCLONEGROUP' | translate}}">
                                  </div>
                                  <div class="col-sm-4  pl-2 pr-0">
@@ -191,14 +191,14 @@
                                        ng-disabled="!newGroup.name.length > 0"
                                        ng-model="selectedSingleCube"
                                        uib-typeahead="name as cube.Name for cube in cubesList | filter:{Name : $viewValue} | limitTo:4"
-                                       typeahead-on-select="addIndividualTm1SectionItemToNewGroup('cubes', $item)"
+                                       typeahead-on-select="addIndividualTm1SectionItemToNewGroup(newGroup,'cubes', $item)"
                                        placeholder="{{'ADDGROUPCUBE' | translate}}">
                                  </div>
                                  <div class="col-sm-1 pl-2 pr-2">
                                     <div class="toolbar">
                                        <div class="btn-toolbar pull-right" >
                                           <div class="btn-group">
-                                             <button class="btn btn-secondary" title="{{'ADDGROUPREMOVECUBES' | translate}}" ng-click="newGroup.cubes = [];">
+                                             <button class="btn btn-secondary" ng-disabled="!newGroup.cubes.length > 0" title="{{'ADDGROUPREMOVECUBES' | translate}}" ng-click="newGroup.cubes = [];">
                                                 <i class="fa fa-trash"></i>
                                              </button>
                                           </div>
@@ -216,10 +216,10 @@
                                              <div ng-repeat="cube in newGroup.cubes | orderBy:'name'" >
                                                 <div style="float:left;">
                                                    <div class="badge badge-md ml-1" ng-class="securityAccessColourMapping(cube.access)" class="ml-1" style="cursor: default; user-select: none;">
-                                                      <a><i class="fa fa-arrow-up" ng-click="previousAccess('cubes', cube.name, cube.access)" title="{{'ADDGROUPPREVIOUSACCESS' | translate}}"></i></a>
-                                                      <a><i class="fa fa-arrow-down" ng-click="nextAccess('cubes', cube.name, cube.access)" title="{{'ADDGROUPNEXTACCESS' | translate}}"></i></a>
+                                                      <a><i class="fa fa-arrow-up" ng-click="previousAccess(newGroup, 'cubes', cube.name, cube.access)" title="{{'ADDGROUPPREVIOUSACCESS' | translate}}"></i></a>
+                                                      <a><i class="fa fa-arrow-down" ng-click="nextAccess(newGroup, 'cubes', cube.name, cube.access)" title="{{'ADDGROUPNEXTACCESS' | translate}}"></i></a>
                                                       {{cube.name}}:{{cube.access}}
-                                                      <a><i class="fa fa-fw fa-remove" ng-click="removeTm1SectionItemFromNewGroup('cubes', cube.name)" title="{{'REMOVEGROUP' | translate}}"></i></a>
+                                                      <a><i class="fa fa-fw fa-remove" ng-click="removeTm1SectionItemFromNewGroup(newGroup, 'cubes', cube.name)" title="{{'REMOVEGROUP' | translate}}"></i></a>
                                                    </div>
                                                 </div>
                                              </div>
@@ -241,7 +241,7 @@
                                        ng-disabled="!newGroup.name.length > 0"
                                        ng-model="selectedCloneGroupProcess"
                                        uib-typeahead="name as Group.Name for Group in groupsWithUsers | filter:{Name : $viewValue} | limitTo:4"
-                                       typeahead-on-select="addCloneGroupsToNewGroupProcesses($item.Name)"
+                                       typeahead-on-select="addCloneGroupsToNewGroupProcesses(newGroup, $item.Name)"
                                        placeholder="{{'ADDGROUPCLONEGROUP' | translate}}">
                                  </div>
                                  <div class="col-sm-4  pl-2 pr-0">
@@ -249,14 +249,14 @@
                                        ng-disabled="!newGroup.name.length > 0"
                                        ng-model="selectedSingleProcess"
                                        uib-typeahead="name as process.Name for process in processesList | filter:{Name : $viewValue} | limitTo:4"
-                                       typeahead-on-select="addIndividualTm1SectionItemToNewGroup('processes', $item)"
+                                       typeahead-on-select="addIndividualTm1SectionItemToNewGroup(newGroup, 'processes', $item)"
                                        placeholder="{{'ADDGROUPPROCESS' | translate}}">
                                  </div>
                                  <div class="col-sm-1 pl-2 pr-2">
                                     <div class="toolbar">
                                        <div class="btn-toolbar pull-right" >
                                           <div class="btn-group">
-                                             <button class="btn btn-secondary"  title="{{'ADDGROUPREMOVEPROCESSES' | translate}}" ng-click="newGroup.processes = [];">
+                                             <button class="btn btn-secondary" ng-disabled="!newGroup.processes.length > 0" title="{{'ADDGROUPREMOVEPROCESSES' | translate}}" ng-click="newGroup.processes = [];">
                                                 <i class="fa fa-trash"></i>
                                              </button>
                                           </div>
@@ -274,10 +274,10 @@
                                              <div ng-repeat="process in newGroup.processes | orderBy:'name'" >
                                                 <div style="float:left;">
                                                    <div class="badge ml-1" ng-class="securityAccessColourMapping(process.access)" class="ml-1" style="cursor: default; user-select: none;">
-                                                      <a><i class="fa fa-arrow-up" ng-click="previousAccess('processes', process.name, process.access)" title="{{'ADDGROUPPREVIOUSACCESS' | translate}}"></i></a>
-                                                      <a><i class="fa fa-arrow-down" ng-click="nextAccess('processes', process.name, process.access)" title="{{'ADDGROUPNEXTACCESS' | translate}}"></i></a>
+                                                      <a><i class="fa fa-arrow-up" ng-click="previousAccess(newGroup, 'processes', process.name, process.access)" title="{{'ADDGROUPPREVIOUSACCESS' | translate}}"></i></a>
+                                                      <a><i class="fa fa-arrow-down" ng-click="nextAccess(newGroup, 'processes', process.name, process.access)" title="{{'ADDGROUPNEXTACCESS' | translate}}"></i></a>
                                                       {{process.name}}:{{process.access}}
-                                                      <a><i class="fa fa-fw fa-remove" ng-click="removeTm1SectionItemFromNewGroup('processes', process.name)" title="{{'REMOVEGROUP' | translate}}"></i></a>
+                                                      <a><i class="fa fa-fw fa-remove" ng-click="removeTm1SectionItemFromNewGroup(newGroup, 'processes', process.name)" title="{{'REMOVEGROUP' | translate}}"></i></a>
                                                    </div>
                                                 </div>
                                              </div>
@@ -299,7 +299,7 @@
                                        ng-disabled="!newGroup.name.length > 0"
                                        ng-model="selectedCloneGroupChore"
                                        uib-typeahead="name as Group.Name for Group in groupsWithUsers | filter:{Name : $viewValue} | limitTo:4"
-                                       typeahead-on-select="addCloneGroupsToNewGroupChores($item.Name)"
+                                       typeahead-on-select="addCloneGroupsToNewGroupChores(newGroup, $item.Name)"
                                        placeholder="{{'ADDGROUPCLONEGROUP' | translate}}">
                                  </div>
                                  <div class="col-sm-4  pl-2 pr-0">
@@ -307,14 +307,14 @@
                                        ng-disabled="!newGroup.name.length > 0"
                                        ng-model="selectedSingleChore"
                                        uib-typeahead="name as chore.Name for chore in choresList | filter:{Name : $viewValue} | limitTo:4"
-                                       typeahead-on-select="addIndividualTm1SectionItemToNewGroup('chores',$item)"
+                                       typeahead-on-select="addIndividualTm1SectionItemToNewGroup(newGroup, 'chores',$item)"
                                        placeholder="{{'ADDGROUPCHORE' | translate}}">
                                  </div>
                                  <div class="col-sm-1 pl-2 pr-2">
                                     <div class="toolbar">
                                        <div class="btn-toolbar pull-right" >
                                           <div class="btn-group">
-                                             <button class="btn btn-secondary"  title="{{'ADDGROUPREMOVECHORES' | translate}}" ng-click="newGroup.chores = [];">
+                                             <button class="btn btn-secondary" ng-disabled="!newGroup.chores.length > 0" title="{{'ADDGROUPREMOVECHORES' | translate}}" ng-click="newGroup.chores = [];">
                                                 <i class="fa fa-trash"></i>
                                              </button>
                                           </div>
@@ -332,10 +332,10 @@
                                              <div ng-repeat="chore in newGroup.chores | orderBy:'name'" >
                                                 <div style="float:left;">
                                                    <div class="badge ml-1" ng-class="securityAccessColourMapping(chore.access)" class="ml-1" style="cursor: default; user-select: none;">
-                                                      <a><i class="fa fa-arrow-up" ng-click="previousAccess('chores', chore.name, chore.access)" title="{{'ADDGROUPPREVIOUSACCESS' | translate}}"></i></a>
-                                                      <a><i class="fa fa-arrow-down" ng-click="nextAccess('chores', chore.name, chore.access)" title="{{'ADDGROUPNEXTACCESS' | translate}}"></i></a>
+                                                      <a><i class="fa fa-arrow-up" ng-click="previousAccess(newGroup, 'chores', chore.name, chore.access)" title="{{'ADDGROUPPREVIOUSACCESS' | translate}}"></i></a>
+                                                      <a><i class="fa fa-arrow-down" ng-click="nextAccess(newGroup, 'chores', chore.name, chore.access)" title="{{'ADDGROUPNEXTACCESS' | translate}}"></i></a>
                                                       {{chore.name}}:{{chore.access}}
-                                                      <a><i class="fa fa-fw fa-remove" ng-click="removeTm1SectionItemFromNewGroup('chores', chore.name)" title="{{'REMOVEGROUP' | translate}}"></i></a>
+                                                      <a><i class="fa fa-fw fa-remove" ng-click="removeTm1SectionItemFromNewGroup(newGroup, 'chores', chore.name)" title="{{'REMOVEGROUP' | translate}}"></i></a>
                                                    </div>
                                                 </div>
                                              </div>
@@ -356,13 +356,15 @@
       <div class="modal-footer">
          <div class="container-fluid">
             <div class="row">
-               <div class="col-md-3">
+               <div class="col-md-4">
                   <div class="badge ml-1" ng-class="securityAccessColourMapping('NONE')" class="ml-1" style="cursor: default; user-select: none;">NONE</div>
                   <div class="badge ml-1" ng-class="securityAccessColourMapping('READ')" class="ml-1" style="cursor: default; user-select: none;">READ</div>
                   <div class="badge ml-1" ng-class="securityAccessColourMapping('WRITE')" class="ml-1" style="cursor: default; user-select: none;">WRITE</div>
+                  <div class="badge ml-1" ng-class="securityAccessColourMapping('RESERVE')" class="ml-1" style="cursor: default; user-select: none;">RESERVE</div>
+                  <div class="badge ml-1" ng-class="securityAccessColourMapping('LOCK')" class="ml-1" style="cursor: default; user-select: none;">LOCK</div>
                   <div class="badge ml-1" ng-class="securityAccessColourMapping('ADMIN')" class="ml-1" style="cursor: default; user-select: none;">ADMIN</div>
                </div>
-               <div class="col-md-5">
+               <div class="col-md-4">
                   <button ng-class="{'btn btn-success':view.messageSuccess,'btn btn-warning':view.messageWarning}" ng-if="view.message">
                      <span ng-class="{'fa fa-check':view.messageSuccess,'fa fa-warning':view.messageWarning}" aria-hidden="true"></span><span>{{view.message}}</span>
                   </button>
