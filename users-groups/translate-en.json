@@ -82,6 +82,7 @@
    "FUNCTIONREMOVEUSERFROMGROUPSUCCESS":"User removed from Group",
    "FUNCTIONADDGROUPSUCCESS":"Group Added",
    "FUNCTIONADDGROUPERROR":"An Error Has Occurred Adding the Group",
+   "FUNCTIONEDITGROUPERROR":"An Error Has Occurred Retrieving the Group Security",
    "GROUPSUSER":"Groups",
    "GROUPSSHOWLESS":"Display Less Groups",
    "GROUPSSHOWMORE":"Display Additional Groups",

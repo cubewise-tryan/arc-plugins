@@ -2376,7 +2376,7 @@ arc.directive("usersGroups", function () {
                "MDX" : mdxFull
             }
 
-            return $http.post(encodeURIComponent($scope.instance) + url, data).then(function(success,error){
+            $http.post(encodeURIComponent($scope.instance) + url, data).then(function(success,error){
                if(success.status < 400){
                   deferred.resolve({newGroup:newGroup, cellSetID:success.data.ID, ordinalRows:$scope.arraysObject.ordinalRows});
 
@@ -2384,9 +2384,9 @@ arc.directive("usersGroups", function () {
                   deferred.reject(success);
                }
 
-               return deferred.promise;
-
             });
+
+            return deferred.promise;
 
          }
 
@@ -2397,7 +2397,7 @@ arc.directive("usersGroups", function () {
             var url = "/Cellsets('" + fromCreateCellSet.cellSetID + "')/Cells";
             var data = fromCreateCellSet.ordinalRows;
 
-            return $http.patch(encodeURIComponent($scope.instance) + url, data).then(function(success,error){
+            $http.patch(encodeURIComponent($scope.instance) + url, data).then(function(success,error){
                if(success.status < 400){
                   deferred.resolve(fromCreateCellSet);
 
@@ -2405,9 +2405,9 @@ arc.directive("usersGroups", function () {
                   deferred.reject(success);
                }
 
-               return deferred.promise;
-
             });
+
+            return deferred.promise;
 
          }
 
@@ -2417,16 +2417,16 @@ arc.directive("usersGroups", function () {
 
             var url = "/Cellsets('" + fromLoadCellSet.cellSetID + "')";
 
-            return $http.delete(encodeURIComponent($scope.instance) + url).then(function(success, error){
+            $http.delete(encodeURIComponent($scope.instance) + url).then(function(success, error){
                if(success.status < 400){
                   deferred.resolve(fromLoadCellSet.newGroup);
 
                }else{
                   deferred.reject();
                }
-               
-               return deferred.promise;
             });
+
+            return deferred.promise;
 
          }
 
@@ -2439,7 +2439,7 @@ arc.directive("usersGroups", function () {
                "Name" : newGroup.name
             }
 
-            return $http.post(encodeURIComponent($scope.instance)+ url, data).then(function(success, error){
+            $http.post(encodeURIComponent($scope.instance)+ url, data).then(function(success, error){
                if(success.status < 400){
                   deferred.resolve(newGroup);
 
@@ -2448,11 +2448,9 @@ arc.directive("usersGroups", function () {
 
                }
 
-               return deferred.promise;
-
             });
 
-
+            return deferred.promise;
          }
 
 
@@ -2503,6 +2501,7 @@ arc.directive("usersGroups", function () {
 
 
          $scope.editGroup = function(rowIndex){
+            //WORK IN PROGRESS
             ngDialog.open({
                template: "__/plugins/users-groups/editGroup.html",
                className: "ngdialog-theme-default large",
@@ -2526,11 +2525,115 @@ arc.directive("usersGroups", function () {
                   }
 
 
-                  $scope.updateGroup = function(groupName, password){
-                     // if(password){
-                        // $scope.updatePassword(groupName, password);
-                     // }
+                  $scope.retrieveSecurity = function(rowName, cubeName, tm1Item){
+                     var deferred = $q.defer();
 
+                     var url = "/ExecuteMDX?$expand=Axes($expand=Hierarchies($select=Name;$expand=Dimension($select=Name)),Tuples($expand=Members($select=Name,UniqueName,Ordinal,Attributes;$expand=Parent($select=Name);$expand=Element($select=Name,Type,Level)))),Cells($select=Value,Updateable,Consolidated,RuleDerived,HasPicklist,FormatString,FormattedValue)";
+                     var mdxColumn = "{[}Groups].[" + $scope.newGroup.name + "]}";
+                     var mdxRow = "[" + rowName + "]";
+                     var mdxFrom = "[" + cubeName + "]";
+                     var mdxFull = "SELECT NON EMPTY" + mdxColumn + " ON COLUMNS, NON EMPTY {TM1SUBSETALL(" + mdxRow +  ")} ON ROWS FROM " + mdxFrom;
+                      
+                     var data = {
+                        "MDX" : mdxFull
+                     }
+
+
+                     $http.post(encodeURIComponent($scope.instance) + url, data).then(function(success, error){
+                        if(success.status < 400){
+                           var options = {
+                              alias: {},
+                              suppressZeroRows: 1,
+                              suppressZeroColumns: 1,
+                              maxRows: 50
+                           };
+                           // var cubeName = "}CubeSecurity";
+                           $scope.cubeSecurityResult = $tm1.resultsetTransform($scope.instance, cubeName, success.data, options);
+
+                           // $scope.cubes = [];
+                           for(var i = 0; i < $scope.cubeSecurityResult.rows.length; i++){
+                              var item = {
+                                 name : "",
+                                 access : ""
+                              }
+
+                              item.name = $scope.cubeSecurityResult.rows[i][rowName].name;
+
+                              for(var j = 0; j < $scope.cubeSecurityResult.rows[i].cells.length; j++){
+                                 if($scope.cubeSecurityResult.rows[i].cells[j].value){
+                                    item.access = $scope.cubeSecurityResult.rows[i].cells[j].value;
+                                 }
+                                 
+                              }
+
+                              $scope.newGroup[tm1Item].push(item);
+                           }
+
+                           deferred.resolve({name:true});
+
+                        }else{
+                           deferred.reject(success);
+
+                        }
+                     })
+
+                     return deferred.promise;
+
+                  }
+
+                  $scope.retrieveGroupSecurityApplications = function(){
+                     return $scope.retrieveSecurity("}ApplicationEntries","}ApplicationSecurity","applications");
+                  }
+                  $scope.retrieveGroupSecurityCubes = function(){
+                     return $scope.retrieveSecurity("}Cubes","}CubeSecurity","cubes");
+                  }
+                  $scope.retrieveGroupSecurityDimensions = function(){
+                     return $scope.retrieveSecurity("}Dimensions","}DimensionSecurity","dimensions");
+                  }
+                  $scope.retrieveGroupSecurityProcesses = function(){
+                     return $scope.retrieveSecurity("}Processes","}ProcessSecurity","processes");
+                  }
+                  $scope.retrieveGroupSecurityChores = function(){
+                     return $scope.retrieveSecurity("}Chores","}ChoreSecurity","chores");
+                  }
+
+                  $scope.retrieveErrorHandler = function(rejectedObject){
+                     if(rejectedObject.status >=400 ){
+                        // Error to display on page
+                        if(rejectedObject.data && rejectedObject.data.error && rejectedObject.data.error.message){
+                           $scope.view.message = rejectedObject.data.error.message;
+                           $scope.view.messageWarning = true;
+         
+                        }
+                        else {
+                           $scope.view.message = rejectedObject.data;
+                           $scope.view.messageWarning = true;
+                        }
+         
+                     }else{
+                        $scope.view.message = $translate.instant("FUNCTIONEDITGROUPERROR");
+                        $scope.view.messageWarning = true;
+                        $log.log(rejectedObject);
+         
+                     }
+                     $timeout(function(){
+                        $scope.view.message = null;
+                        $scope.view.messageWarning = false;
+                     }, 2000);
+                  }
+
+
+                  $scope.retrieveGroupSecurityAll = function(){
+                     $scope.retrieveGroupSecurityApplications()
+                        .then($scope.retrieveGroupSecurityCubes)
+                        .then($scope.retrieveGroupSecurityDimensions)
+                        .then($scope.retrieveGroupSecurityProcesses)
+                        .then($scope.retrieveGroupSecurityChores)
+                        .catch($scope.retrieveErrorHandler);
+                  }
+                  $scope.retrieveGroupSecurityAll();
+
+                  $scope.updateGroup = function(){
                   }
 
 
@@ -2637,13 +2740,10 @@ arc.directive("usersGroups", function () {
                   }
 
 
-
-
                   $scope.closeThisDialog = function(){
                      ngDialog.close();
                   }
 
-              
                }],
                data: {
                   view : $scope.view,
