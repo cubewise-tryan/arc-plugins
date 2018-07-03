@@ -2336,100 +2336,6 @@ arc.directive("usersGroups", function () {
          }
 
 
-         $scope.createCellSet = function(newGroup, rowName, cubeName, tm1ItemArray){
-            var deferred = $q.defer();
-
-            var buildRows = function(tm1ItemArray){
-               var arrays = {
-                  mdxRow : [],
-                  ordinalRows : []
-               }
-
-               var mdxRowElement = "";
-
-               if(typeof tm1ItemArray !== "undefined"){
-                  for(var i=0; i < tm1ItemArray.length; i++){
-                     var ordinalRowElement = {
-                        "Ordinal" : "",
-                        "Value" : ""
-                      };
-
-                     mdxRowElement = "[" + rowName + "].[" + tm1ItemArray[i].name + "]";
-                     arrays.mdxRow.push(mdxRowElement);
-
-                     ordinalRowElement.Ordinal = i;
-                     ordinalRowElement.Value = tm1ItemArray[i].access;
-                     arrays.ordinalRows.push(ordinalRowElement);
-                  }
-               }
-               return arrays;
-            };
-            $scope.arraysObject = buildRows(tm1ItemArray);
-
-            // http parameters
-            var url = "/ExecuteMDX";
-            var mdxColumn = "{[}Groups].[" + newGroup.name + "]}";
-            var mdxRow = "{" + $scope.arraysObject.mdxRow + "}";
-            var mdxFrom = "[" + cubeName + "]";
-            var mdxFull = "SELECT "+ mdxColumn +" ON COLUMNS, " + mdxRow + " ON ROWS FROM " + mdxFrom;
-            var data = {
-               "MDX" : mdxFull
-            }
-
-            $http.post(encodeURIComponent($scope.instance) + url, data).then(function(success,error){
-               if(success.status < 400){
-                  deferred.resolve({newGroup:newGroup, cellSetID:success.data.ID, ordinalRows:$scope.arraysObject.ordinalRows});
-
-               }else{
-                  deferred.reject(success);
-               }
-
-            });
-
-            return deferred.promise;
-
-         }
-
-
-         $scope.loadCellSet = function(fromCreateCellSet){
-            var deferred = $q.defer();
-
-            var url = "/Cellsets('" + fromCreateCellSet.cellSetID + "')/Cells";
-            var data = fromCreateCellSet.ordinalRows;
-
-            $http.patch(encodeURIComponent($scope.instance) + url, data).then(function(success,error){
-               if(success.status < 400){
-                  deferred.resolve(fromCreateCellSet);
-
-               }else{
-                  deferred.reject(success);
-               }
-
-            });
-
-            return deferred.promise;
-
-         }
-
-
-         $scope.removeCellSet = function(fromLoadCellSet){
-            var deferred = $q.defer();
-
-            var url = "/Cellsets('" + fromLoadCellSet.cellSetID + "')";
-
-            $http.delete(encodeURIComponent($scope.instance) + url).then(function(success, error){
-               if(success.status < 400){
-                  deferred.resolve(fromLoadCellSet.newGroup);
-
-               }else{
-                  deferred.reject();
-               }
-            });
-
-            return deferred.promise;
-
-         }
-
 
          $scope.addNewGroup = function(newGroup){
             var deferred = $q.defer();
@@ -2453,50 +2359,66 @@ arc.directive("usersGroups", function () {
             return deferred.promise;
          }
 
+         $scope.updateValues = function(newGroup){
+            var deferred = $q.defer();
 
-         $scope.addApplications = function(newGroup){
-            if(newGroup["applications"].length > 0){
-               return $scope.createCellSet(newGroup, "}ApplicationEntries", "}ApplicationSecurity", newGroup["applications"])
-               .then($scope.loadCellSet)
-               .then($scope.removeCellSet);
+            var transformAndPost = function(tm1Item, tm1Dimension, tm1Cube){
+               var deferred = $q.defer();
+
+               var data = [];
+
+               for(var i = 0; i < newGroup[tm1Item].length; i++){
+                  var item =  {
+                     "Cells":[
+                        {"Tuple@odata.bind": [
+                           "Dimensions('" + tm1Dimension + "')/Hierarchies('" + tm1Dimension + "')/Elements('" + newGroup[tm1Item][i].name + "')",
+                           "Dimensions('}Groups')/Hierarchies('}Groups')/Elements('" + newGroup.name + "')"
+                           ]
+                        }
+                     ],
+                     "Value" : newGroup[tm1Item][i].access
+                  }
+
+                  data.push(item);
+               }
+
+               // http parameters
+               var url = "/Cubes('" + tm1Cube +"')/tm1.Update";
+
+               $http.post(encodeURIComponent($scope.instance) + url, data).then(function(success,error){
+                  if(success.status < 400){
+                     deferred.resolve(success);
+
+                  }else{
+                     deferred.reject(success);
+                  }
+
+               });
+
+               return deferred.promise;
+
             }
+
+
+            $q.all([
+               transformAndPost("applications","}ApplicationEntries","}ApplicationSecurity"),
+               transformAndPost("cubes","}Cubes","}CubeSecurity"),
+               transformAndPost("dimensions","}Dimensions","}DimensionSecurity"),
+               transformAndPost("processes","}Processes","}ProcessSecurity"),
+               transformAndPost("chores","}Chores","}ChoreSecurity")
+            ])
+            .then(function(response){
+               deferred.resolve(response);
+            })
+            .catch(function(response){
+               deferred.reject(response);
+            });
+
+
+            return deferred.promise;
+
          }
 
-
-         $scope.addDimensions = function(newGroup){
-            if(newGroup["dimensions"].length > 0){
-               return $scope.createCellSet(newGroup, "}Dimensions", "}DimensionSecurity", newGroup["dimensions"])
-               .then($scope.loadCellSet)
-               .then($scope.removeCellSet);
-            }
-         }
-
-
-         $scope.addCubes = function(newGroup){
-            if(newGroup["cubes"].length > 0){
-               return $scope.createCellSet(newGroup, "}Cubes", "}CubeSecurity", newGroup["cubes"])
-               .then($scope.loadCellSet)
-               .then($scope.removeCellSet);
-            }
-         }
-
-
-         $scope.addProcesses = function(newGroup){
-            if(newGroup["processes"].length > 0){
-               return $scope.createCellSet(newGroup, "}Processes", "}ProcessSecurity", newGroup["processes"])
-               .then($scope.loadCellSet)
-               .then($scope.removeCellSet);
-            }
-         }
-
-
-         $scope.addChores = function(newGroup){
-            if(newGroup["chores"].length > 0){
-               return $scope.createCellSet(newGroup, "}Chores", "}ChoreSecurity", newGroup["chores"])
-               .then($scope.loadCellSet)
-               .then($scope.removeCellSet);
-            }
-         }
 
 
 
@@ -2524,6 +2446,23 @@ arc.directive("usersGroups", function () {
                      chores:[]
                   }
 
+                  $scope.deleteSelection = function(tm1ItemSelected){
+                     $dialogs.confirmDelete(tm1ItemSelected, deleteTm1ItemsSelected);
+         
+                     function deleteTm1ItemsSelected(){
+                        if(tm1ItemSelected==="all"){
+                           $scope.newGroup.applications = [];
+                           $scope.newGroup.cubes = [];
+                           $scope.newGroup.dimensions = [];
+                           $scope.newGroup.processes = [];
+                           $scope.newGroup.chores = [];
+                        }else{
+                           $scope.newGroup[tm1ItemSelected] = [];
+                        }
+
+                     }
+                  }
+
 
                   $scope.retrieveSecurity = function(rowName, cubeName, tm1Item){
                      var deferred = $q.defer();
@@ -2538,7 +2477,6 @@ arc.directive("usersGroups", function () {
                         "MDX" : mdxFull
                      }
 
-
                      $http.post(encodeURIComponent($scope.instance) + url, data).then(function(success, error){
                         if(success.status < 400){
                            var options = {
@@ -2547,10 +2485,9 @@ arc.directive("usersGroups", function () {
                               suppressZeroColumns: 1,
                               maxRows: 50
                            };
-                           // var cubeName = "}CubeSecurity";
+
                            $scope.cubeSecurityResult = $tm1.resultsetTransform($scope.instance, cubeName, success.data, options);
 
-                           // $scope.cubes = [];
                            for(var i = 0; i < $scope.cubeSecurityResult.rows.length; i++){
                               var item = {
                                  name : "",
@@ -2651,10 +2588,8 @@ arc.directive("usersGroups", function () {
                   addCloneGroupsToNewGroupDimensions : $scope.addCloneGroupsToNewGroupDimensions,
                   addCloneGroupsToNewGroupProcesses : $scope.addCloneGroupsToNewGroupProcesses,
                   addCloneGroupsToNewGroupChores : $scope.addCloneGroupsToNewGroupChores,
-                  createCellSet : $scope.createCellSet,
-                  loadCellSet : $scope.loadCellSet,
-                  removeCellSet : $scope.removeCellSet,
-                  addNewGroup : $scope.addNewGroup
+                  addNewGroup : $scope.addNewGroup,
+                  updateValues : $scope.updateValues
 
                }
             });
@@ -2683,6 +2618,23 @@ arc.directive("usersGroups", function () {
                      dimensions:[],
                      processes:[],
                      chores:[]
+                  }
+
+                  $scope.deleteSelection = function(tm1ItemSelected){
+                     $dialogs.confirmDelete(tm1ItemSelected, deleteTm1ItemsSelected);
+         
+                     function deleteTm1ItemsSelected(){
+                        if(tm1ItemSelected==="all"){
+                           $scope.newGroup.applications = [];
+                           $scope.newGroup.cubes = [];
+                           $scope.newGroup.dimensions = [];
+                           $scope.newGroup.processes = [];
+                           $scope.newGroup.chores = [];
+                        }else{
+                           $scope.newGroup[tm1ItemSelected] = [];
+                        }
+
+                     }
                   }
 
 
@@ -2729,11 +2681,7 @@ arc.directive("usersGroups", function () {
                   $scope.createGroup = function(){
                      if($scope.newGroup.name!==""){
                         $scope.addNewGroup($scope.newGroup)
-                           .then($scope.addApplications)
-                           .then($scope.addDimensions)
-                           .then($scope.addCubes)
-                           .then($scope.addProcesses)
-                           .then($scope.addChores)
+                           .then($scope.updateValues)
                            .then($scope.addSuccess)
                            .catch($scope.addErrorHandler);
                      }
@@ -2760,19 +2708,8 @@ arc.directive("usersGroups", function () {
                   addCloneGroupsToNewGroupProcesses : $scope.addCloneGroupsToNewGroupProcesses,
                   addCloneGroupsToNewGroupChores : $scope.addCloneGroupsToNewGroupChores,
                   addCloneGroupsToNewGroupAll : $scope.addCloneGroupsToNewGroupAll,
-                  clearCLoneGroupsToNewGroupAll : $scope.clearCLoneGroupsToNewGroupAll,
-                  createCellSet : $scope.createCellSet,
-                  loadCellSet : $scope.loadCellSet,
-                  removeCellSet : $scope.removeCellSet,
                   addNewGroup : $scope.addNewGroup,
-                  addApplications : $scope.addApplications,
-                  addDimensions : $scope.addDimensions,
-                  addCubes : $scope.addCubes,
-                  addProcesses : $scope.addProcesses,
-                  addChores : $scope.addChores,
-                  addSuccess : $scope.addSuccess,
-                  addErrorHandler : $scope.addErrorHandler
-
+                  updateValues : $scope.updateValues
 
                }
             });

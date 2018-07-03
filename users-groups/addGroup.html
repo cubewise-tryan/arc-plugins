@@ -45,7 +45,7 @@
                                           typeahead-on-select="addCloneGroupsToNewGroupAll(newGroup, $item.Name)"
                                           placeholder="{{'ADDGROUPCLONEGROUP' | translate}}">
                                        <span class="input-group-append">
-                                          <button ng-disabled="!newGroup.name.length" class="btn btn-secondary" title="{{'ADDGROUPREMOVEALL' | translate}}" ng-click="clearCLoneGroupsToNewGroupAll(newGroup);">
+                                          <button ng-disabled="!newGroup.name.length" class="btn btn-secondary" title="{{'ADDGROUPREMOVEALL' | translate}}" ng-click="deleteSelection('all');">
                                              <i class="fa fa-trash"></i>
                                           </button>
                                        </span>
@@ -80,7 +80,7 @@
                                     <div class="toolbar">
                                        <div class="btn-toolbar pull-right" >
                                           <div class="btn-group">
-                                             <button class="btn btn-secondary" ng-disabled="!newGroup.applications.length > 0" title="{{'ADDGROUPREMOVEAPPLICATIONS' | translate}}" ng-click="newGroup.applications = [];">
+                                             <button class="btn btn-secondary" ng-disabled="!newGroup.applications.length > 0" title="{{'ADDGROUPREMOVEAPPLICATIONS' | translate}}" ng-click="deleteSelection('applications');">
                                                 <i class="fa fa-trash"></i>
                                              </button>
                                           </div>
@@ -138,7 +138,7 @@
                                     <div class="toolbar">
                                        <div class="btn-toolbar pull-right" >
                                           <div class="btn-group">
-                                             <button class="btn btn-secondary" ng-disabled="!newGroup.dimensions.length > 0" title="{{'ADDGROUPREMOVEDIMENSIONS' | translate}}" ng-click="newGroup.dimensions = [];">
+                                             <button class="btn btn-secondary" ng-disabled="!newGroup.dimensions.length > 0" title="{{'ADDGROUPREMOVEDIMENSIONS' | translate}}" ng-click="deleteSelection('dimensions');">
                                                 <i class="fa fa-trash"></i>
                                              </button>
                                           </div>
@@ -198,7 +198,7 @@
                                     <div class="toolbar">
                                        <div class="btn-toolbar pull-right" >
                                           <div class="btn-group">
-                                             <button class="btn btn-secondary" ng-disabled="!newGroup.cubes.length > 0" title="{{'ADDGROUPREMOVECUBES' | translate}}" ng-click="newGroup.cubes = [];">
+                                             <button class="btn btn-secondary" ng-disabled="!newGroup.cubes.length > 0" title="{{'ADDGROUPREMOVECUBES' | translate}}" ng-click="deleteSelection('cubes');">
                                                 <i class="fa fa-trash"></i>
                                              </button>
                                           </div>
@@ -256,7 +256,7 @@
                                     <div class="toolbar">
                                        <div class="btn-toolbar pull-right" >
                                           <div class="btn-group">
-                                             <button class="btn btn-secondary" ng-disabled="!newGroup.processes.length > 0" title="{{'ADDGROUPREMOVEPROCESSES' | translate}}" ng-click="newGroup.processes = [];">
+                                             <button class="btn btn-secondary" ng-disabled="!newGroup.processes.length > 0" title="{{'ADDGROUPREMOVEPROCESSES' | translate}}" ng-click="deleteSelection('processes');">
                                                 <i class="fa fa-trash"></i>
                                              </button>
                                           </div>
@@ -314,7 +314,7 @@
                                     <div class="toolbar">
                                        <div class="btn-toolbar pull-right" >
                                           <div class="btn-group">
-                                             <button class="btn btn-secondary" ng-disabled="!newGroup.chores.length > 0" title="{{'ADDGROUPREMOVECHORES' | translate}}" ng-click="newGroup.chores = [];">
+                                             <button class="btn btn-secondary" ng-disabled="!newGroup.chores.length > 0" title="{{'ADDGROUPREMOVECHORES' | translate}}" ng-click="deleteSelection('chores');">
                                                 <i class="fa fa-trash"></i>
                                              </button>
                                           </div>
