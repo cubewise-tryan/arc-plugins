@@ -1832,45 +1832,38 @@ arc.directive("usersGroups", function () {
          $scope.nextAccess = function(newGroup, tm1Section, itemName, currentAccess){
             var assignedAccessObj = {
                applications:{
-                  "NONE":0,
-                  "READ":1,
-                  "ADMIN":2
+                  "READ":0,
+                  "ADMIN":1
                },
                dimensions:{
-                  "NONE":0,
-                  "READ":1,
-                  "WRITE":2,
-                  "RESERVE":3,
-                  "LOCK":4,
-                  "ADMIN":5
+                  "READ":0,
+                  "WRITE":1,
+                  "RESERVE":2,
+                  "LOCK":3,
+                  "ADMIN":4
                },
                cubes:{
-                  "NONE":0,
-                  "READ":1,
-                  "WRITE":2,
-                  "RESERVE":3,
-                  "LOCK":4,
-                  "ADMIN":5
+                  "READ":0,
+                  "WRITE":1,
+                  "RESERVE":2,
+                  "LOCK":3,
+                  "ADMIN":4
                },
                processes:{
-                  "NONE":0,
-                  "READ":1,
+                  "READ":0
                },
                chores:{
-                  "NONE":0,
-                  "READ":1,
+                  "READ":0
                }
    
             }
    
             var assignedAccessArray = {
                applications:[
-                  "NONE",
                   "READ",
                   "ADMIN"
                ],
                dimensions:[
-                  "NONE",
                   "READ",
                   "WRITE",
                   "RESERVE",
@@ -1878,7 +1871,6 @@ arc.directive("usersGroups", function () {
                   "ADMIN"
                ],
                cubes:[
-                  "NONE",
                   "READ",
                   "WRITE",
                   "RESERVE",
@@ -1886,12 +1878,10 @@ arc.directive("usersGroups", function () {
                   "ADMIN"
                ],
                processes:[
-                  "NONE",
-                  "READ",
+                  "READ"
                ],
                chores:[
-                  "NONE",
-                  "READ",
+                  "READ"
                ]
             }
 
@@ -1911,86 +1901,6 @@ arc.directive("usersGroups", function () {
             }
          }
 
-         $scope.previousAccess = function(newGroup, tm1Section, itemName, currentAccess){
-            var assignedAccessObj = {
-               applications:{
-                  "NONE":0,
-                  "READ":1,
-                  "ADMIN":2
-               },
-               dimensions:{
-                  "NONE":0,
-                  "READ":1,
-                  "WRITE":2,
-                  "RESERVE":3,
-                  "LOCK":4,
-                  "ADMIN":5
-               },
-               cubes:{
-                  "NONE":0,
-                  "READ":1,
-                  "WRITE":2,
-                  "RESERVE":3,
-                  "LOCK":4,
-                  "ADMIN":5
-               },
-               processes:{
-                  "NONE":0,
-                  "READ":1,
-               },
-               chores:{
-                  "NONE":0,
-                  "READ":1,
-               }
-   
-            }
-   
-            var assignedAccessArray = {
-               applications:[
-                  "NONE",
-                  "READ",
-                  "ADMIN"
-               ],
-               dimensions:[
-                  "NONE",
-                  "READ",
-                  "WRITE",
-                  "RESERVE",
-                  "LOCK",
-                  "ADMIN"
-               ],
-               cubes:[
-                  "NONE",
-                  "READ",
-                  "WRITE",
-                  "RESERVE",
-                  "LOCK",
-                  "ADMIN"
-               ],
-               processes:[
-                  "NONE",
-                  "READ",
-               ],
-               chores:[
-                  "NONE",
-                  "READ",
-               ]
-            }
-
-            var currentIndex = 0;
-            var previousIndex = 0;
-
-            currentIndex = assignedAccessObj[tm1Section][currentAccess];
-            previousIndex = currentIndex-1;
-            
-            var itemIndex = _.findIndex(newGroup[tm1Section], function(i){return i.name == itemName;});
-
-            if(previousIndex < 0){
-               newGroup[tm1Section][itemIndex].access = assignedAccessArray[tm1Section][assignedAccessArray[tm1Section].length-1];
-            }else{
-               newGroup[tm1Section][itemIndex].access = assignedAccessArray[tm1Section][previousIndex];
-            }
-         }
 
          $scope.addIndividualTm1SectionItemToNewGroup = function(newGroup, tm1Section, group){
             if(_.filter(newGroup[tm1Section], function(o){return o.name == group.Name}).length == 0 ){
@@ -2000,7 +1910,15 @@ arc.directive("usersGroups", function () {
 
          $scope.removeTm1SectionItemFromNewGroup = function(newGroup, tm1Section, groupName){
             var groupIndex = _.findIndex(newGroup[tm1Section], function(i){return i.name == groupName;});
-            newGroup[tm1Section].splice(groupIndex, 1);
+
+            if(tm1Section === "applications"){
+               newGroup[tm1Section][groupIndex].access = "NONE";
+               newGroup["applicationsNONE"].push(newGroup[tm1Section][groupIndex]);
+               newGroup[tm1Section].splice(groupIndex, 1);
+            }else{
+               newGroup[tm1Section].splice(groupIndex, 1);
+            }
+            
          }
 
          $scope.addCloneGroupsToNewGroupApplications = function(newGroup, cloneGroup){
@@ -2368,6 +2286,13 @@ arc.directive("usersGroups", function () {
                var data = [];
 
                for(var i = 0; i < newGroup[tm1Item].length; i++){
+                  //for application security, blank cells and READ cells are both handled as READ. But on frontend display we want to display READ
+                  if(tm1Item === "applications"){
+                     if(newGroup[tm1Item][i].access === "READ"){
+                        newGroup[tm1Item][i].access = "";
+                     }
+                  }
+
                   var item =  {
                      "Cells":[
                         {"Tuple@odata.bind": [
@@ -2378,7 +2303,6 @@ arc.directive("usersGroups", function () {
                      ],
                      "Value" : newGroup[tm1Item][i].access
                   }
-
                   data.push(item);
                }
 
@@ -2423,7 +2347,6 @@ arc.directive("usersGroups", function () {
 
 
          $scope.editGroup = function(rowIndex){
-            //WORK IN PROGRESS
             ngDialog.open({
                template: "__/plugins/users-groups/editGroup.html",
                className: "ngdialog-theme-default large",
@@ -2437,9 +2360,12 @@ arc.directive("usersGroups", function () {
                   }
 
                   //default objects/arrays
+                  //for application security, blank cells and READ cells are both handled as READ. But on frontend display we want to display READ only
+                  //if an application is not displayed on the frontend, then it should have a value of NONE in the application security cube
                   $scope.newGroup = {
                      name: $scope.ngDialogData.groupsWithUsers[rowIndex].Name,
                      applications:[],
+                     applicationsNONE:[],
                      cubes: [],
                      dimensions:[],
                      processes:[],
@@ -2471,7 +2397,14 @@ arc.directive("usersGroups", function () {
                      var mdxColumn = "{[}Groups].[" + $scope.newGroup.name + "]}";
                      var mdxRow = "[" + rowName + "]";
                      var mdxFrom = "[" + cubeName + "]";
-                     var mdxFull = "SELECT NON EMPTY" + mdxColumn + " ON COLUMNS, NON EMPTY {TM1SUBSETALL(" + mdxRow +  ")} ON ROWS FROM " + mdxFrom;
+
+                     if(cubeName === "}ApplicationSecurity"){
+                        var mdxFull = "SELECT " + mdxColumn + " ON COLUMNS, {TM1SUBSETALL(" + mdxRow +  ")} ON ROWS FROM " + mdxFrom;
+                     }else{
+                        var mdxFull = "SELECT NON EMPTY " + mdxColumn + " ON COLUMNS, NON EMPTY {TM1SUBSETALL(" + mdxRow +  ")} ON ROWS FROM " + mdxFrom;
+                     }
+
+
                       
                      var data = {
                         "MDX" : mdxFull
@@ -2479,32 +2412,61 @@ arc.directive("usersGroups", function () {
 
                      $http.post(encodeURIComponent($scope.instance) + url, data).then(function(success, error){
                         if(success.status < 400){
-                           var options = {
-                              alias: {},
-                              suppressZeroRows: 1,
-                              suppressZeroColumns: 1,
-                              maxRows: 50
-                           };
+                           if(cubeName === "}ApplicationSecurity"){
+                              var options = {
+                                 alias: {},
+                                 suppressZeroRows: 0,
+                                 suppressZeroColumns: 1,
+                                 maxRows: 50
+                              };
+   
+                              $scope.cubeSecurityResult = $tm1.resultsetTransform($scope.instance, cubeName, success.data, options);
 
-                           $scope.cubeSecurityResult = $tm1.resultsetTransform($scope.instance, cubeName, success.data, options);
-
-                           for(var i = 0; i < $scope.cubeSecurityResult.rows.length; i++){
-                              var item = {
-                                 name : "",
-                                 access : ""
-                              }
-
-                              item.name = $scope.cubeSecurityResult.rows[i][rowName].name;
-
-                              for(var j = 0; j < $scope.cubeSecurityResult.rows[i].cells.length; j++){
-                                 if($scope.cubeSecurityResult.rows[i].cells[j].value){
-                                    item.access = $scope.cubeSecurityResult.rows[i].cells[j].value;
+                              for(var i = 0; i < $scope.cubeSecurityResult.rows.length; i++){
+                                 var item = {
+                                    name : "",
+                                    access : "READ"
                                  }
-                                 
+   
+                                 item.name = $scope.cubeSecurityResult.rows[i][rowName].name;
+   
+                                 for(var j = 0; j < $scope.cubeSecurityResult.rows[i].cells.length; j++){
+                                    if($scope.cubeSecurityResult.rows[i].cells[j].value !== ""){
+                                       item.access = $scope.cubeSecurityResult.rows[i].cells[j].value;
+                                    }
+
+                                 }
+   
+                                 $scope.newGroup[tm1Item].push(item);
                               }
 
-                              $scope.newGroup[tm1Item].push(item);
+                           }else{
+                              var options = {
+                                 alias: {},
+                                 suppressZeroRows: 1,
+                                 suppressZeroColumns: 1,
+                                 maxRows: 50
+                              };
+   
+                              $scope.cubeSecurityResult = $tm1.resultsetTransform($scope.instance, cubeName, success.data, options);
+
+                              for(var i = 0; i < $scope.cubeSecurityResult.rows.length; i++){
+                                 var item = {
+                                    name : "",
+                                    access : ""
+                                 }
+   
+                                 item.name = $scope.cubeSecurityResult.rows[i][rowName].name;
+   
+                                 for(var j = 0; j < $scope.cubeSecurityResult.rows[i].cells.length; j++){
+                                       item.access = $scope.cubeSecurityResult.rows[i].cells[j].value;                                 
+                                 }
+   
+                                 $scope.newGroup[tm1Item].push(item);
+                              }
+
                            }
+
 
                            deferred.resolve({name:true});
 
