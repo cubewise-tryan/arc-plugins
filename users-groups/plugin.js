@@ -2570,7 +2570,54 @@ arc.directive("usersGroups", function () {
                   }
                   $scope.retrieveGroupSecurityAll();
 
+
+                  $scope.addSuccess = function(){
+                     //success to display on page
+                     $scope.view.message = $translate.instant("FUNCTIONEDITGROUPSUCCESS");
+                     $scope.view.messageSuccess = true;
+         
+                     $timeout(function(){
+                        $scope.view.message = null;
+                        $scope.view.messageSuccess = false;
+                        $scope.ngDialogData.load();
+                        $scope.closeThisDialog();
+                     }, 1000);
+                  }
+         
+         
+                  $scope.addErrorHandler = function(rejectedObject){
+                     if(rejectedObject.status >=400 ){
+                        // Error to display on page
+                        if(rejectedObject.data && rejectedObject.data.error && rejectedObject.data.error.message){
+                           $scope.view.message = rejectedObject.data.error.message;
+                           $scope.view.messageWarning = true;
+         
+                        }
+                        else {
+                           $scope.view.message = rejectedObject.data;
+                           $scope.view.messageWarning = true;
+                        }
+         
+                     }else{
+                        $scope.view.message = $translate.instant("FUNCTIONADDGROUPERROR");
+                        $scope.view.messageWarning = true;
+                        $log.log(rejectedObject);
+         
+                     }
+                     $timeout(function(){
+                        $scope.view.message = null;
+                        $scope.view.messageWarning = false;
+                     }, 2000);
+                  }
+
+
+
                   $scope.updateGroup = function(){
+                     if($scope.newGroup.name!==""){
+                     $scope.updateValues($scope.newGroup)
+                        .then($scope.addSuccess)
+                        .catch($scope.addErrorHandler);
+                     }
                   }
 
 
@@ -2578,6 +2625,7 @@ arc.directive("usersGroups", function () {
                data: {
                   groupsWithUsers : $scope.groupsWithUsers,
                   view : $scope.view,
+                  load : $scope.load,
                   instance : $scope.instance,
                   nextAccess : $scope.nextAccess,
                   previousAccess : $scope.previousAccess,

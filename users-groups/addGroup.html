@@ -331,11 +331,14 @@
                                           <div class="input-group">
                                              <div ng-repeat="chore in newGroup.chores | orderBy:'name'" >
                                                 <div style="float:left;">
-                                                   <div class="badge ml-1" ng-class="securityAccessColourMapping(chore.access)" class="ml-1" style="cursor: default; user-select: none;">
-                                                      <a><i class="fa fa-arrow-up" ng-click="previousAccess(newGroup, 'chores', chore.name, chore.access)" title="{{'ADDGROUPPREVIOUSACCESS' | translate}}"></i></a>
-                                                      <a><i class="fa fa-arrow-down" ng-click="nextAccess(newGroup, 'chores', chore.name, chore.access)" title="{{'ADDGROUPNEXTACCESS' | translate}}"></i></a>
-                                                      {{chore.name}}:{{chore.access}}
-                                                      <a><i class="fa fa-fw fa-remove" ng-click="removeTm1SectionItemFromNewGroup(newGroup, 'chores', chore.name)" title="{{'REMOVEGROUP' | translate}}"></i></a>
+                                                   <div class="input-group" ng-click="nextAccess(newGroup, 'chores', chore.name, chore.access)" style="cursor: pointer; user-select: none;">
+                                                      <div class="badge" ng-class="securityAccessColourMapping(chore.access)">{{chore.access.substr(0,1)}}</div>
+                                                      <div class="badge m-0" title="{{'ADDGROUPNEXTACCESS' | translate}}"  >
+                                                         <!-- <a><i class="fa fa-arrow-up" ng-click="previousAccess(newGroup, 'chores', chore.name, chore.access)" title="{{'ADDGROUPPREVIOUSACCESS' | translate}}"></i></a> -->
+                                                         <!-- <a><i class="fa fa-arrow-down" ng-click="nextAccess(newGroup, 'chores', chore.name, chore.access)" title="{{'ADDGROUPNEXTACCESS' | translate}}"></i></a> -->
+                                                         {{chore.name}}
+                                                         <a class="p-0 m-0"><i class="fa fa-fw fa-remove" ng-click="removeTm1SectionItemFromNewGroup(newGroup, 'chores', chore.name)" title="{{'REMOVEGROUP' | translate}}"></i></a>
+                                                      </div>
                                                    </div>
                                                 </div>
                                              </div>
@@ -357,12 +360,29 @@
          <div class="container-fluid">
             <div class="row">
                <div class="col-md-4">
-                  <div class="badge ml-1" ng-class="securityAccessColourMapping('NONE')" class="ml-1" style="cursor: default; user-select: none;">NONE</div>
-                  <div class="badge ml-1" ng-class="securityAccessColourMapping('READ')" class="ml-1" style="cursor: default; user-select: none;">READ</div>
-                  <div class="badge ml-1" ng-class="securityAccessColourMapping('WRITE')" class="ml-1" style="cursor: default; user-select: none;">WRITE</div>
-                  <div class="badge ml-1" ng-class="securityAccessColourMapping('RESERVE')" class="ml-1" style="cursor: default; user-select: none;">RESERVE</div>
-                  <div class="badge ml-1" ng-class="securityAccessColourMapping('LOCK')" class="ml-1" style="cursor: default; user-select: none;">LOCK</div>
-                  <div class="badge ml-1" ng-class="securityAccessColourMapping('ADMIN')" class="ml-1" style="cursor: default; user-select: none;">ADMIN</div>
+                  <div class="input-group">
+                     <div class="badge" ng-class="securityAccessColourMapping('READ')">R</div>
+                     <div class="badge m-0" style="cursor: default; user-select: none;">
+                        READ
+                     </div>
+                     <div class="badge" ng-class="securityAccessColourMapping('WRITE')">W</div>
+                     <div class="badge m-0" style="cursor: default; user-select: none;">
+                        WRITE
+                     </div>
+                     <div class="badge" ng-class="securityAccessColourMapping('LOCK')">V</div>
+                     <div class="badge m-0" style="cursor: default; user-select: none;">
+                        RESERVE
+                     </div>
+                     <div class="badge" ng-class="securityAccessColourMapping('RESERVE')">L</div>
+                     <div class="badge m-0" style="cursor: default; user-select: none;">
+                        LOCK
+                     </div>
+                     <div class="badge" ng-class="securityAccessColourMapping('ADMIN')">A</div>
+                     <div class="badge m-0" style="cursor: default; user-select: none;">
+                        ADMIN
+                     </div>
+                  </div>
+
                </div>
                <div class="col-md-4">
                   <button ng-class="{'btn btn-success':view.messageSuccess,'btn btn-warning':view.messageWarning}" ng-if="view.message">
