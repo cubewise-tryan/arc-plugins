@@ -174,29 +174,28 @@ arc.directive("usersGroups", function () {
                   return;
                
                }else if(success.status < 400){
+                  //array for all application entities, used for dropdown list
                   $scope.applicationsList = [];
+                  //object which tracks each element with their children, used to handle cases where a parent is given READ and the children also then needs to be given access
+                  $scope.applicationsListWithChildren = {};
 
                   var parent = "";
 
+                  var buildString = function(previous, current){
+                     if(previous==""){
+                        return current;
+                     }else{
+                        return previous + "\\" + current ;
+                     }
+                  }
+
                   var recursivelyBuildList = function myself(retrievedObject, previousParentName){
-
                      _.each(retrievedObject, function(nestedObject){
-                        // $log.log(nestedObject);
-
-                        var buildString = function(previous, current){
-                           if(previous==""){
-                              return current;
-                           }else{
-                              return previous + "\\" + current ;
-                           }
-                        }
-
                         var fullString = buildString(previousParentName, nestedObject.ID);
 
                         $scope.applicationsList.push(
                            {Name : fullString}
                         );
-
 
                         if(nestedObject.hasOwnProperty("Contents")){
                            myself(nestedObject.Contents, fullString);
@@ -206,12 +205,35 @@ arc.directive("usersGroups", function () {
 
                      });
 
-                     $scope.applicationsList.push({Name: "}Applications"});
-
                   };
                   recursivelyBuildList(success.data.Contents, parent);
-
+                  $scope.applicationsList.push({Name: "}Applications"});
                   
+
+                  for(var i=0; i<$scope.applicationsList.length; i++){
+                     if(!$scope.applicationsListWithChildren.hasOwnProperty($scope.applicationsList[i].Name)){
+                        $scope.applicationsListWithChildren[$scope.applicationsList[i].Name] = [];
+                     }   
+                  }
+
+
+                  for(var i=0; i<$scope.applicationsList.length; i++){
+                     var allLevels = _.split($scope.applicationsList[i].Name,"\\");
+                     
+                     var level = "";
+                     for(var j = 0; j < allLevels.length; j++){
+                        if(level!==""){
+                           level = level + "\\" + allLevels[j];
+                        }else{
+                           level = allLevels[j];
+                        }
+                        
+                        $scope.applicationsListWithChildren[level].push($scope.applicationsList[i].Name);
+                     }
+                     
+                  }
+                  $log.log($scope.applicationsListWithChildren);
+
 
                }else{
                   // Error to display on page
@@ -2293,43 +2315,76 @@ arc.directive("usersGroups", function () {
                var data = [];
 
                if(tm1Item === "applications"){
+                  if(newGroup[tm1Item].length === 0){
+                     //for application security then load all elements with NONE
+                     for(var i = 0; i < $scope.applicationsList.length; i++){
+                        var item =  {
+                           "Cells":[
+                              {"Tuple@odata.bind": [
+                                 "Dimensions('" + tm1Dimension + "')/Hierarchies('" + tm1Dimension + "')/Elements('"+ $scope.applicationsList[i].Name +"')",
+                                 "Dimensions('}Groups')/Hierarchies('}Groups')/Elements('" + newGroup.name + "')"
+                                 ]
+                              }
+                           ],
+                           "Value" : "NONE"
+                        }
+                        data.push(item);
 
-                  for(var i = 0; i < newGroup[tm1Item].length; i++){
-                     //for application security, blank cells and READ cells are both handled as READ. But on frontend display we want to display READ
-                     if(newGroup[tm1Item][i].access === "READ"){
-                        newGroup[tm1Item][i].access = "";
                      }
-                     var item =  {
-                        "Cells":[
-                           {"Tuple@odata.bind": [
-                              "Dimensions('" + tm1Dimension + "')/Hierarchies('" + tm1Dimension + "')/Elements('" + newGroup[tm1Item][i].name + "')",
-                              "Dimensions('}Groups')/Hierarchies('}Groups')/Elements('" + newGroup.name + "')"
-                              ]
+
+                  }else{
+                     //for application security, NONE is triggered when you remove the item from the UI. These items are pushed to a seperate array
+                     //load this array here
+                     for(var i = 0; i < newGroup["applicationsNONE"].length; i++){
+                        var item =  {
+                           "Cells":[
+                              {"Tuple@odata.bind": [
+                                 "Dimensions('" + tm1Dimension + "')/Hierarchies('" + tm1Dimension + "')/Elements('" + newGroup["applicationsNONE"][i].name + "')",
+                                 "Dimensions('}Groups')/Hierarchies('}Groups')/Elements('" + newGroup.name + "')"
+                                 ]
+                              }
+                           ],
+                           "Value" : newGroup["applicationsNONE"][i].access
+                        }
+                        data.push(item);
+                     }
+
+                     for(var i = 0; i < newGroup[tm1Item].length; i++){
+                        //for application security, blank cells and READ cells are both handled as READ. But on frontend display we want to display READ
+                        if(newGroup[tm1Item][i].access === "READ"){
+                           newGroup[tm1Item][i].access = "";
+                        }
+
+                        var item =  {
+                           "Cells":[
+                              {"Tuple@odata.bind": [
+                                 "Dimensions('" + tm1Dimension + "')/Hierarchies('" + tm1Dimension + "')/Elements('" + newGroup[tm1Item][i].name + "')",
+                                 "Dimensions('}Groups')/Hierarchies('}Groups')/Elements('" + newGroup.name + "')"
+                                 ]
+                              }
+                           ],
+                           "Value" : newGroup[tm1Item][i].access
+                        }
+                        data.push(item);
+
+                        for(var j = 0; j < $scope.applicationsListWithChildren[newGroup[tm1Item][i].name].length; j++){
+                           var item =  {
+                              "Cells":[
+                                 {"Tuple@odata.bind": [
+                                    "Dimensions('" + tm1Dimension + "')/Hierarchies('" + tm1Dimension + "')/Elements('" + $scope.applicationsListWithChildren[newGroup[tm1Item][i].name][j] + "')",
+                                    "Dimensions('}Groups')/Hierarchies('}Groups')/Elements('" + newGroup.name + "')"
+                                    ]
+                                 }
+                              ],
+                              "Value" : newGroup[tm1Item][i].access
                            }
-                        ],
-                        "Value" : newGroup[tm1Item][i].access
+                           data.push(item);
+
+                        }
+
+
                      }
-                     data.push(item);
                   }
-
-                  //if array is EMPTY
-
-                  //for application security, NONE is triggered when you remove the item from the UI. These items are pushed to a seperate array
-                  //load this array here
-                  for(var i = 0; i < newGroup["applicationsNONE"].length; i++){
-                     var item =  {
-                        "Cells":[
-                           {"Tuple@odata.bind": [
-                              "Dimensions('" + tm1Dimension + "')/Hierarchies('" + tm1Dimension + "')/Elements('" + newGroup["applicationsNONE"][i].name + "')",
-                              "Dimensions('}Groups')/Hierarchies('}Groups')/Elements('" + newGroup.name + "')"
-                              ]
-                           }
-                        ],
-                        "Value" : newGroup["applicationsNONE"][i].access
-                     }
-                     data.push(item);
-                  }
-
 
                }else{
                   for(var i = 0; i < newGroup[tm1Item].length; i++){
