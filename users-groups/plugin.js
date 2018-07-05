@@ -206,9 +206,12 @@ arc.directive("usersGroups", function () {
 
                      });
 
+                     $scope.applicationsList.push({Name: "}Applications"});
 
                   };
                   recursivelyBuildList(success.data.Contents, parent);
+
+                  
 
                }else{
                   // Error to display on page
@@ -1904,7 +1907,7 @@ arc.directive("usersGroups", function () {
 
          $scope.addIndividualTm1SectionItemToNewGroup = function(newGroup, tm1Section, group){
             if(_.filter(newGroup[tm1Section], function(o){return o.name == group.Name}).length == 0 ){
-               newGroup[tm1Section].push({name:group.Name, access:"NONE"});
+               newGroup[tm1Section].push({name:group.Name, access:"READ"});
             }
          }
 
@@ -1926,7 +1929,7 @@ arc.directive("usersGroups", function () {
 
             if(typeof groupsMDX !== "undefined"){
                var url = "/ExecuteMDX?$expand=Axes($expand=Hierarchies($select=Name;$expand=Dimension($select=Name)),Tuples($expand=Members($select=Name,UniqueName,Ordinal,Attributes;$expand=Parent($select=Name);$expand=Element($select=Name,Type,Level)))),Cells($select=Value,Updateable,Consolidated,RuleDerived,HasPicklist,FormatString,FormattedValue)";
-               var mdx = "SELECT NON EMPTY" + groupsMDX + "ON COLUMNS, NON EMPTY {TM1SUBSETALL( [}ApplicationEntries] )} ON ROWS FROM [}ApplicationSecurity]"
+               var mdx = "SELECT " + groupsMDX + "ON COLUMNS, {TM1SUBSETALL( [}ApplicationEntries] )} ON ROWS FROM [}ApplicationSecurity]"
                var data = { 
                   "MDX" : mdx
                 };
@@ -1940,7 +1943,7 @@ arc.directive("usersGroups", function () {
                   }else if(success.status < 400){
                      var options = {
                         alias: {},
-                        suppressZeroRows: 1,
+                        suppressZeroRows: 0,
                         suppressZeroColumns: 1,
                         maxRows: 50
                      };
@@ -1952,11 +1955,15 @@ arc.directive("usersGroups", function () {
                         for(var j = 0; j < $scope.groupApplicationSecurityResult.rows[i].cells.length; j++){
                            var application = {
                               name:"",
-                              access:""
+                              access:"READ"
                            };
-                           if($scope.groupApplicationSecurityResult.rows[i].cells[j].value){
-                              application.name = $scope.groupApplicationSecurityResult.rows[i]["}ApplicationEntries"].key;
+                           application.name = $scope.groupApplicationSecurityResult.rows[i]["}ApplicationEntries"].key;
+
+                           if($scope.groupApplicationSecurityResult.rows[i].cells[j].value!==""){   
                               application.access = $scope.groupApplicationSecurityResult.rows[i].cells[j].value;
+                           }
+
+                           if(application.access!=="NONE"){
                               newGroup.applications.push(application);
                            }
                            
@@ -2285,26 +2292,63 @@ arc.directive("usersGroups", function () {
 
                var data = [];
 
-               for(var i = 0; i < newGroup[tm1Item].length; i++){
-                  //for application security, blank cells and READ cells are both handled as READ. But on frontend display we want to display READ
-                  if(tm1Item === "applications"){
+               if(tm1Item === "applications"){
+
+                  for(var i = 0; i < newGroup[tm1Item].length; i++){
+                     //for application security, blank cells and READ cells are both handled as READ. But on frontend display we want to display READ
                      if(newGroup[tm1Item][i].access === "READ"){
                         newGroup[tm1Item][i].access = "";
                      }
+                     var item =  {
+                        "Cells":[
+                           {"Tuple@odata.bind": [
+                              "Dimensions('" + tm1Dimension + "')/Hierarchies('" + tm1Dimension + "')/Elements('" + newGroup[tm1Item][i].name + "')",
+                              "Dimensions('}Groups')/Hierarchies('}Groups')/Elements('" + newGroup.name + "')"
+                              ]
+                           }
+                        ],
+                        "Value" : newGroup[tm1Item][i].access
+                     }
+                     data.push(item);
                   }
 
-                  var item =  {
-                     "Cells":[
-                        {"Tuple@odata.bind": [
-                           "Dimensions('" + tm1Dimension + "')/Hierarchies('" + tm1Dimension + "')/Elements('" + newGroup[tm1Item][i].name + "')",
-                           "Dimensions('}Groups')/Hierarchies('}Groups')/Elements('" + newGroup.name + "')"
-                           ]
-                        }
-                     ],
-                     "Value" : newGroup[tm1Item][i].access
+                  //if array is EMPTY
+
+                  //for application security, NONE is triggered when you remove the item from the UI. These items are pushed to a seperate array
+                  //load this array here
+                  for(var i = 0; i < newGroup["applicationsNONE"].length; i++){
+                     var item =  {
+                        "Cells":[
+                           {"Tuple@odata.bind": [
+                              "Dimensions('" + tm1Dimension + "')/Hierarchies('" + tm1Dimension + "')/Elements('" + newGroup["applicationsNONE"][i].name + "')",
+                              "Dimensions('}Groups')/Hierarchies('}Groups')/Elements('" + newGroup.name + "')"
+                              ]
+                           }
+                        ],
+                        "Value" : newGroup["applicationsNONE"][i].access
+                     }
+                     data.push(item);
                   }
-                  data.push(item);
+
+
+               }else{
+                  for(var i = 0; i < newGroup[tm1Item].length; i++){
+                     var item =  {
+                        "Cells":[
+                           {"Tuple@odata.bind": [
+                              "Dimensions('" + tm1Dimension + "')/Hierarchies('" + tm1Dimension + "')/Elements('" + newGroup[tm1Item][i].name + "')",
+                              "Dimensions('}Groups')/Hierarchies('}Groups')/Elements('" + newGroup.name + "')"
+                              ]
+                           }
+                        ],
+                        "Value" : newGroup[tm1Item][i].access
+                     }
+                     data.push(item);
+                  }
+
+
                }
+
 
                // http parameters
                var url = "/Cubes('" + tm1Cube +"')/tm1.Update";
@@ -2413,6 +2457,7 @@ arc.directive("usersGroups", function () {
                      $http.post(encodeURIComponent($scope.instance) + url, data).then(function(success, error){
                         if(success.status < 400){
                            if(cubeName === "}ApplicationSecurity"){
+                              //For application security one needs to handle READ and NONE values specifically
                               var options = {
                                  alias: {},
                                  suppressZeroRows: 0,
@@ -2436,8 +2481,11 @@ arc.directive("usersGroups", function () {
                                     }
 
                                  }
-   
-                                 $scope.newGroup[tm1Item].push(item);
+                                 
+                                 if(item.access!=="NONE"){
+                                    $scope.newGroup[tm1Item].push(item);
+                                 }
+                                 
                               }
 
                            }else{
