@@ -53,9 +53,9 @@
                                        <div class="input-group">
                                           <div ng-repeat="application in newGroup.applications | orderBy:'name'" >
                                              <div style="float:left;">
-                                                <div class="input-group" ng-click="nextAccess(newGroup, 'applications', application.name, application.access)" style="cursor: pointer; user-select: none;">
-                                                   <div class="badge" ng-class="securityAccessColourMapping(application.access)">{{application.access.substr(0,1)}}</div>
-                                                   <div class="badge m-0" title="{{'ADDGROUPNEXTACCESS' | translate}}">
+                                                <div class="input-group">
+                                                   <div class="badge" title="{{'ADDGROUPNEXTACCESS' | translate}}" ng-class="securityAccessColourMapping(application.access)" ng-click="nextAccess(newGroup, 'applications', application.name, application.access)" style="cursor: pointer; user-select: none;" >{{application.access.substr(0,1)}}</div>
+                                                   <div class="badge m-0" style="cursor: default; user-select: none;">
                                                       {{application.name}}
                                                       <a><i class="fa fa-fw fa-remove" ng-click="removeTm1SectionItemFromNewGroup(newGroup, 'applications', application.name)" title="{{'REMOVEGROUP' | translate}}"></i></a>
                                                    </div>

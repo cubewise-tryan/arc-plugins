@@ -178,6 +178,8 @@ arc.directive("usersGroups", function () {
                   $scope.applicationsList = [];
                   //object which tracks each element with their children, used to handle cases where a parent is given READ and the children also then needs to be given access
                   $scope.applicationsListWithChildren = {};
+                  //object which tracks each element with their parents, used to handle cases where a child is given READ and their parents also then needs to be given access
+                  $scope.applicationsListWithParents = {};
 
                   var parent = "";
 
@@ -207,13 +209,16 @@ arc.directive("usersGroups", function () {
 
                   };
                   recursivelyBuildList(success.data.Contents, parent);
-                  $scope.applicationsList.push({Name: "}Applications"});
+                  // $scope.applicationsList.push({Name: "}Applications"});
                   
 
                   for(var i=0; i<$scope.applicationsList.length; i++){
                      if(!$scope.applicationsListWithChildren.hasOwnProperty($scope.applicationsList[i].Name)){
                         $scope.applicationsListWithChildren[$scope.applicationsList[i].Name] = [];
-                     }   
+                     }
+                     if(!$scope.applicationsListWithParents.hasOwnProperty($scope.applicationsList[i].Name)){
+                        $scope.applicationsListWithParents[$scope.applicationsList[i].Name] = [];
+                     }
                   }
 
 
@@ -227,12 +232,14 @@ arc.directive("usersGroups", function () {
                         }else{
                            level = allLevels[j];
                         }
-                        
+
                         $scope.applicationsListWithChildren[level].push($scope.applicationsList[i].Name);
-                     }
-                     
+                        $scope.applicationsListWithParents[$scope.applicationsList[i].Name].push(level);
+
+                     }   
+                  
                   }
-                  $log.log($scope.applicationsListWithChildren);
+
 
 
                }else{
@@ -1928,22 +1935,57 @@ arc.directive("usersGroups", function () {
 
 
          $scope.addIndividualTm1SectionItemToNewGroup = function(newGroup, tm1Section, group){
-            if(_.filter(newGroup[tm1Section], function(o){return o.name == group.Name}).length == 0 ){
-               newGroup[tm1Section].push({name:group.Name, access:"READ"});
+            if(tm1Section === "applications"){
+               for(var i=0; i < $scope.applicationsListWithChildren[group.Name].length; i++){
+                  var child = $scope.applicationsListWithChildren[group.Name][i]
+                  newGroup[tm1Section].push({name:child, access:"READ"});
+               }
+
+               for(var i=0; i < $scope.applicationsListWithParents[group.Name].length; i++){
+                  var child = $scope.applicationsListWithParents[group.Name][i]
+                  newGroup[tm1Section].push({name:child, access:"READ"});
+               }
+
+               //remove duplicates
+               newGroup[tm1Section] = _.uniqBy(newGroup[tm1Section], "name");
+
+            }else{
+               if(_.filter(newGroup[tm1Section], function(o){return o.name == group.Name}).length == 0 ){
+                  newGroup[tm1Section].push({name:group.Name, access:"READ"});
+               }
+
             }
+
          }
 
          $scope.removeTm1SectionItemFromNewGroup = function(newGroup, tm1Section, groupName){
             var groupIndex = _.findIndex(newGroup[tm1Section], function(i){return i.name == groupName;});
+            var itemObjToRemove = newGroup[tm1Section][groupIndex];
 
             if(tm1Section === "applications"){
-               newGroup[tm1Section][groupIndex].access = "NONE";
-               newGroup["applicationsNONE"].push(newGroup[tm1Section][groupIndex]);
-               newGroup[tm1Section].splice(groupIndex, 1);
+               for(var i=0; i < $scope.applicationsListWithChildren[itemObjToRemove.name].length; i++){
+                  var child = $scope.applicationsListWithChildren[itemObjToRemove.name][i]
+
+                  var childIndex = _.findIndex(newGroup[tm1Section], function(i){return i.name == child;});
+                  if(childIndex !==-1){
+                     newGroup[tm1Section][childIndex].access = "NONE";
+
+                     newGroup["applicationsNONE"].push(newGroup[tm1Section][childIndex]);
+                     newGroup[tm1Section].splice(childIndex, 1);
+                  }
+
+               }
+
             }else{
                newGroup[tm1Section].splice(groupIndex, 1);
             }
             
+            $log.log($scope.applicationsList);
+            $log.log($scope.applicationsListWithChildren);
+            $log.log($scope.applicationsListWithParents);
+            $log.log(newGroup[tm1Section]);
+            $log.log(newGroup["applicationsNONE"]);
+
          }
 
          $scope.addCloneGroupsToNewGroupApplications = function(newGroup, cloneGroup){
@@ -1985,7 +2027,7 @@ arc.directive("usersGroups", function () {
                               application.access = $scope.groupApplicationSecurityResult.rows[i].cells[j].value;
                            }
 
-                           if(application.access!=="NONE"){
+                           if(application.access!=="NONE" && application.name!=="}Applications"){
                               newGroup.applications.push(application);
                            }
                            
@@ -2316,7 +2358,7 @@ arc.directive("usersGroups", function () {
 
                if(tm1Item === "applications"){
                   if(newGroup[tm1Item].length === 0){
-                     //for application security then load all elements with NONE
+                     //then load all elements with NONE
                      for(var i = 0; i < $scope.applicationsList.length; i++){
                         var item =  {
                            "Cells":[
@@ -2367,23 +2409,10 @@ arc.directive("usersGroups", function () {
                         }
                         data.push(item);
 
-                        for(var j = 0; j < $scope.applicationsListWithChildren[newGroup[tm1Item][i].name].length; j++){
-                           var item =  {
-                              "Cells":[
-                                 {"Tuple@odata.bind": [
-                                    "Dimensions('" + tm1Dimension + "')/Hierarchies('" + tm1Dimension + "')/Elements('" + $scope.applicationsListWithChildren[newGroup[tm1Item][i].name][j] + "')",
-                                    "Dimensions('}Groups')/Hierarchies('}Groups')/Elements('" + newGroup.name + "')"
-                                    ]
-                                 }
-                              ],
-                              "Value" : newGroup[tm1Item][i].access
-                           }
-                           data.push(item);
-
-                        }
 
 
                      }
+                     
                   }
 
                }else{
@@ -2527,19 +2556,22 @@ arc.directive("usersGroups", function () {
                                     name : "",
                                     access : "READ"
                                  }
-   
-                                 item.name = $scope.cubeSecurityResult.rows[i][rowName].name;
-   
-                                 for(var j = 0; j < $scope.cubeSecurityResult.rows[i].cells.length; j++){
-                                    if($scope.cubeSecurityResult.rows[i].cells[j].value !== ""){
-                                       item.access = $scope.cubeSecurityResult.rows[i].cells[j].value;
-                                    }
-
-                                 }
                                  
-                                 if(item.access!=="NONE"){
-                                    $scope.newGroup[tm1Item].push(item);
+                                 if($scope.cubeSecurityResult.rows[i][rowName].name !=="}Applications"){
+                                    item.name = $scope.cubeSecurityResult.rows[i][rowName].name;
+   
+                                    for(var j = 0; j < $scope.cubeSecurityResult.rows[i].cells.length; j++){
+                                       if($scope.cubeSecurityResult.rows[i].cells[j].value !== ""){
+                                          item.access = $scope.cubeSecurityResult.rows[i].cells[j].value;
+                                       }
+   
+                                    }
+                                    
+                                    if(item.access!=="NONE"){
+                                       $scope.newGroup[tm1Item].push(item);
+                                    }
                                  }
+
                                  
                               }
 
