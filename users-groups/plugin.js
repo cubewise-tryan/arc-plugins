@@ -1861,6 +1861,17 @@ arc.directive("usersGroups", function () {
          }
 
 
+         $scope.addMultipleUsersToGroup = function(groupName, selectedGroup){
+            var itemIndex = _.findIndex($scope.groupsWithUsers, function(i){return i.Name == selectedGroup;});
+            var arrayOfUsers = $scope.groupsWithUsers[itemIndex].Users;
+
+            for(var i = 0; i < arrayOfUsers.length; i++){
+               $scope.addUserToGroup(arrayOfUsers[i].Name, groupName, "");
+
+            }
+         }
+
+
          $scope.nextAccess = function(newGroup, tm1Section, itemName, currentAccess){
             var assignedAccessObj = {
                applications:{

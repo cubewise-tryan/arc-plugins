@@ -13,7 +13,129 @@
    <div class="tm1-usersGroups-Body">
       <uib-tabset active="0">
 
-         <uib-tab index="0" heading="{{'TABUSERS' | translate}}" class="tm1-usersTab">
+         <uib-tab index="0" heading="{{'TABGROUPS' | translate}}" class="tm1-groupsTab">
+            <div class="row" class="tm1-groupsTab-Tools">
+               <div class="col-4">
+                  <div class="input-group">
+                     <input type="text" ng-model="selections.filterGroupGroup" placeholder="{{'SEARCHGROUP' | translate}}" class="form-control" style="display:inline;" />
+                     <span class="input-group-append">
+                        <button ng-disabled="!selections.filterGroupGroup.length" class="btn btn-secondary" title="{{'CLEARUAG' | translate}}" ng-click="selections.filterGroupGroup = ''">
+                           <i class="fa fa-fw fa-remove"></i>
+                        </button>
+                        
+                     </span>
+                  </div>
+               </div>
+               <div class="col-4">
+                  <div class="input-group">
+                     <span class="input-group-prepend">
+                        <button ng-disabled="!selections.filterGroupUser.length" class="btn btn-secondary inactive" ng-if="includedInGroupGroup" title="{{'USERINCLUDE' | translate}}" ng-click="toggleIncludedInGroupGroup()">
+                           AND
+                        </button>
+                        <button ng-disabled="!selections.filterGroupUser.length" class="btn btn-secondary inactive" ng-if="!includedInGroupGroup" title="{{'USEREXCLUDE' | translate}}" ng-click="toggleIncludedInGroupGroup()">
+                           NOT
+                        </button>
+                     </span>
+                     <input type="text" ng-model="selections.filterGroupUser" placeholder="{{'SEARCHUSER' | translate}}" class="form-control" style="display:inline;" />
+                     <span class="input-group-append">
+                        <button ng-disabled="!selections.filterGroupUser.length" class="btn btn-secondary" title="{{'CLEARUAG' | translate}}" ng-click="selections.filterGroupUser = ''">
+                           <i class="fa fa-fw fa-remove"></i>
+                        </button>
+                     </span>
+                  </div>
+
+               </div>
+               <div class="col-4">
+                  <div class="toolbar">
+                     <div class="btn-toolbar pull-right" style="margin-bottom: 10px;">
+                        <div class="btn-group">
+                           <button class="btn btn-primary" title="{{'ADDGROUP' | translate}}" ng-click="addGroup()">
+                              <i class="fa fa-plus"></i>
+                           </button>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+
+            <div class="row" class="tm1-groupsTab-Table">
+               <div class="col-12">
+                  <div style="height:80%; overflow-y: scroll;">
+                     <div class="card" >
+                        <div class="card-body">
+                           <table class="table table-hover table-sm">
+                              <thead>
+                                 <tr>
+                                    <th style="width:2px;"></th>
+                                    <th class="pl-0" style="width: 40px;" translate="NAMEGROUP"></th>
+                                    <th style="width: 40px;" translate="GROUPSADDSINGLEUSER"></th>
+                                    <th style="width: 40px;" translate="GROUPSADDMULTIPLEUSERS"></th>
+                                    <th style="width: 40px;" translate="USERGROUPS" ></th>
+                                 </tr>
+                              </thead>
+                              <tbody>
+                                 <tr ng-repeat="group in groupsWithUsers | filter:listFilterGroup track by $index">
+                                    <td class="align-top pr-0 pt-2" >
+                                       <a href="" class="text-danger pt-1" ng-click="deleteGroup(group.Name)" title="{{'DELETEUAG' | translate}}" >
+                                          <i class="fa fa-close"></i>
+                                       </a>
+                                       <a href="" class="text-primary pl-1 pt-1" ng-click="settingsGroup($index)" title="{{'SETTINGSUAG' | translate}}" >
+                                          <i class="fa fa-edit"></i>
+                                       </a>
+                                       <a href="" class="text-primary pl-1 pt-1" ng-click="editGroup($index)" title="{{'EDITUAG' | translate}}" >
+                                          <i class="fa fa-address-book-o"></i>
+                                       </a>
+                                    </td>
+                                    <td class="align-top pl-0;" style="width: 40px;" >
+                                       <div ng-class="{'text-success font-weight-bold':user.IsActive}" class="form-control form-control-sm pl-0" style="cursor:default; border-color: white;">
+                                          {{group.Name}}
+                                       </div>
+                                    </td>
+                                    <td>
+                                       <input type="text" class="form-control form-control-sm"
+                                          ng-model="selectedUser"
+                                          uib-typeahead="name as User.Name for User in usersWithGroups | filter:{Name:$viewValue} | limitTo:8"
+                                          typeahead-on-select="addUserToGroup($item.Name, group.Name,'')" 
+                                          placeholder="{{'TYPEUSER' | translate}}"
+                                          >
+                                    </td>
+                                    <td>
+                                       <input type="text" class="form-control form-control-sm"
+                                          ng-model="selectedGroup"
+                                          uib-typeahead="name as Group.Name for Group in groupsWithUsers | filter:{Name:$viewValue} | limitTo:8"
+                                          typeahead-on-select="addMultipleUsersToGroup(group.Name, $item.Name)"
+                                          placeholder="{{'TYPEGROUP' | translate}}"
+                                          >
+                                          <!--  -->
+                                    </td>
+                                    <td style="width:500px;">
+                                       <div ng-repeat="user in group.Users | limitTo:group.usersDisplay | orderBy:'Name' " >
+                                          <div style="float:left;">
+                                             <div class="badge ml-1" title="{{'REMOVEUSERFROMGROUP' | translate}}" ng-style="generateHSLColour(user.Name)" style="cursor: default; user-select: none;">
+                                                {{user.Name}}
+                                                <a><i class="fa fa-search" ng-click="selections.filterGroupUser = user.Name" title="{{'SEARCHGROUP' | translate}}"></i></a>
+                                                <a><i class="fa fa-fw fa-remove" ng-click="removeUserFromGroup(user.Name, group.Name)" title="{{'REMOVEUSERFROMGROUP' | translate}}"></i></a>
+                                             </div>
+                                          </div>
+                                       </div>
+                                       <div style="float:left;" class="tm1-showMoreGroups" ng-if="group.usersRemaining">
+                                          <a class="badge badge-secondary badge-sm ml-1" style="color:#fff;" title="{{'SHOWUSERSALL' | translate}}" ng-click="showMoreUsers($index)">
+                                             <i class="fa fa-plus" ></i>
+                                             {{group.usersRemaining}} more
+                                          </a>
+                                       </div>
+                                    </td>
+                                 </tr>
+                              </tbody>
+                           </table>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </uib-tab>
+
+         <uib-tab index="1" heading="{{'TABUSERS' | translate}}" class="tm1-usersTab">
             <div class="row" class="tm1-usersTab-Tools">
                <div class="col-4">
                   <div class="input-group">
@@ -68,7 +190,7 @@
                                     <th style="width:2px;"></th>
                                     <th class="pl-0" style="width: 40px;" translate="NAMEUSER"></th>
                                     <th style="width: 40px;" translate="ALIASUSER"></th>
-                                    <th style="width: 40px;" translate="ADDGROUP"></th>
+                                    <th style="width: 40px;" translate="ADDTOGROUP"></th>
                                     <th translate="GROUPSUSER" ></th>
                                  </tr>
                               </thead>
@@ -133,119 +255,7 @@
          </uib-tab>
 
 
-         <uib-tab index="1" heading="{{'TABGROUPS' | translate}}" class="tm1-groupsTab">
-            <div class="row" class="tm1-groupsTab-Tools">
-               <div class="col-4">
-                  <div class="input-group">
-                     <input type="text" ng-model="selections.filterGroupGroup" placeholder="{{'SEARCHGROUP' | translate}}" class="form-control" style="display:inline;" />
-                     <span class="input-group-append">
-                        <button ng-disabled="!selections.filterGroupGroup.length" class="btn btn-secondary" title="{{'CLEARUAG' | translate}}" ng-click="selections.filterGroupGroup = ''">
-                           <i class="fa fa-fw fa-remove"></i>
-                        </button>
-                        
-                     </span>
-                  </div>
-               </div>
-               <div class="col-4">
-                  <div class="input-group">
-                     <span class="input-group-prepend">
-                        <button ng-disabled="!selections.filterGroupUser.length" class="btn btn-secondary inactive" ng-if="includedInGroupGroup" title="{{'USERINCLUDE' | translate}}" ng-click="toggleIncludedInGroupGroup()">
-                           AND
-                        </button>
-                        <button ng-disabled="!selections.filterGroupUser.length" class="btn btn-secondary inactive" ng-if="!includedInGroupGroup" title="{{'USEREXCLUDE' | translate}}" ng-click="toggleIncludedInGroupGroup()">
-                           NOT
-                        </button>
-                     </span>
-                     <input type="text" ng-model="selections.filterGroupUser" placeholder="{{'SEARCHUSER' | translate}}" class="form-control" style="display:inline;" />
-                     <span class="input-group-append">
-                        <button ng-disabled="!selections.filterGroupUser.length" class="btn btn-secondary" title="{{'CLEARUAG' | translate}}" ng-click="selections.filterGroupUser = ''">
-                           <i class="fa fa-fw fa-remove"></i>
-                        </button>
-                     </span>
-                  </div>
 
-               </div>
-               <div class="col-4">
-                  <div class="toolbar">
-                     <div class="btn-toolbar pull-right" style="margin-bottom: 10px;">
-                        <div class="btn-group">
-                           <button class="btn btn-primary" title="{{'ADDGROUP' | translate}}" ng-click="addGroup()">
-                              <i class="fa fa-plus"></i>
-                           </button>
-                        </div>
-                     </div>
-                  </div>
-               </div>
-            </div>
-
-            <div class="row" class="tm1-groupsTab-Table">
-               <div class="col-12">
-                  <div style="height:80%; overflow-y: scroll;">
-                     <div class="card" >
-                        <div class="card-body">
-                           <table class="table table-hover table-sm">
-                              <thead>
-                                 <tr>
-                                    <th style="width:2px;"></th>
-                                    <th class="pl-0" style="width: 40px;" translate="NAMEGROUP"></th>
-                                    <th style="width: 40px;" translate="ADDGROUP"></th>
-                                    <th style="width: 40px;" translate="USERGROUPS" ></th>
-                                 </tr>
-                              </thead>
-                              <tbody>
-                                 <tr ng-repeat="group in groupsWithUsers | filter:listFilterGroup track by $index">
-                                    <td class="align-top pr-0 pt-2" >
-                                       <a href="" class="text-danger pt-1" ng-click="deleteGroup(group.Name)" title="{{'DELETEUAG' | translate}}" >
-                                          <i class="fa fa-close"></i>
-                                       </a>
-                                       <a href="" class="text-primary pl-1 pt-1" ng-click="settingsGroup($index)" title="{{'SETTINGSUAG' | translate}}" >
-                                          <i class="fa fa-edit"></i>
-                                       </a>
-                                       <a href="" class="text-primary pl-1 pt-1" ng-click="editGroup($index)" title="{{'EDITUAG' | translate}}" >
-                                          <i class="fa fa-address-book-o"></i>
-                                       </a>
-                                    </td>
-                                    <td class="align-top pl-0;" style="width: 40px;" >
-                                       <div ng-class="{'text-success font-weight-bold':user.IsActive}" class="form-control form-control-sm pl-0" style="cursor:default; border-color: white;">
-                                          {{group.Name}}
-                                       </div>
-                                    </td>
-                                    <td>
-                                       <input type="text" class="form-control form-control-sm"
-                                          ng-model="selectedGroup"
-                                          uib-typeahead="name as Group.Name for Group in groupsWithUsers | filter:{Name:$viewValue} | limitTo:8"
-                                          
-                                          placeholder="{{'TYPEGROUP' | translate}}"
-                                          >
-                                          <!-- typeahead-on-select="addUserToGroup(user.FriendlyName, $item.Name, user.Groups)" -->
-                                    </td>
-                                    <td style="width:500px;">
-                                       <div ng-repeat="user in group.Users | limitTo:group.usersDisplay | orderBy:'Name' " >
-                                          <div style="float:left;">
-                                             <div class="badge ml-1" title="{{'REMOVEUSERFROMGROUP' | translate}}" ng-style="generateHSLColour(user.Name)" ng-click="removeUserFromGroup(user.Name,group.Name)" style="cursor: default; user-select: none;">
-                                                {{user.Name}}
-                                                <a><i class="fa fa-search" ng-click="selections.filterGroupUser = user.Name" title="{{'SEARCHGROUP' | translate}}"></i></a>
-                                                <a><i class="fa fa-fw fa-remove" ng-click="removeUserFromGroup(user.Name, group.Name)" title="{{'REMOVEUSERFROMGROUP' | translate}}"></i></a>
-                                             </div>
-                                          </div>
-                                       </div>
-                                       <div style="float:left;" class="tm1-showMoreGroups" ng-if="group.usersRemaining">
-                                          <a class="badge badge-secondary badge-sm ml-1" style="color:#fff;" title="{{'SHOWUSERSALL' | translate}}" ng-click="showMoreUsers($index)">
-                                             <i class="fa fa-plus" ></i>
-                                             {{group.usersRemaining}} more
-                                             <i class="fa fa-arrow-right" ></i>
-                                          </a>
-                                       </div>
-                                    </td>
-                                 </tr>
-                              </tbody>
-                           </table>
-                        </div>
-                     </div>
-                  </div>
-               </div>
-            </div>
-         </uib-tab>
 
       </uib-tabset>
    </div>

@@ -1,5 +1,5 @@
 {
-   "ADDGROUP":"Add Group",
+   "ADDTOGROUP":"Add To Group",
    "ADDGROUPAPPLICATION":"Add Application",
    "ADDGROUPCUBE":"Add Cube",
    "ADDGROUPDIMENSION":"Add Dimension",
@@ -88,6 +88,8 @@
    "GROUPSSHOWLESS":"Display Less Groups",
    "GROUPSSHOWMORE":"Display Additional Groups",
    "GROUPSSTEPINCREMENT":"Number of Groups to Increment",
+   "GROUPSADDSINGLEUSER":"Add Single User",
+   "GROUPSADDMULTIPLEUSERS":"Add Multiple Users",
    "GROUPEXCLUDE":"Group is Excluded",
    "GROUPINCLUDE":"Group is Included",
    "USERGROUPS":"Users",
