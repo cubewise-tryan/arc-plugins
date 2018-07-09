@@ -11,7 +11,8 @@
    </div>
 
    <div class="tm1-usersGroups-Body">
-      <uib-tabset active="1">
+      <uib-tabset active="0">
+
          <uib-tab index="0" heading="{{'TABUSERS' | translate}}" class="tm1-usersTab">
             <div class="row" class="tm1-usersTab-Tools">
                <div class="col-4">
@@ -55,12 +56,13 @@
                </div>
             </div>
 
-            <div class="row" class="tm1-usersTab-Table">
+            <div class="row" class="tm1-usersTab-Table" >
                <div class="col-12">
-                  <auto-height>
-                     <div class="card">
-                        <div class="card-body">
-                           <table class="table table-hover table-sm">
+                  <div style="height:80%; overflow-y: scroll;">
+                     <div class="card" >
+                           <!-- style="height:80%;overflow-y: scroll;" -->
+                        <div class="card-body" >
+                           <table class="table table-hover table-sm" >
                               <thead>
                                  <tr>
                                     <th style="width:2px;"></th>
@@ -70,7 +72,7 @@
                                     <th translate="GROUPSUSER" ></th>
                                  </tr>
                               </thead>
-                              <tbody>
+                              <tbody >
                                  <tr ng-repeat="user in usersWithGroups | filter:listFilterUser track by $index">
                                     <td class="align-top pr-0 pt-2">
                                        <a href="" class="text-danger pt-1"  ng-click="deleteUser(user.Name)" title="{{'DELETEUAG' | translate}}" >
@@ -114,6 +116,7 @@
                                        </div>
                                        <div style="float:left;" class="tm1-showMoreGroups" ng-if="user.groupsRemaining">
                                           <a class="badge badge-secondary badge-sm ml-1" style="color:#fff;" title="{{'GROUPSSHOWMORE' | translate}}" ng-click="showMoreGroups($index)">
+                                             <i class="fa fa-plus" ></i>
                                              {{user.groupsRemaining}} more
                                              <i class="fa fa-arrow-right" ></i>
                                           </a>
@@ -124,10 +127,11 @@
                            </table>
                         </div>
                      </div>
-                  </auto-height>
+                  </div>
                </div>
             </div>
          </uib-tab>
+
 
          <uib-tab index="1" heading="{{'TABGROUPS' | translate}}" class="tm1-groupsTab">
             <div class="row" class="tm1-groupsTab-Tools">
@@ -165,7 +169,7 @@
                   <div class="toolbar">
                      <div class="btn-toolbar pull-right" style="margin-bottom: 10px;">
                         <div class="btn-group">
-                           <button class="btn btn-primary"  title="{{'ADDGROUP' | translate}}" ng-click="addGroup()">
+                           <button class="btn btn-primary" title="{{'ADDGROUP' | translate}}" ng-click="addGroup()">
                               <i class="fa fa-plus"></i>
                            </button>
                         </div>
@@ -176,20 +180,21 @@
 
             <div class="row" class="tm1-groupsTab-Table">
                <div class="col-12">
-                  <auto-height>
-                     <div class="card">
+                  <div style="height:80%; overflow-y: scroll;">
+                     <div class="card" >
                         <div class="card-body">
                            <table class="table table-hover table-sm">
                               <thead>
                                  <tr>
-                                    <th style="width:25px;"></th>
+                                    <th style="width:2px;"></th>
                                     <th class="pl-0" style="width: 40px;" translate="NAMEGROUP"></th>
+                                    <th style="width: 40px;" translate="ADDGROUP"></th>
                                     <th style="width: 40px;" translate="USERGROUPS" ></th>
                                  </tr>
                               </thead>
                               <tbody>
                                  <tr ng-repeat="group in groupsWithUsers | filter:listFilterGroup track by $index">
-                                    <td class="align-top pr-0 pt-2" style="width:25px;">
+                                    <td class="align-top pr-0 pt-2" >
                                        <a href="" class="text-danger pt-1" ng-click="deleteGroup(group.Name)" title="{{'DELETEUAG' | translate}}" >
                                           <i class="fa fa-close"></i>
                                        </a>
@@ -205,10 +210,19 @@
                                           {{group.Name}}
                                        </div>
                                     </td>
+                                    <td>
+                                       <input type="text" class="form-control form-control-sm"
+                                          ng-model="selectedGroup"
+                                          uib-typeahead="name as Group.Name for Group in groupsWithUsers | filter:{Name:$viewValue} | limitTo:8"
+                                          
+                                          placeholder="{{'TYPEGROUP' | translate}}"
+                                          >
+                                          <!-- typeahead-on-select="addUserToGroup(user.FriendlyName, $item.Name, user.Groups)" -->
+                                    </td>
                                     <td style="width:500px;">
                                        <div ng-repeat="user in group.Users | limitTo:group.usersDisplay | orderBy:'Name' " >
                                           <div style="float:left;">
-                                             <div class="badge ml-1" title="{{'REMOVEUSERFROMGROUP' | translate}}" ng-style="generateHSLColour(user.Name)" ng-click="removeUserFromGroup(user.Name,group.Name)">
+                                             <div class="badge ml-1" title="{{'REMOVEUSERFROMGROUP' | translate}}" ng-style="generateHSLColour(user.Name)" ng-click="removeUserFromGroup(user.Name,group.Name)" style="cursor: default; user-select: none;">
                                                 {{user.Name}}
                                                 <a><i class="fa fa-search" ng-click="selections.filterGroupUser = user.Name" title="{{'SEARCHGROUP' | translate}}"></i></a>
                                                 <a><i class="fa fa-fw fa-remove" ng-click="removeUserFromGroup(user.Name, group.Name)" title="{{'REMOVEUSERFROMGROUP' | translate}}"></i></a>
@@ -218,8 +232,8 @@
                                        <div style="float:left;" class="tm1-showMoreGroups" ng-if="group.usersRemaining">
                                           <a class="badge badge-secondary badge-sm ml-1" style="color:#fff;" title="{{'SHOWUSERSALL' | translate}}" ng-click="showMoreUsers($index)">
                                              <i class="fa fa-plus" ></i>
-                                             {{group.usersRemaining}}
-                                             <i class="fa fa-users" ></i>
+                                             {{group.usersRemaining}} more
+                                             <i class="fa fa-arrow-right" ></i>
                                           </a>
                                        </div>
                                     </td>
@@ -228,10 +242,11 @@
                            </table>
                         </div>
                      </div>
-                  </auto-height>
+                  </div>
                </div>
             </div>
          </uib-tab>
+
       </uib-tabset>
    </div>
 </div>

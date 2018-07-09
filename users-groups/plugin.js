@@ -2758,6 +2758,7 @@ arc.directive("usersGroups", function () {
                   $scope.newGroup = {
                      name:"",
                      applications:[],
+                     applicationsNONE:[],
                      cubes: [],
                      dimensions:[],
                      processes:[],
