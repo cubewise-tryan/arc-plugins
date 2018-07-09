@@ -1969,7 +1969,7 @@ arc.directive("usersGroups", function () {
                   var childIndex = _.findIndex(newGroup[tm1Section], function(i){return i.name == child;});
                   if(childIndex !==-1){
                      newGroup[tm1Section][childIndex].access = "NONE";
-
+                     
                      newGroup["applicationsNONE"].push(newGroup[tm1Section][childIndex]);
                      newGroup[tm1Section].splice(childIndex, 1);
                   }
@@ -1985,6 +1985,7 @@ arc.directive("usersGroups", function () {
             $log.log($scope.applicationsListWithParents);
             $log.log(newGroup[tm1Section]);
             $log.log(newGroup["applicationsNONE"]);
+
 
          }
 
@@ -2473,7 +2474,6 @@ arc.directive("usersGroups", function () {
 
 
 
-
          $scope.editGroup = function(rowIndex){
             ngDialog.open({
                template: "__/plugins/users-groups/editGroup.html",
@@ -2531,7 +2531,6 @@ arc.directive("usersGroups", function () {
                      }else{
                         var mdxFull = "SELECT NON EMPTY " + mdxColumn + " ON COLUMNS, NON EMPTY {TM1SUBSETALL(" + mdxRow +  ")} ON ROWS FROM " + mdxFrom;
                      }
-
 
                       
                      var data = {

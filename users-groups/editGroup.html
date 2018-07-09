@@ -52,12 +52,14 @@
                                     <div class="form-group row p-2">
                                        <div class="input-group">
                                           <div ng-repeat="application in newGroup.applications | orderBy:'name'" >
-                                             <div style="float:left;">
+                                             <div style="float:left;" class="mt-1">
                                                 <div class="input-group">
-                                                   <div class="badge" title="{{'ADDGROUPNEXTACCESS' | translate}}" ng-class="securityAccessColourMapping(application.access)" ng-click="nextAccess(newGroup, 'applications', application.name, application.access)" style="cursor: pointer; user-select: none;" >{{application.access.substr(0,1)}}</div>
+                                                   <div class="badge m-0 pl-0 pr-0" style="cursor: default; user-select: none;">
+                                                      <a><i class="fa fa-fw fa-remove text-danger" ng-click="removeTm1SectionItemFromNewGroup(newGroup, 'applications', application.name)" title="{{'REMOVEAPPLICATION' | translate}}"></i></a>
+                                                   </div>
+                                                   <div class="badge" title="{{'ADDGROUPNEXTACCESS' | translate}}" ng-class="securityAccessColourMapping(application.access)" ng-click="nextAccess(newGroup, 'applications', application.name, application.access)" style="cursor: pointer; user-select: none;">{{application.access.substr(0,1)}}</div>
                                                    <div class="badge m-0" style="cursor: default; user-select: none;">
                                                       {{application.name}}
-                                                      <a><i class="fa fa-fw fa-remove" ng-click="removeTm1SectionItemFromNewGroup(newGroup, 'applications', application.name)" title="{{'REMOVEGROUP' | translate}}"></i></a>
                                                    </div>
                                                 </div>
                                              </div>
@@ -108,13 +110,15 @@
                                     <div class="form-group row p-2">
                                        <div class="input-group">
                                           <div ng-repeat="cube in newGroup.cubes | orderBy:'name'" >
-                                             <div style="float:left;">
-                                                <div class="input-group" ng-click="nextAccess(newGroup, 'cubes', cube.name, cube.access)" style="cursor: pointer; user-select: none;">
-                                                   <div class="badge" ng-if="cube.access!=='RESERVE'" ng-class="securityAccessColourMapping(cube.access)">{{cube.access.substr(0,1)}}</div>
-                                                   <div class="badge" ng-if="cube.access==='RESERVE'" ng-class="securityAccessColourMapping(cube.access)">{{cube.access.substr(5,1)}}</div>
-                                                   <div class="badge m-0" title="{{'ADDGROUPNEXTACCESS' | translate}}">
+                                             <div style="float:left;" class="mt-1">
+                                                <div class="input-group">
+                                                   <div class="badge m-0 pl-0 pr-0" style="cursor: default; user-select: none;">
+                                                      <a><i class="fa fa-fw fa-remove text-danger" ng-click="removeTm1SectionItemFromNewGroup(newGroup, 'cubes', cube.name)" title="{{'REMOVECUBE' | translate}}"></i></a>
+                                                   </div>
+                                                   <div class="badge" title="{{'ADDGROUPNEXTACCESS' | translate}}" ng-if="cube.access!=='RESERVE'" ng-class="securityAccessColourMapping(cube.access)" ng-click="nextAccess(newGroup, 'cubes', cube.name, cube.access)" style="cursor: pointer; user-select: none;">{{cube.access.substr(0,1)}}</div>
+                                                   <div class="badge" title="{{'ADDGROUPNEXTACCESS' | translate}}" ng-if="cube.access==='RESERVE'" ng-class="securityAccessColourMapping(cube.access)" ng-click="nextAccess(newGroup, 'cubes', cube.name, cube.access)" style="cursor: pointer; user-select: none;">{{cube.access.substr(5,1)}}</div>
+                                                   <div class="badge m-0" style="cursor: default; user-select: none;">
                                                       {{cube.name}}
-                                                      <a><i class="fa fa-fw fa-remove" ng-click="removeTm1SectionItemFromNewGroup(newGroup, 'cubes', cube.name)" title="{{'REMOVEGROUP' | translate}}"></i></a>
                                                    </div>
                                                 </div>
                                              </div>
@@ -165,13 +169,15 @@
                                     <div class="form-group row p-2">
                                        <div class="input-group">
                                           <div ng-repeat="dimension in newGroup.dimensions | orderBy:'name'" >
-                                             <div style="float:left;">
-                                                <div class="input-group" ng-click="nextAccess(newGroup, 'dimensions', dimension.name, dimension.access)" style="cursor: pointer; user-select: none;">
-                                                   <div class="badge" ng-if="dimension.access!=='RESERVE'" ng-class="securityAccessColourMapping(dimension.access)">{{dimension.access.substr(0,1)}}</div>
-                                                   <div class="badge" ng-if="dimension.access==='RESERVE'" ng-class="securityAccessColourMapping(dimension.access)">{{dimension.access.substr(5,1)}}</div>
-                                                   <div class="badge m-0" title="{{'ADDGROUPNEXTACCESS' | translate}}">
+                                             <div style="float:left;" class="mt-1">
+                                                <div class="input-group" >
+                                                   <div class="badge m-0 pl-0 pr-0" style="cursor: default; user-select: none;">
+                                                      <a><i class="fa fa-fw fa-remove text-danger" ng-click="removeTm1SectionItemFromNewGroup(newGroup, 'dimensions', dimension.name)" title="{{'REMOVEDIMENSION' | translate}}"></i></a>
+                                                   </div>
+                                                   <div class="badge" title="{{'ADDGROUPNEXTACCESS' | translate}}" ng-if="dimension.access!=='RESERVE'" ng-class="securityAccessColourMapping(dimension.access)" ng-click="nextAccess(newGroup, 'dimensions', dimension.name, dimension.access)" style="cursor: pointer; user-select: none;">{{dimension.access.substr(0,1)}}</div>
+                                                   <div class="badge" title="{{'ADDGROUPNEXTACCESS' | translate}}" ng-if="dimension.access==='RESERVE'" ng-class="securityAccessColourMapping(dimension.access)" ng-click="nextAccess(newGroup, 'dimensions', dimension.name, dimension.access)" style="cursor: pointer; user-select: none;">{{dimension.access.substr(5,1)}}</div>
+                                                   <div class="badge m-0" style="cursor: default; user-select: none;">
                                                       {{dimension.name}}
-                                                      <a><i class="fa fa-fw fa-remove" ng-click="removeTm1SectionItemFromNewGroup(newGroup, 'dimensions', dimension.name)" title="{{'REMOVEGROUP' | translate}}"></i></a>
                                                    </div>
                                                 </div>
                                              </div>
@@ -222,12 +228,14 @@
                                     <div class="form-group row p-2">
                                        <div class="input-group">
                                           <div ng-repeat="process in newGroup.processes | orderBy:'name'" >
-                                             <div style="float:left;">
-                                                <div class="input-group" ng-click="nextAccess(newGroup, 'processes', process.name, process.access)" style="cursor: pointer; user-select: none;">
-                                                   <div class="badge" ng-class="securityAccessColourMapping(process.access)">{{process.access.substr(0,1)}}</div>
-                                                   <div class="badge m-0" class="ml-1" title="{{'ADDGROUPNEXTACCESS' | translate}}">
+                                             <div style="float:left;" class="mt-1">
+                                                <div class="input-group">
+                                                   <div class="badge m-0 pl-0 pr-0" style="cursor: default; user-select: none;">
+                                                      <a><i class="fa fa-fw fa-remove text-danger" ng-click="removeTm1SectionItemFromNewGroup(newGroup, 'processes', process.name)" title="{{'REMOVEPROCESS' | translate}}"></i></a>
+                                                   </div>
+                                                   <div class="badge" ng-class="securityAccessColourMapping(process.access)" style="cursor: default; user-select: none;">{{process.access.substr(0,1)}}</div>
+                                                   <div class="badge m-0" style="cursor: default; user-select: none;">
                                                       {{process.name}}
-                                                      <a><i class="fa fa-fw fa-remove" ng-click="removeTm1SectionItemFromNewGroup(newGroup, 'processes', process.name)" title="{{'REMOVEGROUP' | translate}}"></i></a>
                                                    </div>
                                                 </div>
                                              </div>
@@ -278,12 +286,14 @@
                                     <div class="form-group row p-2">
                                        <div class="input-group">
                                           <div ng-repeat="chore in newGroup.chores | orderBy:'name'" >
-                                             <div style="float:left;">
-                                                <div class="input-group" ng-click="nextAccess(newGroup, 'chores', chore.name, chore.access)" style="cursor: pointer; user-select: none;">
-                                                   <div class="badge" ng-class="securityAccessColourMapping(chore.access)">{{chore.access.substr(0,1)}}</div>
-                                                   <div class="badge m-0" title="{{'ADDGROUPNEXTACCESS' | translate}}">
+                                             <div style="float:left;" class="mt-1">
+                                                <div class="input-group">
+                                                   <div class="badge m-0 pl-0 pr-0" style="cursor: default; user-select: none;">
+                                                      <a><i class="fa fa-fw fa-remove text-danger" ng-click="removeTm1SectionItemFromNewGroup(newGroup, 'chores', chore.name)" title="{{'REMOVECHORE' | translate}}"></i></a>
+                                                   </div>
+                                                   <div class="badge" ng-class="securityAccessColourMapping(chore.access)" style="cursor: default; user-select: none;">{{chore.access.substr(0,1)}}</div>
+                                                   <div class="badge m-0" style="cursor: default; user-select: none;">
                                                       {{chore.name}}
-                                                      <a class="p-0 m-0"><i class="fa fa-fw fa-remove" ng-click="removeTm1SectionItemFromNewGroup(newGroup, 'chores', chore.name)" title="{{'REMOVEGROUP' | translate}}"></i></a>
                                                    </div>
                                                 </div>
                                              </div>
