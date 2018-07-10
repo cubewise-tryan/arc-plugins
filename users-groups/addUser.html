@@ -108,10 +108,14 @@
                                     <div class="form-group row p-2">
                                        <div class="input-group">
                                           <div ng-repeat="group in newUser.groupsAssigned | orderBy:'Name'" >
-                                             <div style="float:left;">
-                                                <div class="badge ml-1" ng-style="generateHSLColour(group.Name)" style="cursor : default;">
-                                                   {{group.Name}}
-                                                   <a><i class="fa fa-fw fa-remove" ng-click="removeGroupFromNewUser(group.Name)" title="{{'REMOVEGROUP' | translate}}"></i></a>
+                                             <div style="float:left;" class="mt-1">
+                                                <div class="input-group">
+                                                   <div class="badge pl-0 pr-0" style="cursor: default; user-select: none;">
+                                                      <a><i class="fa fa-fw fa-remove text-danger" ng-click="removeGroupFromNewUser(group.Name)" title="{{'REMOVEGROUP' | translate}}"></i></a>
+                                                   </div>
+                                                   <div class="badge mr-1" ng-style="generateHSLColour(group.Name)" style="cursor : default;">
+                                                      {{group.Name}}
+                                                   </div>
                                                 </div>
                                              </div>
                                           </div>

@@ -59,7 +59,7 @@ arc.directive("usersGroups", function () {
                   if(success.status == 401){
                      // Set reload to true to refresh after the user logs in
                      $scope.reload = true;
-                     return;
+                     deferred.reject(success.data);
                   
                   }else if(success.status < 400){
                      $scope.usersWithGroups = success.data.value;
@@ -74,7 +74,8 @@ arc.directive("usersGroups", function () {
                         if(success.status == 401){
                            // Set reload to true to refresh after the user logs in
                            $scope.reload = true;
-                           return;
+                           deferred.reject(success.data);
+                           // return;
    
                         }else if(success.status < 400){
                            var options = {
@@ -111,13 +112,16 @@ arc.directive("usersGroups", function () {
                            // Error to display on page
                            if(success.data && success.data.error && success.data.error.message){
                               $scope.message = success.data.error.message;
+
                            }
                            else {
                               $scope.message = success.data;
+
                            }
                            $timeout(function(){
                               $scope.message = null;
                            }, 5000);
+                           deferred.reject(success.data);
                         }
    
    
@@ -130,10 +134,12 @@ arc.directive("usersGroups", function () {
                      }
                      else {
                         $scope.message = success.data;
+
                      }
                      $timeout(function(){
                         $scope.message = null;
                      }, 5000);
+                     deferred.reject(success.data);
                   }
                });
 
@@ -181,7 +187,6 @@ arc.directive("usersGroups", function () {
                });
 
                return deferred.promise;
-
             }
 
 
@@ -208,13 +213,15 @@ arc.directive("usersGroups", function () {
                   }
                }
 
-
             }
 
             $scope.buildMain = function(){
                $scope.buildUsersWithGroups()
                   .then($scope.buildGroupsWithUsers)
                   .then($scope.crossMapping)
+                  .catch(function(response){
+                     $log.log(response);
+                  })
             };
             $scope.buildMain();
 
