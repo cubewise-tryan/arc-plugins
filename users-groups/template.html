@@ -4,7 +4,7 @@
          <label class="page-title">
             <i class="fa fa-sitemap"></i> {{instance | uppercase}}:<span translate="MANAGEUAG"></span>
          </label>
-         <button ng-class="{'btn btn-success' : messageSuccess, 'btn btn-warning' : messageWarning}" ng-if="message">
+         <button ng-class="{'btn btn-success' : messageSuccess, 'btn btn-warning' : messageWarning}" class="ml-2" ng-if="message">
             <span ng-class="{'fa fa-check' : messageSuccess,'fa fa-warning' : messageWarning}" aria-hidden="true"></span><span>{{message}}</span>
          </button>
       </div>
@@ -95,7 +95,7 @@
                                        <input type="text" class="form-control form-control-sm"
                                           ng-model="selectedUser"
                                           uib-typeahead="name as User.Name for User in usersWithGroups | filter:{Name:$viewValue} | limitTo:8"
-                                          typeahead-on-select="addUserToGroup($item.Name, group.Name,'')" 
+                                          typeahead-on-select="addSingleUserToGroup($item, group.Name)" 
                                           placeholder="{{'TYPEUSER' | translate}}"
                                           >
                                     </td>
@@ -103,10 +103,9 @@
                                        <input type="text" class="form-control form-control-sm"
                                           ng-model="selectedGroup"
                                           uib-typeahead="name as Group.Name for Group in groupsWithUsers | filter:{Name:$viewValue} | limitTo:8"
-                                          typeahead-on-select="addMultipleUsersToGroup(group.Name, $item.Name)"
+                                          typeahead-on-select="addMultipleUsersToGroup($item,group.Name)"
                                           placeholder="{{'TYPEGROUP' | translate}}"
                                           >
-                                          <!--  -->
                                     </td>
                                     <td style="width:500px;">
                                        <div ng-repeat="user in group.Users | limitTo:group.usersDisplay | orderBy:'Name' " >
@@ -118,10 +117,11 @@
                                              </div>
                                           </div>
                                        </div>
-                                       <div style="float:left;" class="tm1-showMoreGroups" ng-if="group.usersRemaining">
+                                       <div style="float:left;" class="tm1-showMoreGroups" ng-if="group.usersRemaining || group.Users.length > 0">
                                           <a class="badge badge-secondary badge-sm ml-1" style="color:#fff;" title="{{'SHOWUSERSALL' | translate}}" ng-click="showMoreUsers($index)">
                                              <i class="fa fa-plus" ></i>
-                                             {{group.usersRemaining}} more
+                                             {{group.usersRemaining}}
+                                             <i class="fa fa-search" ></i>
                                           </a>
                                        </div>
                                     </td>
@@ -253,10 +253,6 @@
                </div>
             </div>
          </uib-tab>
-
-
-
-
       </uib-tabset>
    </div>
 </div>

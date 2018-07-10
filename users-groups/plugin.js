@@ -47,123 +47,176 @@ arc.directive("usersGroups", function () {
             $scope.reload = false;
 
             // First part of URL is the encoded instance name and then REST API URL (excluding api/v1/)
-            var usersWithGroupsURL = "/Users?$expand=Groups";
-            $http.get(encodeURIComponent($scope.instance) + usersWithGroupsURL).then(function(success,error){
-               if(success.status == 401){
-                  // Set reload to true to refresh after the user logs in
-                  $scope.reload = true;
-                  return;
-               
-               }else if(success.status < 400){
-                  $scope.usersWithGroups = success.data.value;
 
-                  //retrieve user display name
-                  var displayAllMDXDetailURL = "/ExecuteMDX?$expand=Axes($expand=Hierarchies($select=Name;$expand=Dimension($select=Name)),Tuples($expand=Members($select=Name,UniqueName,Ordinal,Attributes;$expand=Parent($select=Name);$expand=Element($select=Name,Type,Level)))),Cells($select=Value,Updateable,Consolidated,RuleDerived,HasPicklist,FormatString,FormattedValue)";
-                  var mdx = "SELECT NON EMPTY {[}ElementAttributes_}Clients].[}TM1_DefaultDisplayValue]} ON COLUMNS, NON EMPTY {TM1SUBSETALL([}Clients])}ON ROWS FROM [}ElementAttributes_}Clients]";
-                  var data = {
-                     "MDX": mdx
-                  }
-                  $http.post(encodeURIComponent($scope.instance) + displayAllMDXDetailURL, data).then(function(success, error){
-                     if(success.status == 401){
-                        // Set reload to true to refresh after the user logs in
-                        $scope.reload = true;
-                        return;
 
-                     }else if(success.status < 400){
-                        var options = {
-                           alias: {},
-                           suppressZeroRows: 1,
-                           suppressZeroColumns: 1,
-                           maxRows: 50
-                        };
-                        var cubeName = "}ElementAttributes_}Clients";
 
-                        $scope.result = $tm1.resultsetTransform($scope.instance, cubeName, success.data, options);
+            
+            $scope.buildUsersWithGroups = function(){
+               var deferred = $q.defer();
+
+               var usersWithGroupsURL = "/Users?$expand=Groups";
+               $http.get(encodeURIComponent($scope.instance) + usersWithGroupsURL).then(function(success,error){
+                  if(success.status == 401){
+                     // Set reload to true to refresh after the user logs in
+                     $scope.reload = true;
+                     return;
+                  
+                  }else if(success.status < 400){
+                     $scope.usersWithGroups = success.data.value;
    
-                        //add properties to object to control number of display groups and user display name
-                        for(var i = 0; i < $scope.usersWithGroups.length; i++){
-                           $scope.usersWithGroups[i].groupsMax = $scope.usersWithGroups[i].Groups.length;
-                           $scope.usersWithGroups[i].groupsDisplay = $rootScope.uiPrefs.groupsDisplayNumber;
-   
-                           $scope.usersWithGroups[i].groupsRemaining = $scope.usersWithGroups[i].groupsMax - $rootScope.uiPrefs.groupsDisplayNumber;
-                           if($scope.usersWithGroups[i].groupsRemaining < 0){$scope.usersWithGroups[i].groupsRemaining = 0};
-   
-                           if(typeof $scope.result.metadata["}Clients"][$scope.usersWithGroups[i].Name] !== "undefined"){
-                              $scope.usersWithGroups[i].displayName = $scope.result.metadata["}Clients"][$scope.usersWithGroups[i].Name].attributes["}TM1_DefaultDisplayValue"];
-                           }else{
-                              $scope.usersWithGroups[i].displayName = $scope.usersWithGroups[i].Name;
-                           }
-                           
-                           $scope.usersWithGroups[i].displayNamePrevious = $scope.usersWithGroups[i].displayName;
-
-                        }
-                        $log.log($scope.usersWithGroups);
-
-                     }else{
-                        // Error to display on page
-                        if(success.data && success.data.error && success.data.error.message){
-                           $scope.message = success.data.error.message;
-                        }
-                        else {
-                           $scope.message = success.data;
-                        }
-                        $timeout(function(){
-                           $scope.message = null;
-                        }, 5000);
+                     //retrieve user display name
+                     var displayAllMDXDetailURL = "/ExecuteMDX?$expand=Axes($expand=Hierarchies($select=Name;$expand=Dimension($select=Name)),Tuples($expand=Members($select=Name,UniqueName,Ordinal,Attributes;$expand=Parent($select=Name);$expand=Element($select=Name,Type,Level)))),Cells($select=Value,Updateable,Consolidated,RuleDerived,HasPicklist,FormatString,FormattedValue)";
+                     var mdx = "SELECT NON EMPTY {[}ElementAttributes_}Clients].[}TM1_DefaultDisplayValue]} ON COLUMNS, NON EMPTY {TM1SUBSETALL([}Clients])}ON ROWS FROM [}ElementAttributes_}Clients]";
+                     var data = {
+                        "MDX": mdx
                      }
+                     $http.post(encodeURIComponent($scope.instance) + displayAllMDXDetailURL, data).then(function(success, error){
+                        if(success.status == 401){
+                           // Set reload to true to refresh after the user logs in
+                           $scope.reload = true;
+                           return;
+   
+                        }else if(success.status < 400){
+                           var options = {
+                              alias: {},
+                              suppressZeroRows: 1,
+                              suppressZeroColumns: 1,
+                              maxRows: 50
+                           };
+                           var cubeName = "}ElementAttributes_}Clients";
+   
+                           $scope.result = $tm1.resultsetTransform($scope.instance, cubeName, success.data, options);
+      
+                           //add properties to object to control number of display groups and user display name
+                           for(var i = 0; i < $scope.usersWithGroups.length; i++){
+                              $scope.usersWithGroups[i].groupsMax = $scope.usersWithGroups[i].Groups.length;
+                              $scope.usersWithGroups[i].groupsDisplay = $rootScope.uiPrefs.groupsDisplayNumber;
+      
+                              $scope.usersWithGroups[i].groupsRemaining = $scope.usersWithGroups[i].groupsMax - $rootScope.uiPrefs.groupsDisplayNumber;
+                              if($scope.usersWithGroups[i].groupsRemaining < 0){$scope.usersWithGroups[i].groupsRemaining = 0};
+      
+                              if(typeof $scope.result.metadata["}Clients"][$scope.usersWithGroups[i].Name] !== "undefined"){
+                                 $scope.usersWithGroups[i].displayName = $scope.result.metadata["}Clients"][$scope.usersWithGroups[i].Name].attributes["}TM1_DefaultDisplayValue"];
+                              }else{
+                                 $scope.usersWithGroups[i].displayName = $scope.usersWithGroups[i].Name;
+                              }
+                              
+                              $scope.usersWithGroups[i].displayNamePrevious = $scope.usersWithGroups[i].displayName;
+                           }
+                           $log.log($scope.usersWithGroups);
+   
+                           deferred.resolve();
 
-
-                  });
-
-               }else{
-                  // Error to display on page
-                  if(success.data && success.data.error && success.data.error.message){
-                     $scope.message = success.data.error.message;
+                        }else{
+                           // Error to display on page
+                           if(success.data && success.data.error && success.data.error.message){
+                              $scope.message = success.data.error.message;
+                           }
+                           else {
+                              $scope.message = success.data;
+                           }
+                           $timeout(function(){
+                              $scope.message = null;
+                           }, 5000);
+                        }
+   
+   
+                     });
+   
+                  }else{
+                     // Error to display on page
+                     if(success.data && success.data.error && success.data.error.message){
+                        $scope.message = success.data.error.message;
+                     }
+                     else {
+                        $scope.message = success.data;
+                     }
+                     $timeout(function(){
+                        $scope.message = null;
+                     }, 5000);
                   }
-                  else {
-                     $scope.message = success.data;
+               });
+
+               return deferred.promise;
+            }
+
+            $scope.buildGroupsWithUsers = function(){
+               var deferred = $q.defer();
+
+               var groupsWithUsersURL = "/Groups?$expand=Users";
+               $http.get(encodeURIComponent($scope.instance) + groupsWithUsersURL).then(function(success,error){
+                  if(success.status == 401){
+                     // Set reload to true to refresh after the user logs in
+                     $scope.reload = true;
+                     return;
+                  
+                  }else if(success.status < 400){
+                     $scope.groupsWithUsers = success.data.value;
+   
+                     //add properties to object to control number of display users
+                     for(var i = 0; i < $scope.groupsWithUsers.length; i++){
+                        $scope.groupsWithUsers[i].usersMax = $scope.groupsWithUsers[i].Users.length;
+                        $scope.groupsWithUsers[i].usersDisplay = $rootScope.uiPrefs.usersDisplayNumber;
+   
+                        $scope.groupsWithUsers[i].usersRemaining = $scope.groupsWithUsers[i].usersMax - $rootScope.uiPrefs.usersDisplayNumber;
+                        if($scope.groupsWithUsers[i].usersRemaining < 0){$scope.groupsWithUsers[i].usersRemaining = 0};
+   
+                     }
+                     $log.log($scope.groupsWithUsers);
+
+                     deferred.resolve(true);
+   
+                  }else{
+                     // Error to display on page
+                     if(success.data && success.data.error && success.data.error.message){
+                        $scope.message = success.data.error.message;
+                     }
+                     else {
+                        $scope.message = success.data;
+                     }
+                     $timeout(function(){
+                        $scope.message = null;
+                     }, 5000);
                   }
-                  $timeout(function(){
-                     $scope.message = null;
-                  }, 5000);
+               });
+
+               return deferred.promise;
+
+            }
+
+
+            $scope.crossMapping = function(){
+               //maps indexes of usersWithGroups to groupsWithUsers and vice versa
+               for(var i = 0; i < $scope.usersWithGroups.length; i++){
+                  for(var j = 0; j < $scope.usersWithGroups[i].Groups.length; j++){
+                     var groupName = $scope.usersWithGroups[i].Groups[j].Name;
+                     var groupIndex = _.findIndex($scope.groupsWithUsers, function(k){
+                        return k.Name === groupName
+                     });
+                     $scope.usersWithGroups[i].Groups[j].groupsWithUsersIndex = groupIndex;
+
+                  }
                }
-            });
-
-            var groupsWithUsersURL = "/Groups?$expand=Users";
-            $http.get(encodeURIComponent($scope.instance) + groupsWithUsersURL).then(function(success,error){
-               if(success.status == 401){
-                  // Set reload to true to refresh after the user logs in
-                  $scope.reload = true;
-                  return;
-               
-               }else if(success.status < 400){
-                  $scope.groupsWithUsers = success.data.value;
-
-                  //add properties to object to control number of display users
-                  for(var i = 0; i < $scope.groupsWithUsers.length; i++){
-                     $scope.groupsWithUsers[i].usersMax = $scope.groupsWithUsers[i].Users.length;
-                     $scope.groupsWithUsers[i].usersDisplay = $rootScope.uiPrefs.usersDisplayNumber;
-
-                     $scope.groupsWithUsers[i].usersRemaining = $scope.groupsWithUsers[i].usersMax - $rootScope.uiPrefs.usersDisplayNumber;
-                     if($scope.groupsWithUsers[i].usersRemaining < 0){$scope.groupsWithUsers[i].usersRemaining = 0};
-
+   
+               for(var l = 0; l < $scope.groupsWithUsers.length; l++){
+                  for(var m = 0; m < $scope.groupsWithUsers[l].Users.length; m++){
+                     var userName = $scope.groupsWithUsers[l].Users[m].Name;
+                     var userIndex = _.findIndex($scope.usersWithGroups, function(n){
+                        return n.Name === userName
+                     });
+                     $scope.groupsWithUsers[l].Users[m].usersWithGroupsIndex = userIndex;
                   }
-                  $log.log($scope.groupsWithUsers);
-
-               }else{
-                  // Error to display on page
-                  if(success.data && success.data.error && success.data.error.message){
-                     $scope.message = success.data.error.message;
-                  }
-                  else {
-                     $scope.message = success.data;
-                  }
-                  $timeout(function(){
-                     $scope.message = null;
-                  }, 5000);
                }
-            });
 
+
+            }
+
+            $scope.buildMain = function(){
+               $scope.buildUsersWithGroups()
+                  .then($scope.buildGroupsWithUsers)
+                  .then($scope.crossMapping)
+            };
+            $scope.buildMain();
 
             var applicationsURL = "/Contents('Applications')?$select=Name&$expand=tm1.Folder/Contents($expand=tm1.Folder/Contents($expand=tm1.Folder/Contents($expand=tm1.Folder/Contents($expand=tm1.Folder/Contents($expand=tm1.Folder/Contents($expand=tm1.Folder/Contents($expand=tm1.Folder/Contents($expand=tm1.Folder/Contents($expand=tm1.Folder/Contents)))))))))";
             //at time of writing REST API does not support $levels for recursive call = for now make 10 levels deep
@@ -357,7 +410,10 @@ arc.directive("usersGroups", function () {
 
          };
          // Load for first time: usersWithGroups, Groups
+
          $scope.load();
+
+
 
 
          $scope.updateUserDisplayName = function(userName, newDisplayName){
@@ -1723,8 +1779,9 @@ arc.directive("usersGroups", function () {
                      $timeout(function(){
                         $scope.message = null;
                      }, 5000);
+
                      return;
-                  
+                     
                   }else if(success.status < 400){
                      $scope.message = $translate.instant("FUNCTIONREMOVEUSERFROMGROUPSUCCESS");
                      $scope.messageSuccess = true;
@@ -1769,26 +1826,37 @@ arc.directive("usersGroups", function () {
  
                   $scope.view = {
                      name: $scope.groupsWithUsers[groupIndex].Name,
-                     users: $scope.groupsWithUsers[groupIndex].Users
+                     users: $scope.groupsWithUsers[groupIndex].Users,
+                     removedUsers : [],
+                     // removedUsers : ["abc"],
+                     message: "",
+                     messageSuccess: false,
+                     messageWarning: false
+
                   }
 
 
-                  $scope.userFilter = function(user, index){
-                     if(!$scope.selections.filterUser){
-                        return true;
+                  $scope.userFilter = function(user){
+                     if($scope.view.removedUsers.length > 0 && $scope.view.removedUsers.indexOf(user.Name)!==-1){
+                        return false
                      }else{
-                        if(user.Name.toLowerCase().indexOf($scope.selections.filterUser.toLowerCase())!==-1){
+                        if(!$scope.selections.filterUser){
                            return true;
-
                         }else{
-                           var displayName = $scope.getDisplayNameFromObject(user.Name);
-                           if(displayName.toLowerCase().indexOf($scope.selections.filterUser.toLowerCase())!==-1){
+                           if(user.Name.toLowerCase().indexOf($scope.selections.filterUser.toLowerCase())!==-1){
                               return true;
+   
                            }else{
-                              return false;
+                              var displayName = $scope.getDisplayNameFromObject(user.Name);
+                              if(displayName.toLowerCase().indexOf($scope.selections.filterUser.toLowerCase())!==-1){
+                                 return true;
+                              }else{
+                                 return false;
+                              }
                            }
                         }
                      }
+
                   }
 
 
@@ -1798,6 +1866,62 @@ arc.directive("usersGroups", function () {
                      });
 
                      return $scope.usersWithGroups[currentUserNameIndex].displayName;
+                  }
+
+                  $scope.removeUserFromGroup = function(user, group){
+                     var prompt = "Remove user " + user + " from group " + group + "?";
+                     $dialogs.confirmDelete(prompt, removeUserFromSelectedGroup);
+         
+                     function removeUserFromSelectedGroup(){
+                        var url = "/Users('"+ user + "')/Groups?$id=Groups('" + group + "')";
+                        $http.delete(encodeURIComponent($scope.instance) + url).then(function(success,error){
+                           if(success.status == 401){
+                              $scope.view.message = $translate.instant("FUNCTIONREMOVEUSERFROMGROUPERROR");
+                              $scope.view.removedUsers = [];
+                              $timeout(function(){
+                                 view.message = null;
+                              }, 5000);
+         
+                              return;
+                              
+                           }else if(success.status < 400){
+                              $scope.view.message = $translate.instant("FUNCTIONREMOVEUSERFROMGROUPSUCCESS");
+                              $scope.view.messageSuccess = true;
+
+                              //add users to array used in ng-repeat filter logic
+                              $scope.view.removedUsers.push(user);
+
+                              $scope.load();
+            
+                              $timeout(function(){
+                                 $scope.view.message = null;
+                                 $scope.view.messageSuccess = null;
+                              }, 2000);
+            
+                              return;
+            
+                           }else{
+                              // Error to display on page
+                              $log.log(success);
+                              if(success.data && success.data.error && success.data.error.message){
+                                 $scope.view.message = success.data.error.message;
+                                 $scope.view.messageWarning = true;
+                                 $scope.view.removedUsers = [];
+                              }
+                              else {
+                                 $scope.view.message = success.data;
+                                 $scope.view.messageSuccess = false;
+                                 $scope.view.messageWarning = true;
+                                 $scope.view.removedUsers = [];
+                              }
+                              $timeout(function(){
+                                 $scope.view.messageError = null;
+                                 $scope.view.messageWarning = null;
+                              }, 5000);
+                           }
+                        });
+                     }
+         
                   }
 
 
@@ -1810,7 +1934,7 @@ arc.directive("usersGroups", function () {
                data: {
                   view : $scope.view,
                   groupsWithUsers : $scope.groupsWithUsers,
-                  usersWithGroups : $scope.usersWithGroups
+                  usersWithGroups : $scope.usersWithGroups,
                }
             });
          }
@@ -1861,16 +1985,38 @@ arc.directive("usersGroups", function () {
          }
 
 
-         $scope.addMultipleUsersToGroup = function(groupName, selectedGroup){
-            var itemIndex = _.findIndex($scope.groupsWithUsers, function(i){return i.Name == selectedGroup;});
+         $scope.addSingleUserToGroup = function(selectedUser, currentGroup){
+            $scope.addUserToGroup(selectedUser.Name, currentGroup, selectedUser.Groups);
+         }
+
+
+         $scope.addMultipleUsersToGroup = function(selectedGroup, currentGroup){
+            var itemIndex = _.findIndex($scope.groupsWithUsers, function(i){return i.Name == selectedGroup.Name;});
             var arrayOfUsers = $scope.groupsWithUsers[itemIndex].Users;
 
             for(var i = 0; i < arrayOfUsers.length; i++){
-               $scope.addUserToGroup(arrayOfUsers[i].Name, groupName, "");
-
+               $scope.addUserToGroup(arrayOfUsers[i].Name, currentGroup, $scope.usersWithGroups[arrayOfUsers[i].usersWithGroupsIndex].Groups);
             }
          }
 
+
+         $scope.updateGroupsArray = function(newGroup, previousGroups){
+            var array = [];
+
+            if(newGroup !== null){
+               var arrayElement = "Groups('" + newGroup + "')";
+               array.push(arrayElement);
+            }
+
+            if(typeof previousGroups !== "undefined"){
+               for(var i=0; i < previousGroups.length; i++){
+                  arrayElement = "Groups('" + previousGroups[i].Name + "')";
+                  array.push(arrayElement)
+               }
+            }
+
+            return array;
+         }
 
          $scope.nextAccess = function(newGroup, tm1Section, itemName, currentAccess){
             var assignedAccessObj = {

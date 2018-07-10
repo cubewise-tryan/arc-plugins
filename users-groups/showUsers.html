@@ -34,11 +34,17 @@
                   <div class="card-body pt-2">
                      <table class="table table-hover table-sm">
                         <thead style="display: block;">
+                           <th style="width: 25px;"></th>
                            <th style="min-width: 200px;" translate="SHOWUSERSNAME"></th>
                            <th style="width: 100%;" translate="SHOWUSERSALIAS"></th>
                         </thead>
                         <tbody style="display: block; height:120px; overflow-y:auto; width:100%; overflow-x: auto;">
                            <tr ng-repeat="user in view.users | filter:userFilter">
+                              <td>
+                                 <a href class="text-danger" title="{{'REMOVEUSERFROMGROUP' | translate}}" ng-click="removeUserFromGroup(user.Name,view.name)">
+                                    <i class="fa fa-close"></i>
+                                 </a>
+                              </td>
                               <td style="min-width: 200px;">
                                  {{user.Name}}
                               </td>
