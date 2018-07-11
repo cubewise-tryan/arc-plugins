@@ -47,10 +47,6 @@ arc.directive("usersGroups", function () {
             $scope.reload = false;
 
             // First part of URL is the encoded instance name and then REST API URL (excluding api/v1/)
-
-
-
-            
             $scope.buildUsersWithGroups = function(){
                var deferred = $q.defer();
 
@@ -414,6 +410,35 @@ arc.directive("usersGroups", function () {
                }
             });
 
+            //for }Capabilities
+            var capabilitiesURL = "/Dimensions('}Features')?$expand=DefaultHierarchy($expand=Elements)";
+            $http.get(encodeURIComponent($scope.instance) + capabilitiesURL).then(function(success,error){
+               if(success.status == 401){
+                  // Set reload to true to refresh after the user logs in
+                  $scope.reload = true;
+                  return;
+               
+               }else if(success.status < 400){
+                  $scope.capabilitiesList = [];
+                  _.forEach(success.data.DefaultHierarchy.Elements, function(featureObj){
+                     $scope.capabilitiesList.push({Name : featureObj.Name});
+                     // $scope.capabilitiesList.push(featureObj.Name);
+                  });
+
+
+               }else{
+                  // Error to display on page
+                  if(success.data && success.data.error && success.data.error.message){
+                     $scope.message = success.data.error.message;
+                  }
+                  else {
+                     $scope.message = success.data;
+                  }
+                  $timeout(function(){
+                     $scope.message = null;
+                  }, 5000);
+               }
+            });
 
          };
          // Load for first time: usersWithGroups, Groups
@@ -1536,7 +1561,13 @@ arc.directive("usersGroups", function () {
             }else if(string === "RESERVE"){
                accessColour = "badge badge-primary"
             }else if(string === "LOCK"){
-               accessColour = "badge badge-secondary"
+               accessColour = "badge badge-info"
+            }else if(string === "BLANK"){
+               accessColour = "badge badge-warning"
+            }else if(string === "GRANT"){
+               accessColour = "badge badge-primary"
+            }else if(string === "DENY"){
+               accessColour = "badge badge-danger"
             }else{
                accessColour = "badge badge-light"
             }
@@ -1634,12 +1665,6 @@ arc.directive("usersGroups", function () {
                      });
                   }
 
-
-                  $scope.closeThisDialog = function(){
-                     ngDialog.close();
-                  }
-
-
                   $scope.createUser = function(){
                      var userExists = _.findIndex($scope.usersWithGroups, function(i) { return i.Name == $scope.newUser.name; });
                      if(userExists === -1 && $scope.newUser.groupsAssigned.length > 0 && $scope.newUser.password !==""){
@@ -1722,6 +1747,11 @@ arc.directive("usersGroups", function () {
                         }, 1000);
 
                      }
+                  }
+
+
+                  $scope.closeThisDialog = function(){
+                     ngDialog.close();
                   }
 
                }],
@@ -2050,6 +2080,11 @@ arc.directive("usersGroups", function () {
                },
                chores:{
                   "READ":0
+               },
+               capabilities:{
+                  "BLANK":0,
+                  "DENY":1,
+                  "GRANT":2
                }
    
             }
@@ -2078,6 +2113,11 @@ arc.directive("usersGroups", function () {
                ],
                chores:[
                   "READ"
+               ],
+               capabilities:[
+                  "BLANK",
+                  "DENY",
+                  "GRANT"
                ]
             }
 
@@ -2115,8 +2155,14 @@ arc.directive("usersGroups", function () {
 
             }else{
                if(_.filter(newGroup[tm1Section], function(o){return o.name == group.Name}).length == 0 ){
-                  newGroup[tm1Section].push({name:group.Name, access:"READ"});
+                  if(tm1Section==="capabilities"){
+                     newGroup[tm1Section].push({name:group.Name, access:"BLANK"});
+                  }else{
+                     newGroup[tm1Section].push({name:group.Name, access:"READ"});
+                  }
+                  
                }
+               $log.log(newGroup[tm1Section]);
 
             }
 
@@ -2144,12 +2190,6 @@ arc.directive("usersGroups", function () {
                newGroup[tm1Section].splice(groupIndex, 1);
             }
             
-            $log.log($scope.applicationsList);
-            $log.log($scope.applicationsListWithChildren);
-            $log.log($scope.applicationsListWithParents);
-            $log.log(newGroup[tm1Section]);
-            $log.log(newGroup["applicationsNONE"]);
-
 
          }
 
@@ -3065,7 +3105,6 @@ arc.directive("usersGroups", function () {
 
 
          $scope.settingsGroup = function(rowIndex){
-            /* WORK IN PROGRESS */
             ngDialog.open({
                template: "__/plugins/users-groups/settingsGroup.html",
                className: "ngdialog-theme-default large",
@@ -3073,8 +3112,241 @@ arc.directive("usersGroups", function () {
                controller: ['$rootScope', '$scope', '$http', '$state', '$tm1','$log', function ($rootScope, $scope, $http, $state, $tm1, $log) {
  
                   $scope.view = {
-                     name : $scope.ngDialogData.groupsWithUsers[rowIndex].Name,
-                     groups: $scope.ngDialogData.groupsWithUsers[rowIndex].Users
+                     name : $scope.groupsWithUsers[rowIndex].Name,
+                     message:"",
+                     messageSuccess:false,
+                     messageWarning:false
+                  }
+
+                  //default array
+                  $scope.groupSettings = {
+                     capabilities:[]
+                  };
+
+
+                  $scope.getGroupCapabilitySettings = function(groupName){
+                     var url = "/ExecuteMDX?$expand=Axes($expand=Hierarchies($select=Name;$expand=Dimension($select=Name)),Tuples($expand=Members($select=Name,UniqueName,Ordinal,Attributes;$expand=Parent($select=Name);$expand=Element($select=Name,Type,Level)))),Cells($select=Value,Updateable,Consolidated,RuleDerived,HasPicklist,FormatString,FormattedValue)";
+                     var mdx = "SELECT NON EMPTY {[}Permissions].[EXECUTE]} ON COLUMNS, {[}Features].members} ON ROWS FROM [}Capabilities] WHERE ([}Groups].[" + groupName + "])"
+                     var data = { 
+                        "MDX" : mdx
+                        };
+                        
+                     $http.post(encodeURIComponent($scope.instance)+url, data).then(function(success, error){
+                        if(success.status == 401){
+                           // Set reload to true to refresh after the user logs in
+                           $scope.reload = true;
+                           return;
+                        
+                        }else if(success.status < 400){
+                           var options = {
+                              alias: {},
+                              suppressZeroRows: 0,
+                              suppressZeroColumns: 1,
+                              maxRows: 50
+                           };
+      
+                           var capabilitiesName = "}Capabilities";
+                           $scope.groupCapabilitiesResult = $tm1.resultsetTransform($scope.instance, capabilitiesName, success.data, options);
+      
+                           for(var i = 0; i < $scope.groupCapabilitiesResult.rows.length; i++){   
+                              if($scope.groupCapabilitiesResult.rows[i].cells.length === 0){
+                                 var capability = {
+                                    name:"",
+                                    access:"BLANK"
+                                 };
+                                 capability.name = $scope.groupCapabilitiesResult.rows[i]["}Features"].key;
+                                 $scope.groupSettings.capabilities.push(capability);
+
+                              }else{
+                                 for(var j = 0; j < $scope.groupCapabilitiesResult.rows[i].cells.length; j++){
+                                    var capability = {
+                                       name:"",
+                                       access:""
+                                    };
+                                    capability.name = $scope.groupCapabilitiesResult.rows[i]["}Features"].key;
+                                    if($scope.groupCapabilitiesResult.rows[i].cells[j].value===""){
+                                       capability.access = "BLANK";
+                                    }else{
+                                       capability.access = $scope.groupCapabilitiesResult.rows[i].cells[j].value;
+                                    }
+                                    
+                                    $scope.groupSettings.capabilities.push(capability);
+                                    
+                                 }
+                              }
+      
+                           }
+            
+                        }else{
+                           if(success.data && success.data.error && success.data.error.message){
+                              $scope.view.message = success.data.error.message;
+                           }else{
+                              $scope.view.message = success.data;
+                           }
+                           $scope.view.messageWarning = true;
+      
+                        }
+      
+                     })
+
+                  }
+                  $scope.getGroupCapabilitySettings($scope.view.name);
+
+
+                  $scope.addCloneGroupsToCapabilitySettings = function(newGroup, cloneGroup){
+
+                     var url = "/ExecuteMDX?$expand=Axes($expand=Hierarchies($select=Name;$expand=Dimension($select=Name)),Tuples($expand=Members($select=Name,UniqueName,Ordinal,Attributes;$expand=Parent($select=Name);$expand=Element($select=Name,Type,Level)))),Cells($select=Value,Updateable,Consolidated,RuleDerived,HasPicklist,FormatString,FormattedValue)";
+                     var mdx = "SELECT NON EMPTY {[}Permissions].[EXECUTE]} ON COLUMNS, {[}Features].members} ON ROWS FROM [}Capabilities] WHERE ([}Groups].[" + cloneGroup + "])"
+                     var data = { 
+                        "MDX" : mdx
+                        };
+                        
+                     $http.post(encodeURIComponent($scope.instance)+url, data).then(function(success, error){
+                        if(success.status == 401){
+                           // Set reload to true to refresh after the user logs in
+                           $scope.reload = true;
+                           return;
+                        
+                        }else if(success.status < 400){
+                           var options = {
+                              alias: {},
+                              suppressZeroRows: 0,
+                              suppressZeroColumns: 1,
+                              maxRows: 50
+                           };
+
+                           newGroup.capabilities = [];
+      
+                           var capabilitiesName = "}Capabilities";
+                           $scope.groupCapabilitiesResult = $tm1.resultsetTransform($scope.instance, capabilitiesName, success.data, options);
+      
+                           for(var i = 0; i < $scope.groupCapabilitiesResult.rows.length; i++){
+                              if($scope.groupCapabilitiesResult.rows[i].cells.length === 0){
+                                 var capability = {
+                                    name:"",
+                                    access:"BLANK"
+                                 };
+                                 capability.name = $scope.groupCapabilitiesResult.rows[i]["}Features"].key;
+                                 newGroup.capabilities.push(capability);
+
+                              }else{
+                                 for(var j = 0; j < $scope.groupCapabilitiesResult.rows[i].cells.length; j++){
+                                    var capability = {
+                                       name:"",
+                                       access:""
+                                    };
+                                    capability.name = $scope.groupCapabilitiesResult.rows[i]["}Features"].key;
+                                    if($scope.groupCapabilitiesResult.rows[i].cells[j].value===""){
+                                       capability.access = "BLANK";
+                                    }else{
+                                       capability.access = $scope.groupCapabilitiesResult.rows[i].cells[j].value;
+                                    }
+                                    
+                                    newGroup.capabilities.push(capability);
+                                    
+                                 }
+                              }
+      
+                           }
+      
+                           //remove duplicates
+                           newGroup.capabilities = _.uniqBy(newGroup.capabilities, "name");
+      
+                           $log.log(newGroup.capabilities.length);
+
+                        }else{
+                           if(success.data && success.data.error && success.data.error.message){
+                              $scope.view.message = success.data.error.message;
+                           }else{
+                              $scope.view.message = success.data;
+                           }
+                           $scope.view.messageWarning = true;
+      
+                        }
+      
+                     })
+         
+                     
+         
+                  };
+
+                  $scope.deleteSelection = function(tm1ItemSelected){
+                     $dialogs.confirmDelete(tm1ItemSelected, deleteTm1ItemsSelected);
+         
+                     function deleteTm1ItemsSelected(){
+                        $scope.groupSettings[tm1ItemSelected] = [];
+                     }
+                  }
+
+                  $scope.postGroupCapabilitySettings = function(groupName, settingName, newValue){
+
+                     if(newValue==="BLANK"){
+                        newValue = "";
+                     }
+
+                     var url = "/Cubes('}Capabilities')/tm1.Update ";
+                     var data = {
+                        "Cells" : [
+                              {"Tuple@odata.bind": [
+                                 "Dimensions('}Features')/DefaultHierarchy/Elements('" + settingName + "')",
+                                 "Dimensions('}Permissions')/DefaultHierarchy/Elements('EXECUTE')",
+                                 "Dimensions('}Groups')/DefaultHierarchy/Elements('" + groupName + "')"
+                                 ]
+                              }
+                           ],
+                        "Value" : newValue
+                       }
+         
+                     $http.post(encodeURIComponent($scope.instance) + url, data).then(function(success, error){
+                        if(success.status == 401){
+                           // Set reload to true to refresh after the user logs in
+                           $scope.reload = true;
+                           return;
+                        
+                        }else if(success.status < 400){
+                           //success
+                           $scope.view.message = $translate.instant('SETTINGSCAPABILITIESSUCCESS');
+                           $scope.view.messageSuccess = true;
+                           $scope.view.messageWarning = null;
+
+                           $timeout(function(){
+                              $scope.view.message = null;
+                              $scope.view.messageSuccess = null;
+                              $scope.closeThisDialog();
+                           }, 2000);
+
+                           return;
+         
+                        }else{
+                           // Error to display on page
+                           if(success.data && success.data.error && success.data.error.message){
+                              $scope.view.message = success.data.error.message;
+                           }
+                           else {
+                              $scope.view.message = success.data;
+                           }
+                           $scope.view.messageWarning = true;
+         
+                           $timeout(function(){
+                              $scope.view.message = null;
+                              $scope.view.messageWarning = null;
+                           }, 5000);
+         
+                        }
+         
+                     })
+                  }
+
+
+                  $scope.loadAll = function(){
+                     _.forEach($scope.groupSettings.capabilities,function(capabilitySetting){
+                        $scope.postGroupCapabilitySettings($scope.view.name, capabilitySetting.name, capabilitySetting.access);
+
+                     })
+                  }
+
+                  $scope.closeThisDialog = function(){
+                     ngDialog.close();
                   }
 
 
@@ -3082,7 +3354,9 @@ arc.directive("usersGroups", function () {
                data: {
                   groupsWithUsers : $scope.groupsWithUsers,
                   view : $scope.view,
-                  instance : $scope.instance
+                  instance : $scope.instance,
+                  addIndividualTm1SectionItemToNewGroup: $scope.addIndividualTm1SectionItemToNewGroup
+
                }
             });
 
@@ -3098,9 +3372,6 @@ arc.directive("usersGroups", function () {
 
 
          $scope.$on("close-tab", function(event, args) {
-               $log.log('in close tab function');
-               $log.log(args);
-
                // Event to capture when a user has clicked close on the tab
                if(args.page == "usersGroups" && args.instance == $scope.instance && args.name == null){
                   // The page matches this one so close it

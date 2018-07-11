@@ -1,70 +1,117 @@
 <div class="tm1-auditUser">
-      <div class="modal-header text-dark bg-white">
-         <span>
-            <i class="fa fa-pencil-square-o"></i>
-            <span translate="SETTINGSGROUPHEADING"></span>
-            : {{view.name}}
-               
-         </span>
-      </div>
-   
-      <div class="modal-body p-0 m-0">
-         <div class="container-fluid">
-            <div class="row mb-2">
-               <div class="col-sm-12 pt-2">
-                  <uib-tabset active="0">
-                     <uib-tab index="0" heading="{{'SETTINGSGROUPTABCAPABILITIES' | translate}}" ng-click="">
-                        <div class="row">
-                           <div class="col-sm-12">
-                              <div class="card-body pt-2">
-                                 <div class="row">
-                                    <div class="col-sm-12">
-                                       <div class="card">
-                                          <div class="card-body pt-2">
-                                             <table class="table table-hover table-sm">
-                                                <thead style="display: block;">
-                                                   <th style="min-width: 400px;" translate="SETTINGSUSERNAME"></th>
-                                                   <th style="width: 100%;" translate="SETTINGSUSERVALUE"></th>
-                                                </thead>
-                                                <tbody style="display: block; height:350px; overflow-y:auto; width:100%; overflow-x: auto;">
-                                                   <tr ng-repeat="clientSetting in clientSettings track by clientSetting.name">
-                                                      <td style="min-width: 400px;">
-                                                         {{clientSetting.name}}
-                                                      </td>
-                                                      <td style="width: 100%;">
-                                                         <input type="text" class="form-control" ng-model="clientSetting.value" placeholder="{{clientSetting.value}}" ng-blur="updateClientSetting(view.name, clientSetting.name, clientSetting.value)">
-                                                      </td>
-                                                   </tr>
-                                                </tbody>
-                                             </table>
-                                          </div>
+   <div class="modal-header text-dark bg-white">
+      <span>
+         <i class="fa fa-pencil-square-o"></i>
+         <span translate="SETTINGSGROUPHEADING"></span>
+         : {{view.name}}
+            
+      </span>
+   </div>
+
+   <div class="modal-body p-0 m-0">
+      <div class="container-fluid">
+         <div class="row mb-2">
+            <div class="col-sm-12 pt-2">
+               <uib-tabset active="0">
+                  <uib-tab index="0" heading="{{'SETTINGSCAPABILITIES' | translate}}">
+                     <div class="card mt-2">
+                        <div class="card-header pb-0">
+                           <div class="row">
+                              <div class="col-sm-5 pr-0">
+                                 <input type="text" class="form-control " 
+                                    ng-model="selectedCloneGroupApplication"
+                                    uib-typeahead="name as Group.Name for Group in groupsWithUsers | filter:{Name : $viewValue} | limitTo:4"
+                                    typeahead-on-select="addCloneGroupsToCapabilitySettings(groupSettings, $item.Name)"
+                                    placeholder="{{'ADDGROUPCLONEGROUP' | translate}}">
+                              </div>
+                              <div class="col-sm-5 pl-2 pr-0">
+                                 <input type="text" class="form-control"
+                                    ng-model="selectedSingleFeature"
+                                    uib-typeahead="name as feature.Name for feature in capabilitiesList | filter:{Name : $viewValue} | limitTo:4"
+                                    typeahead-on-select="addIndividualTm1SectionItemToNewGroup(groupSettings,'capabilities', $item)"
+                                    placeholder="{{'SETTINGSCAPABILITIESADDFEATURE' | translate}}">
+                              </div>
+                              <div class="col-sm-2 pl-2 pr-2">
+                                 <div class="toolbar">
+                                    <div class="btn-toolbar pull-right" >
+                                       <div class="btn-group">
+                                          <button class="btn btn-secondary"  title="{{'ADDGROUPREMOVEAPPLICATIONS' | translate}}" ng-click="deleteSelection('capabilities');">
+                                             <i class="fa fa-trash"></i>
+                                          </button>
                                        </div>
                                     </div>
                                  </div>
                               </div>
                            </div>
                         </div>
-                     </uib-tab>
-                  </uib-tabset>
+                        <div class="card-body pt-0" style="display:block; height:100px; overflow-y:auto; width:100%;">
+                           <div class="row">
+                              <div class="col-sm-12">
+                                 <form>
+                                    <div class="form-group row p-2">
+                                       <div class="input-group">
+                                          <div ng-repeat="feature in groupSettings.capabilities | orderBy:'name'" >
+                                             <div style="float:left;" class="mt-1">
+                                                <div class="input-group">
+                                                   <div class="badge m-0 pl-0 pr-0" style="cursor: default; user-select: none;">
+                                                      <a><i class="fa fa-fw fa-remove text-danger" ng-click="removeTm1SectionItemFromNewGroup(groupSettings, 'capabilities', feature.name)" title="{{'REMOVEFEATURE' | translate}}"></i></a>
+                                                   </div>
+                                                   <div class="badge" title="{{'SETTINGSCAPABILITIESNEXTPERMISSION' | translate}}" ng-class="securityAccessColourMapping(feature.access)" ng-click="nextAccess(groupSettings, 'capabilities', feature.name, feature.access)" style="cursor: pointer; user-select: none;">{{feature.access.substr(0,1)}}</div>
+                                                   <div class="badge m-0" style="cursor: default; user-select: none;">
+                                                      {{feature.name}}
+                                                   </div>
+                                                </div>
+                                             </div>
+                                          </div>
+                                       </div>
+                                    </div>
+                                 </form>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </uib-tab>
+               </uib-tabset>
+            </div>
+         </div>
+      </div>
+   </div>
+   
+   <div class="modal-footer">
+      <div class="container-fluid">
+         <div class="row">
+            <div class="col-md-5">
+               <div class="input-group">
+                  <div class="badge" ng-class="securityAccessColourMapping('BLANK')">B</div>
+                  <div class="badge m-0" style="cursor: default; user-select: none;">
+                     BLANK
+                  </div>
+                  <div class="badge" ng-class="securityAccessColourMapping('GRANT')">G</div>
+                  <div class="badge m-0" style="cursor: default; user-select: none;">
+                     GRANT
+                  </div>
+                  <div class="badge" ng-class="securityAccessColourMapping('DENY')">D</div>
+                  <div class="badge m-0" style="cursor: default; user-select: none;">
+                     DENY
+                  </div>
+               </div>
+            </div>
+            <div class="col-md-3">
+               <button ng-class="{'btn btn-success':view.messageSuccess,'btn btn-warning':view.messageWarning}" ng-if="view.message">
+                  <span ng-class="{'fa fa-check':view.messageSuccess,'fa fa-warning':view.messageWarning}" aria-hidden="true"></span><span>{{view.message}}</span>
+               </button>
+            </div>
+            <div class="col-md-4 pr-0">
+               <div class="float-right">
+                  <button class="btn btn-primary action ng-scope" ng-disabled="!groupSettings.capabilities.length > 0" ng-click="loadAll()" translate="SETTINGSCAPABILITIESUPDATE"></button>                     
+                  <button class="btn action ng-scope " ng-click="closeThisDialog()" translate="CANCEL"></button>
                </div>
             </div>
          </div>
       </div>
-      
-      <div class="modal-footer">
-         <div class="row">
-            <div class="col-sm-12">
-               <button ng-class="{'btn btn-success' : view.messageSuccess, 'btn btn-warning' : view.messageWarning}" ng-if="view.message">
-                  <span ng-class="{'fa fa-check' : view.messageSuccess,'fa fa-warning' : view.messageWarning}" aria-hidden="true"></span><span>{{view.message}}</span>
-               </button>
-            </div>
-         </div>
-         <div class="row">
-            <div class="col-sm-12">
-               <button class="btn action ng-scope" ng-click="closeThisDialog()" translate="{{'BACKUAG' | translate}}"></button>
-            </div>
-         </div>
-      </div>
+
+
+   </div>
    
    
    </div>
