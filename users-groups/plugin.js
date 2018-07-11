@@ -646,7 +646,7 @@ arc.directive("usersGroups", function () {
 
                      if(typeof groupsMDX !== "undefined"){
                         var url = "/ExecuteMDX?$expand=Axes($expand=Hierarchies($select=Name;$expand=Dimension($select=Name)),Tuples($expand=Members($select=Name,UniqueName,Ordinal,Attributes;$expand=Parent($select=Name);$expand=Element($select=Name,Type,Level)))),Cells($select=Value,Updateable,Consolidated,RuleDerived,HasPicklist,FormatString,FormattedValue)";
-                        var mdx = "SELECT NON EMPTY" + groupsMDX + "ON COLUMNS, NON EMPTY {TM1SUBSETALL( [}ApplicationEntries] )} ON ROWS FROM [}ApplicationSecurity]"
+                        var mdx = "SELECT " + groupsMDX + " ON COLUMNS, {TM1SUBSETALL( [}ApplicationEntries] )} ON ROWS FROM [}ApplicationSecurity]"
                         var data = { 
                            "MDX" : mdx
                          };
@@ -660,8 +660,8 @@ arc.directive("usersGroups", function () {
                            }else if(success.status < 400){
                               var options = {
                                  alias: {},
-                                 suppressZeroRows: 1,
-                                 suppressZeroColumns: 1,
+                                 suppressZeroRows: 0,
+                                 suppressZeroColumns: 0,
                                  maxRows: 50
                               };
                               var cubeName = "}ApplicationSecurity";
@@ -680,16 +680,20 @@ arc.directive("usersGroups", function () {
                                        name:"",
                                        access:""
                                     };
-                                    if($scope.applicationSecurityResult.rows[i].cells[j].value){
-                                       group.name = $scope.applicationSecurityResult.rows[i].cells[j].key;
-                                       group.access = $scope.applicationSecurityResult.rows[i].cells[j].value;
-                                       item.groupsWithAccess.push(group);
+
+                                    group.name = $scope.applicationSecurityResult.rows[i].cells[j].key;
+                                    group.access = $scope.applicationSecurityResult.rows[i].cells[j].value;
+                                    if(group.access===""){
+                                       group.access = "READ";
                                     }
+                                    item.groupsWithAccess.push(group);
                                     
                                  }
+
                                  $scope.applications.push(item);
                               }
-   
+                              $log.log($scope.applications);
+
                            }else{
                               if(success.data && success.data.error && success.data.error.message){
                                  $scope.view.message = success.data.error.message;
@@ -704,6 +708,7 @@ arc.directive("usersGroups", function () {
                      }
 
                   }
+                  $scope.getApplicationSecurityPerUser();
 
 
                   $scope.applicationFilter = function(application, index){
@@ -785,6 +790,7 @@ arc.directive("usersGroups", function () {
                      }
 
                   }
+                  $scope.getCubeSecurityPerUser();
 
                   $scope.cubeFilter = function(cube, index){
                      if(!$scope.selections.filterCube){
@@ -862,7 +868,7 @@ arc.directive("usersGroups", function () {
                      }
 
                   }
-
+                  $scope.getDimesionSecurityPerUser();
 
                   $scope.cubeSelected = "";
                   $scope.getDimensionsPerCube = function(cubeName){
@@ -986,7 +992,7 @@ arc.directive("usersGroups", function () {
 
 
                   }
-
+                  $scope.getProcessSecurityPerUser();
 
                   $scope.processFilter = function(process, index){
                      if(!$scope.selections.filterProcess){
@@ -1064,7 +1070,7 @@ arc.directive("usersGroups", function () {
 
 
                   }
-
+                  $scope.getChoreSecurityPerUser();
 
                   $scope.choreFilter = function(chore, index){
                      if(!$scope.selections.filterChore){

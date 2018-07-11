@@ -13,7 +13,7 @@
          <div class="row mb-2">
             <div class="col-sm-12 pt-2">
                <uib-tabset active="0">
-                  <uib-tab index="0" heading="{{'AUDITUSERSECURITYTABAPPLICATIONS' | translate}}" select="getApplicationSecurityPerUser()">
+                  <uib-tab index="0" heading="{{'AUDITUSERSECURITYTABAPPLICATIONS' | translate}}">
                      <div class="row">
                         <div class="col-sm-12">
                            <div class="card-body pt-2">
@@ -40,14 +40,19 @@
                                                 <th style="width: 100%;" translate="AUDITUSERGROUPS"></th>
                                              </thead>
                                              <tbody style="display: block; height:400px; overflow-y:auto; width:100%; overflow-x: auto;">
-                                                <tr ng-repeat="application in applications | filter:applicationFilter track by application.name">
+                                                <tr ng-repeat="application in applications | orderBy:'name' | filter:applicationFilter track by application.name " >
                                                    <td style="min-width: 400px;">
                                                       {{application.name}}
                                                    </td>
                                                    <td style="width: 100%;">
-                                                      <div ng-repeat = "group in application.groupsWithAccess" ng-class="securityAccessColourMapping(group.access)" class="ml-1" style="cursor: default;"> 
-                                                         <div>
-                                                            {{group.name}}:{{group.access}}
+                                                      <div ng-repeat = "group in application.groupsWithAccess | orderBy:'name'"> 
+                                                         <div style="float:left;" class="mt-1">
+                                                            <div class="input-group">
+                                                               <div class="badge" ng-class="securityAccessColourMapping(group.access)" style="cursor: default; user-select: none;">{{group.access.substr(0,1)}}</div>
+                                                               <div class="badge m-0" style="cursor: default; user-select: none;">
+                                                                  {{group.name}}
+                                                               </div>
+                                                            </div>
                                                          </div>
                                                       </div>
                                                    </td>
@@ -62,7 +67,7 @@
                         </div>
                      </div>
                   </uib-tab>
-                  <uib-tab index="1" heading="{{'AUDITUSERSECURITYTABCUBESANDDIMENSIONS' | translate}}" ng-click="getCubeSecurityPerUser(); getDimesionSecurityPerUser()">
+                  <uib-tab index="1" heading="{{'AUDITUSERSECURITYTABCUBESANDDIMENSIONS' | translate}}">
                      <div class="row">
                         <div class="col-sm-12">
                            <div class="card-body pt-2">
@@ -89,16 +94,21 @@
                                                 <th style="width: 100%;" translate="AUDITUSERGROUPS"></th>
                                              </thead>
                                              <tbody style="display: block; height:120px; overflow-y:auto; width:100%; overflow-x: auto;">
-                                                <tr ng-repeat="cube in cubes | filter:cubeFilter track by cube.name">
+                                                <tr ng-repeat="cube in cubes | orderBy:'name' | filter:cubeFilter track by cube.name">
                                                    <td style="min-width: 400px;" ng-class="{'bg-secondary' : cube.name == cubeSelected}">
                                                       <a href ng-click="getDimensionsPerCube(cube.name);"
                                                          ng-class="{'text-light font-weight-bold' : cube.name == cubeSelected}"
                                                          title="{{'AUDITUSERFILTERDIMENSIONS' | translate}}">{{cube.name}}</a>
                                                    </td>
                                                    <td style="width: 100%" ng-class="{'bg-secondary' : cube.name == cubeSelected}">
-                                                      <div ng-repeat = "group in cube.groupsWithAccess" ng-class="securityAccessColourMapping(group.access)" class="ml-1" style="cursor: default;">
-                                                         <div>
-                                                            {{group.name}}:{{group.access}}
+                                                      <div ng-repeat = "group in cube.groupsWithAccess | orderBy:'name'">
+                                                         <div style="float:left;" class="mt-1">
+                                                            <div class="input-group">
+                                                               <div class="badge" ng-class="securityAccessColourMapping(group.access)" style="cursor: default; user-select: none;">{{group.access.substr(0,1)}}</div>
+                                                               <div class="badge m-0" style="cursor: default; user-select: none;">
+                                                                  {{group.name}}
+                                                               </div>
+                                                            </div>
                                                          </div>
                                                       </div>
                                                    </td>
@@ -132,14 +142,19 @@
                                                 <th style="width: 100%;" translate="AUDITUSERGROUPS"></th>
                                              </thead>
                                              <tbody style="display: block; height:200px; overflow-y:auto; width:100%; overflow-x: auto;">
-                                                <tr ng-repeat="dimension in dimensions | filter:dimensionFilter track by dimension.name">
+                                                <tr ng-repeat="dimension in dimensions | orderBy:'name' | filter:dimensionFilter track by dimension.name">
                                                    <td style="min-width: 400px;">
                                                       {{dimension.name}}
                                                    </td>
                                                    <td style="width: 100%;">
-                                                      <div ng-repeat = "group in dimension.groupsWithAccess" ng-class="securityAccessColourMapping(group.access)" class="ml-1" style="cursor: default;">
-                                                         <div>
-                                                            {{group.name}}:{{group.access}}
+                                                      <div ng-repeat = "group in dimension.groupsWithAccess | orderBy:'name'">
+                                                         <div style="float:left;" class="mt-1">
+                                                            <div class="input-group">
+                                                               <div class="badge" ng-class="securityAccessColourMapping(group.access)" style="cursor: default; user-select: none;">{{group.access.substr(0,1)}}</div>
+                                                               <div class="badge m-0" style="cursor: default; user-select: none;">
+                                                                  {{group.name}}
+                                                               </div>
+                                                            </div>
                                                          </div>
                                                       </div>
                                                    </td>
@@ -154,7 +169,7 @@
                         </div>
                      </div>
                   </uib-tab>
-                  <uib-tab index="2" heading="{{'AUDITUSERSECURITYTABPROCESSES' | translate}}" ng-click="getProcessSecurityPerUser()">
+                  <uib-tab index="2" heading="{{'AUDITUSERSECURITYTABPROCESSES' | translate}}" >
                      <div class="row">
                         <div class="col-sm-12">
                            <div class="card-body pt-2">
@@ -181,14 +196,19 @@
                                                 <th style="width:100%;" translate="AUDITUSERGROUPS"></th>
                                              </thead>
                                              <tbody style="display: block; height:400px; overflow-y: auto; width: 100%; overflow-x: auto;">
-                                                <tr ng-repeat="process in processes | filter:processFilter track by process.name">
+                                                <tr ng-repeat="process in processes | orderBy:'name' | filter:processFilter track by process.name">
                                                    <td style="min-width: 400px;">
                                                       {{process.name}}
                                                    </td>
                                                    <td style="width: 100%;">
-                                                      <div ng-repeat = "group in process.groupsWithAccess" ng-class="securityAccessColourMapping(group.access)" class="ml-1" style="cursor: default;">
-                                                         <div>
-                                                            {{group.name}}:{{group.access}}
+                                                      <div ng-repeat = "group in process.groupsWithAccess | orderBy:'name'">
+                                                         <div style="float:left;" class="mt-1">
+                                                            <div class="input-group">
+                                                               <div class="badge" ng-class="securityAccessColourMapping(group.access)" style="cursor: default; user-select: none;">{{group.access.substr(0,1)}}</div>
+                                                               <div class="badge m-0" style="cursor: default; user-select: none;">
+                                                                  {{group.name}}
+                                                               </div>
+                                                            </div>
                                                          </div>
                                                       </div>
                                                    </td>
@@ -203,7 +223,7 @@
                         </div>
                      </div>
                   </uib-tab>
-                  <uib-tab index="3" heading="{{'AUDITUSERSECURITYTABCHORES' | translate}}" ng-click="getChoreSecurityPerUser()">
+                  <uib-tab index="3" heading="{{'AUDITUSERSECURITYTABCHORES' | translate}}" >
                      <div class="row">
                         <div class="col-sm-12">
                            <div class="card-body pt-2">
@@ -235,9 +255,14 @@
                                                       {{chore.name}}
                                                    </td>
                                                    <td style="width: 100%;">
-                                                      <div ng-repeat = "group in chore.groupsWithAccess" ng-class="securityAccessColourMapping(group.access)" class="ml-1" style="cursor: default;">
-                                                         <div>
-                                                            {{group.name}}:{{group.access}}
+                                                      <div ng-repeat = "group in chore.groupsWithAccess | orderBy:'name'" >
+                                                         <div style="float:left;" class="mt-1">
+                                                            <div class="input-group">
+                                                               <div class="badge" ng-class="securityAccessColourMapping(group.access)" style="cursor: default; user-select: none;">{{group.access.substr(0,1)}}</div>
+                                                               <div class="badge m-0" style="cursor: default; user-select: none;">
+                                                                  {{group.name}}
+                                                               </div>
+                                                            </div>
                                                          </div>
                                                       </div>
                                                    </td>
@@ -258,19 +283,48 @@
       </div>
    </div>
    
+
    <div class="modal-footer">
-      <div class="row">
-         <div class="col-sm-12">
-            <button ng-class="{'btn btn-success' : view.messageSuccess, 'btn btn-warning' : view.messageWarning}" ng-if="view.message">
-               <span ng-class="{'fa fa-check' : view.messageSuccess,'fa fa-warning' : view.messageWarning}" aria-hidden="true"></span><span>{{view.message}}</span>
-            </button>
+      <div class="container-fluid">
+         <div class="row">
+            <div class="col-md-4">
+               <div class="input-group">
+                  <div class="badge" ng-class="securityAccessColourMapping('READ')">R</div>
+                  <div class="badge m-0" style="cursor: default; user-select: none;">
+                     READ
+                  </div>
+                  <div class="badge" ng-class="securityAccessColourMapping('WRITE')">W</div>
+                  <div class="badge m-0" style="cursor: default; user-select: none;">
+                     WRITE
+                  </div>
+                  <div class="badge" ng-class="securityAccessColourMapping('RESERVE')">V</div>
+                  <div class="badge m-0" style="cursor: default; user-select: none;">
+                     RESERVE
+                  </div>
+                  <div class="badge" ng-class="securityAccessColourMapping('LOCK')">L</div>
+                  <div class="badge m-0" style="cursor: default; user-select: none;">
+                     LOCK
+                  </div>
+                  <div class="badge" ng-class="securityAccessColourMapping('ADMIN')">A</div>
+                  <div class="badge m-0" style="cursor: default; user-select: none;">
+                     ADMIN
+                  </div>
+               </div>
+            </div>
+            <div class="col-md-4">
+               <button ng-class="{'btn btn-success':view.messageSuccess,'btn btn-warning':view.messageWarning}" ng-if="view.message">
+                  <span ng-class="{'fa fa-check':view.messageSuccess,'fa fa-warning':view.messageWarning}" aria-hidden="true"></span><span>{{view.message}}</span>
+               </button>
+            </div>
+            <div class="col-md-4 pr-0">
+               <div class="float-right">
+                  <button class="btn action ng-scope " ng-click="closeThisDialog()" translate="BACKUAG"></button>
+               </div>
+            </div>
          </div>
       </div>
-      <div class="row">
-         <div class="col-sm-12">
-            <button class="btn action ng-scope" ng-click="closeThisDialog()" translate="BACKUAG"></button>
-         </div>
-      </div>
+
+
    </div>
 
 
