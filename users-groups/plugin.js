@@ -439,9 +439,36 @@ arc.directive("usersGroups", function () {
                }
             });
 
-         };
-         // Load for first time: usersWithGroups, Groups
+            var securityCubesURL = "/Cubes?$select=Name&$filter=contains(Name,'}ElementSecurity')";
+            $http.get(encodeURIComponent($scope.instance) + securityCubesURL).then(function(success,error){
+               if(success.status == 401){
+                  // Set reload to true to refresh after the user logs in
+                  $scope.reload = true;
+                  return;
+               
+               }else if(success.status < 400){
+                  $scope.securityCubesObj = {};
+                  _.forEach(success.data.value, function(featureObj){
+                     $scope.securityCubesObj[featureObj.Name] = true;
+                  });
 
+                  return;
+
+               }else{
+                  // Error to display on page
+                  if(success.data && success.data.error && success.data.error.message){
+                     $scope.message = success.data.error.message;
+                  }
+                  else {
+                     $scope.message = success.data;
+                  }
+                  $timeout(function(){
+                     $scope.message = null;
+                  }, 5000);
+               }
+            });
+
+         };
          $scope.load();
 
 
@@ -839,22 +866,31 @@ arc.directive("usersGroups", function () {
                                  for(var i = 0; i < $scope.dimensionSecurityResult.rows.length; i++){
                                     var item = {
                                        name : "",
+                                       securityCube:false,
                                        groupsWithAccess : []
                                     }
                                     item.name = $scope.dimensionSecurityResult.rows[i]["}Dimensions"].name;
       
+                                    if($scope.securityCubesObj["}ElementSecurity_"+item.name]){
+                                       item.securityCube = true;
+                                    }
+
                                     for(var j = 0; j < $scope.dimensionSecurityResult.rows[i].cells.length; j++){
                                        var group = {
                                           name:"",
                                           access:""
                                        };
+
                                        if($scope.dimensionSecurityResult.rows[i].cells[j].value){
                                           group.name = $scope.dimensionSecurityResult.rows[i].cells[j].key;
                                           group.access = $scope.dimensionSecurityResult.rows[i].cells[j].value;
                                           item.groupsWithAccess.push(group);
                                        }
+
+                                          
+                                    };
                                        
-                                    }
+                                    
                                     $scope.dimensions.push(item);
                                  }
       
