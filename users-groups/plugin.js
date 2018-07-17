@@ -42,7 +42,6 @@ arc.directive("usersGroups", function () {
          $rootScope.uiPrefs.usersDisplayNumber = 20;
          //for testing make 2, as test model does not have enough groups. Later make default 20
 
-
          $scope.load = function(){
             $scope.reload = false;
 
@@ -100,7 +99,7 @@ arc.directive("usersGroups", function () {
                               
                               $scope.usersWithGroups[i].displayNamePrevious = $scope.usersWithGroups[i].displayName;
                            }
-                           $log.log($scope.usersWithGroups);
+                           // $log.log($scope.usersWithGroups);
    
                            deferred.resolve();
 
@@ -164,7 +163,7 @@ arc.directive("usersGroups", function () {
                         if($scope.groupsWithUsers[i].usersRemaining < 0){$scope.groupsWithUsers[i].usersRemaining = 0};
    
                      }
-                     $log.log($scope.groupsWithUsers);
+                     // $log.log($scope.groupsWithUsers);
 
                      deferred.resolve(true);
    
@@ -1874,7 +1873,7 @@ arc.directive("usersGroups", function () {
          $scope.showMoreUsers = function(groupIndex){
             ngDialog.open({
                template: "__/plugins/users-groups/showUsers.html",
-               className: "ngdialog-theme-default small",
+               className: "ngdialog-theme-default",
                scope: $scope,
                controller: ['$rootScope', '$scope', '$http', '$state', '$tm1','$log', function ($rootScope, $scope, $http, $state, $tm1, $log) {
  
@@ -1882,7 +1881,6 @@ arc.directive("usersGroups", function () {
                      name: $scope.groupsWithUsers[groupIndex].Name,
                      users: $scope.groupsWithUsers[groupIndex].Users,
                      removedUsers : [],
-                     // removedUsers : ["abc"],
                      message: "",
                      messageSuccess: false,
                      messageWarning: false

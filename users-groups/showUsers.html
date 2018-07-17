@@ -1,3 +1,4 @@
+
 <div class="tm1-showUsers">
    <div class="modal-header text-dark bg-white">
       <span>
@@ -38,7 +39,7 @@
                            <th style="min-width: 200px;" translate="SHOWUSERSNAME"></th>
                            <th style="width: 100%;" translate="SHOWUSERSALIAS"></th>
                         </thead>
-                        <tbody style="display: block; height:120px; overflow-y:auto; width:100%; overflow-x: auto;">
+                        <tbody style="display: block; height:340px; overflow-y:auto; width:100%; overflow-x: auto;">
                            <tr ng-repeat="user in view.users | filter:userFilter">
                               <td>
                                  <a href class="text-danger" title="{{'REMOVEUSERFROMGROUP' | translate}}" ng-click="removeUserFromGroup(user.Name,view.name)">
