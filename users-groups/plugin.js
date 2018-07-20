@@ -1142,16 +1142,136 @@ arc.directive("usersGroups", function () {
          }
 
 
+         $scope.elementSecurity = function(userNamePassedIn, dimensionNamePassedIn, userGroupsPassedIn){
+            ngDialog.open({
+               template: "__/plugins/users-groups/elementSecurity.html",
+               className: "ngdialog-theme-default large",
+               scope: $scope,
+               controller: ['$rootScope', '$scope', '$http', '$state', '$tm1','$log', function ($rootScope, $scope, $http, $state, $tm1, $log) {
+ 
+                  $scope.view = {
+                     userName: userNamePassedIn,
+                     dimensionName : dimensionNamePassedIn,
+                     userGroups : userGroupsPassedIn,
+                     userGroupsFilter : _.clone(userGroupsPassedIn)
+                  }
+                  $scope.elementsWithGroupsAndSecurity = [];
+
+                  $scope.removeFromFilter = function(currentArray, itemToRemove){
+                     var index = _.findIndex(currentArray, function(i){return i.name == itemToRemove.name;});
+                     currentArray.splice(index, 1);
+                  }
+
+                  $scope.addToFilter = function(currentArray, itemToAdd){
+                     currentArray.push(itemToAdd);
+                     currentArray = _.uniqBy(currentArray, "name");
+                  }
+
+                  //WIP
+                  $scope.getElementSecurityPerGroup = function(dimensionName){
+                     var elementSecurityCube = "}ElementSecurity_" + dimensionName;
+                     var elementSecurityExists = _.find($scope.cubesList, function(o) { return o.Name === elementSecurityCube; });
+                     if(typeof elementSecurityExists !== "undefined"){
+                        var groupsMDX = $scope.ngDialogData.groupsArrayToGroupsMDX($scope.view.userGroupsFilter);
+
+                        if(typeof groupsMDX !== "undefined"){
+                           var url = "/ExecuteMDX?$expand=Axes($expand=Hierarchies($select=Name;$expand=Dimension($select=Name)),Tuples($expand=Members($select=Name,UniqueName,Ordinal,Attributes;$expand=Parent($select=Name);$expand=Element($select=Name,Type,Level)))),Cells($select=Value,Updateable,Consolidated,RuleDerived,HasPicklist,FormatString,FormattedValue)";
+                           var mdx = "SELECT NON EMPTY " + groupsMDX + " ON COLUMNS, NON EMPTY {[" + dimensionName + "].members}  ON ROWS FROM [" + elementSecurityCube + "]"
+                           var data = { 
+                              "MDX" : mdx
+                            };
+                            
+                           $http.post(encodeURIComponent($scope.instance)+url, data).then(function(success, error){
+                              if(success.status == 401){
+                                 // Set reload to true to refresh after the user logs in
+                                 $scope.reload = true;
+                                 return;
+                              
+                              }else if(success.status < 400){
+                                 var options = {
+                                    alias: {},
+                                    suppressZeroRows: 1,
+                                    suppressZeroColumns: 1,
+                                    maxRows: 50
+                                 };
+                                 var cubeName = elementSecurityCube;
+                                 $scope.elementSecurityResult = $tm1.resultsetTransform($scope.instance, cubeName, success.data, options);
+      
+
+                                 for(var i = 0; i < $scope.elementSecurityResult.rows.length; i++){
+                                    var item = {
+                                       name : "",
+                                       groupsWithAccess : []
+                                    }
+                                    item.name = $scope.elementSecurityResult.rows[i]["}ApplicationEntries"].name;
+      
+                                    for(var j = 0; j < $scope.elementSecurityResult.rows[i].cells.length; j++){
+                                       var group = {
+                                          name:"",
+                                          access:""
+                                       };
+   
+                                       group.name = $scope.elementSecurityResult.rows[i].cells[j].key;
+                                       group.access = $scope.elementSecurityResult.rows[i].cells[j].value;
+                                       if(group.access===""){
+                                          group.access = "READ";
+                                       }
+                                       item.groupsWithAccess.push(group);
+                                       
+                                    }
+   
+                                    $scope.elementsWithGroupsAndSecurity.push(item);
+                                 }
+                                 $log.log($scope.elementsWithGroupsAndSecurity);
+   
+                              }else{
+                                 if(success.data && success.data.error && success.data.error.message){
+                                    $scope.view.message = success.data.error.message;
+                                 }else{
+                                    $scope.view.message = success.data;
+                                 }
+                                 $scope.view.messageWarning = true;
+      
+                              }
+      
+                           })
+                        }
+                     }
+
+
+                  }
+                  $scope.getElementSecurityPerGroup($scope.view.dimensionName);
+
+
+               }],
+               data: {
+                  view : $scope.view,
+                  instance : $scope.instance,
+                  groupsArrayToGroupsMDX : $scope.groupsArrayToGroupsMDX
+               }
+            });
+         }
+
+
          $scope.groupsArrayToGroupsMDX = function(userGroupsArray){
             var groupsMDX = "";
 
             if(userGroupsArray.constructor === Array){   
                if(userGroupsArray.length>0){
-                  angular.forEach(userGroupsArray, function(value, key){
-                     groupsMDX = groupsMDX + "[}Groups].[" + value.Name + "],";
-                  })
-                  groupsMDX = "{" + groupsMDX.slice(0, -1) + "}";
-                  return groupsMDX;
+                  if(userGroupsArray[0].hasOwnProperty("Name")){
+                     angular.forEach(userGroupsArray, function(value, key){
+                        groupsMDX = groupsMDX + "[}Groups].[" + value.Name + "],";
+                     })
+                     groupsMDX = "{" + groupsMDX.slice(0, -1) + "}";
+                     return groupsMDX;
+                  }else{
+                     angular.forEach(userGroupsArray, function(value, key){
+                        groupsMDX = groupsMDX + "[}Groups].[" + value.name + "],";
+                     })
+                     groupsMDX = "{" + groupsMDX.slice(0, -1) + "}";
+                     return groupsMDX;
+                  }
+
                }
             }else{
                groupsMDX = "{[}Groups].[" + userGroupsArray + "]}";
