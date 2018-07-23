@@ -1153,9 +1153,20 @@ arc.directive("usersGroups", function () {
                      userName: userNamePassedIn,
                      dimensionName : dimensionNamePassedIn,
                      userGroups : userGroupsPassedIn,
-                     userGroupsFilter : _.clone(userGroupsPassedIn)
+                     userGroupsFilter : _.clone(userGroupsPassedIn),
+                     elementsWithGroupsAndSecurity : [],
+                     elementsWithGroupsAndSecurityFilter:[],
+                     accessPrivelages:[],
+                     elementRule:""
                   }
-                  $scope.elementsWithGroupsAndSecurity = [];
+
+
+                  $scope.reloadGroups = function(){
+                     $scope.view.userGroupsFilter = _.clone($scope.view.userGroups);
+                  }
+                  $scope.reloadElements = function(){
+                     $scope.view.elementsWithGroupsAndSecurityFilter = _.clone($scope.view.elementsWithGroupsAndSecurity);
+                  }
 
                   $scope.removeFromFilter = function(currentArray, itemToRemove){
                      var index = _.findIndex(currentArray, function(i){return i.name == itemToRemove.name;});
@@ -1167,16 +1178,63 @@ arc.directive("usersGroups", function () {
                      currentArray = _.uniqBy(currentArray, "name");
                   }
 
-                  //WIP
-                  $scope.getElementSecurityPerGroup = function(dimensionName){
+                  $scope.elementsArrayToElementsMDX = function(dimensionName, elementsArray){
+                     var elementsMDX = "";
+         
+                     if(elementsArray.constructor === Array){   
+                        if(elementsArray.length>0){
+                              angular.forEach(elementsArray, function(value, key){
+                                 elementsMDX = elementsMDX + "[" + dimensionName +"].[" + value.name + "],";
+                              })
+                              elementsMDX = "{" + elementsMDX.slice(0, -1) + "}";
+                              return elementsMDX;
+         
+                        }
+                     }else{
+                        elemnetsMDX = "{[" + dimensionName + "].[" + elementsArray + "]}";
+                        return elementsMDX;
+                     }
+         
+         
+                  }
+
+                  $scope.removeAllUserGroups = function(){
+                     var prompt = "Remove all filter Groups?";
+                     $dialogs.confirmDelete(prompt, removeAll);
+
+                     function removeAll(){
+                        $scope.view.userGroupsFilter = [];
+                     }
+
+                  }
+
+                  $scope.removeAllElements = function(){
+                     var prompt = "Remove all filter Elements?";
+                     $dialogs.confirmDelete(prompt, removeAll);
+
+                     function removeAll(){
+                        $scope.view.elementsWithGroupsAndSecurityFilter = [];
+                     }
+
+                  }
+
+
+                  $scope.getElementSecurityPerGroup = function(dimensionName, userGroups, elementSelected){
                      var elementSecurityCube = "}ElementSecurity_" + dimensionName;
                      var elementSecurityExists = _.find($scope.cubesList, function(o) { return o.Name === elementSecurityCube; });
                      if(typeof elementSecurityExists !== "undefined"){
-                        var groupsMDX = $scope.ngDialogData.groupsArrayToGroupsMDX($scope.view.userGroupsFilter);
+                        var groupsMDX = $scope.ngDialogData.groupsArrayToGroupsMDX(userGroups);
 
                         if(typeof groupsMDX !== "undefined"){
                            var url = "/ExecuteMDX?$expand=Axes($expand=Hierarchies($select=Name;$expand=Dimension($select=Name)),Tuples($expand=Members($select=Name,UniqueName,Ordinal,Attributes;$expand=Parent($select=Name);$expand=Element($select=Name,Type,Level)))),Cells($select=Value,Updateable,Consolidated,RuleDerived,HasPicklist,FormatString,FormattedValue)";
-                           var mdx = "SELECT NON EMPTY " + groupsMDX + " ON COLUMNS, NON EMPTY {[" + dimensionName + "].members}  ON ROWS FROM [" + elementSecurityCube + "]"
+                           
+                           if(elementSelected === null){
+                              var mdx = "SELECT NON EMPTY " + groupsMDX + " ON COLUMNS, NON EMPTY {[" + dimensionName + "].members}  ON ROWS FROM [" + elementSecurityCube + "]"
+                           }else{
+                              var elementsMDX = $scope.elementsArrayToElementsMDX(dimensionName, elementSelected);
+                              var mdx = "SELECT NON EMPTY " + groupsMDX + " ON COLUMNS, NON EMPTY " + elementsMDX + "  ON ROWS FROM [" + elementSecurityCube + "]"
+                           }
+                           
                            var data = { 
                               "MDX" : mdx
                             };
@@ -1198,12 +1256,15 @@ arc.directive("usersGroups", function () {
                                  $scope.elementSecurityResult = $tm1.resultsetTransform($scope.instance, cubeName, success.data, options);
       
 
+                                 $scope.view.elementsWithGroupsAndSecurityFilter = [];
+                                 $scope.view.accessPrivelages = [];
+
                                  for(var i = 0; i < $scope.elementSecurityResult.rows.length; i++){
                                     var item = {
                                        name : "",
                                        groupsWithAccess : []
                                     }
-                                    item.name = $scope.elementSecurityResult.rows[i]["}ApplicationEntries"].name;
+                                    item.name = $scope.elementSecurityResult.rows[i][dimensionName].name;
       
                                     for(var j = 0; j < $scope.elementSecurityResult.rows[i].cells.length; j++){
                                        var group = {
@@ -1213,17 +1274,25 @@ arc.directive("usersGroups", function () {
    
                                        group.name = $scope.elementSecurityResult.rows[i].cells[j].key;
                                        group.access = $scope.elementSecurityResult.rows[i].cells[j].value;
-                                       if(group.access===""){
-                                          group.access = "READ";
+                                       if(group.access!==""){
+                                          item.groupsWithAccess.push(group);
                                        }
-                                       item.groupsWithAccess.push(group);
                                        
                                     }
-   
-                                    $scope.elementsWithGroupsAndSecurity.push(item);
+                                    
+                                    if(elementSelected === null){
+                                       $scope.view.elementsWithGroupsAndSecurity.push(item);
+                                       $scope.view.elementsWithGroupsAndSecurityFilter.push(item);
+
+                                    }else{
+                                       $scope.view.elementsWithGroupsAndSecurityFilter.push(item);
+                                    }
+                                    
+                                    $scope.view.accessPrivelages.push(item);
+                                    
+
                                  }
-                                 $log.log($scope.elementsWithGroupsAndSecurity);
-   
+
                               }else{
                                  if(success.data && success.data.error && success.data.error.message){
                                     $scope.view.message = success.data.error.message;
@@ -1240,7 +1309,59 @@ arc.directive("usersGroups", function () {
 
 
                   }
-                  $scope.getElementSecurityPerGroup($scope.view.dimensionName);
+                  $scope.getElementSecurityPerGroup($scope.view.dimensionName, $scope.view.userGroupsFilter, null);
+
+
+                  $scope.refreshAccessPrivelages = function(){
+                     $scope.getElementSecurityPerGroup($scope.view.dimensionName, $scope.view.userGroupsFilter, $scope.view.elementsWithGroupsAndSecurityFilter);
+                  }
+
+
+                  $scope.getTm1Rule = function(dimensionName, elementName, groupName){
+
+
+                     var elementSecurityCube = "}ElementSecurity_" + dimensionName;
+                     var elementSecurityExists = _.find($scope.cubesList, function(o) { return o.Name === elementSecurityCube; });
+                     if(typeof elementSecurityExists !== "undefined"){
+
+                        var url = "/Cubes('" + elementSecurityCube + "')/tm1.TraceCellCalculation";
+                        var data = {"Tuple@odata.bind": [
+                           "Dimensions('}Groups')/DefaultHierarchy/Elements('" + groupName + "')",
+                           "Dimensions('" + dimensionName + "')/DefaultHierarchy/Elements('" + elementName + "')"
+                        ]}
+                        
+                        $http.post(encodeURIComponent($scope.instance)+url, data).then(function(success, error){
+                           if(success.status == 401){
+                              // Set reload to true to refresh after the user logs in
+                              $scope.reload = true;
+                              return;
+                           
+                           }else if(success.status < 400){
+                              if(success.data.Statements.length>0){
+                                 $scope.view.elementRule = success.data.Statements[0];
+                              }else{
+                                 $scope.view.elementRule = "No Rule";
+                              }
+
+                              $dialogs.alert("Rules on Element", $scope.view.elementRule);
+                              return;
+
+                           }else{
+                              if(success.data && success.data.error && success.data.error.message){
+                                 $scope.view.message = success.data.error.message;
+                              }else{
+                                 $scope.view.message = success.data;
+                              }
+                              $scope.view.messageWarning = true;
+   
+                           }
+   
+                        })
+
+                     }
+
+                  }
+
 
 
                }],

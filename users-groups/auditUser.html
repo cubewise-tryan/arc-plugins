@@ -103,12 +103,10 @@
                                                    <td style="width: 100%" ng-class="{'bg-info' : cube.name == cubeSelected}">
                                                       <div ng-repeat = "group in cube.groupsWithAccess | orderBy:'name'">
                                                          <div style="float:left;">
-                                                            <!-- <div class="input-group mb-1"> -->
-                                                               <div class="badge" ng-class="securityAccessColourMapping(group.access)" style="cursor: default; user-select: none;">{{group.access.substr(0,1)}}</div>
-                                                               <div class="badge m-0 pl-0" style="cursor: default; user-select: none;">
-                                                                  {{group.name}}
-                                                               </div>
-                                                            <!-- </div> -->
+                                                            <div class="badge" ng-class="securityAccessColourMapping(group.access)" style="cursor: default; user-select: none;">{{group.access.substr(0,1)}}</div>
+                                                            <div class="badge m-0 pl-0" style="cursor: default; user-select: none;">
+                                                               {{group.name}}
+                                                            </div>
                                                          </div>
                                                       </div>
                                                    </td>
@@ -147,19 +145,17 @@
                                                       {{dimension.name}}
                                                    </td>
                                                    <td ng-if="dimension.securityCube" style="min-width: 400px; cursor: default; user-select: none;">
-                                                      <a href ng-click="elementSecurity(view.name, dimension.name, dimension.groupsWithAccess);" class="text-danger">
+                                                      <a href ng-click="elementSecurity(view.name, dimension.name, dimension.groupsWithAccess);" class="text-danger" title="{{'AUDITUSERVIEWELEMENTSECURITY' | translate}}">
                                                          {{dimension.name}}
                                                       </a>
                                                    </td>
                                                    <td style="width: 100%;">
                                                       <div ng-repeat = "group in dimension.groupsWithAccess | orderBy:'name'">
                                                          <div style="float:left;" >
-                                                            <!-- <div class="input-group mb-1"> -->
-                                                               <div class="badge" ng-class="securityAccessColourMapping(group.access)" style="cursor: default; user-select: none;">{{group.access.substr(0,1)}}</div>
-                                                               <div class="badge m-0 pl-0" style="cursor: default; user-select: none;">
-                                                                  {{group.name}}
-                                                               </div>
-                                                            <!-- </div> -->
+                                                            <div class="badge" ng-class="securityAccessColourMapping(group.access)" style="cursor: default; user-select: none;">{{group.access.substr(0,1)}}</div>
+                                                            <div class="badge m-0 pl-0" style="cursor: default; user-select: none;">
+                                                               {{group.name}}
+                                                            </div>
                                                          </div>
                                                       </div>
                                                    </td>
