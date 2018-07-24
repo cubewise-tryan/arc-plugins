@@ -63,8 +63,11 @@
                                     <div class="badge m-0 pl-0 pr-0" style="cursor: default; user-select: none;">
                                        <a><i class="fa fa-fw fa-remove text-danger" ng-click="removeFromFilter(view.userGroupsFilter, group)" title="{{'ELEMENTSECURITYREMOVEGROUP' | translate}}"></i></a>
                                     </div>
+                                    <div class="badge m-0 pl-0 pr-1" style="cursor: default; user-select: none;">
+                                       <a><i class="fa fa-search text-primary" ng-click="focusOnGroup(group)" title="{{'ELEMENTSECURITYSELECTGROUP' | translate}}"></i></a>
+                                    </div>
                                     <div class="badge" ng-class="securityAccessColourMapping(group.access)" style="cursor: default; user-select: none;">{{group.access.substr(0,1)}}</div>
-                                    <div class="badge m-0" style="cursor: default; user-select: none;">
+                                    <div class="badge m-0 pl-1" style="cursor: default; user-select: none;">
                                        {{group.name}}
                                     </div>
                                  </div>
@@ -120,6 +123,9 @@
                                        <div class="badge m-0 pl-0 pr-0" style="cursor: default; user-select: none;">
                                           <a><i class="fa fa-fw fa-remove text-danger" ng-click="removeFromFilter(view.elementsWithGroupsAndSecurityFilter, element)" title="{{'ELEMENTSECURITYREMOVEELEMENT' | translate}}"></i></a>
                                        </div>
+                                       <div class="badge m-0 pl-0 pr-1" style="cursor: default; user-select: none;">
+                                          <a><i class="fa fa-search text-primary" ng-click="focusOnElement(element)" title="{{'ELEMENTSECURITYSELECTELEMENT' | translate}}"></i></a>
+                                       </div>
                                        <div class="badge m-0 pl-0" style="cursor: default; user-select: none;">
                                           {{element.name}}
                                        </div>
@@ -162,15 +168,17 @@
                                  <div style="float:left;" class="mt-1 pr-2">
                                     <div class="input-group">
                                        <div class="badge m-0 pl-0 pr-1" style="cursor: default; user-select: none;">
-                                          <a><i class="fa fa-circle" style="font-size: 5px; vertical-align: middle;"></i></a>
-                                       </div>
-                                       <div class="badge m-0 pl-0 pr-1" style="cursor: default; user-select: none;" ng-click="getTm1Rule(view.dimensionName, element.name, group.name);">
-                                          {{element.name}}
+                                          <a><i class="fa fa-circle text-danger" style="font-size: 5px; vertical-align: middle;"></i></a>
                                        </div>
                                        <div class="badge" ng-class="securityAccessColourMapping(group.access)" style="cursor: default; user-select: none;">
                                           {{group.access.substr(0,1)}}
                                        </div>
-                                       <div class="badge ml-0" ng-style="generateHSLColour(group.name)" style="cursor: default; user-select: none;">
+                                       <div class="badge m-0 pr-0" style="cursor: default; user-select: none;" title="{{'ELEMENTSECURITYACCESSPRIVELAGESCHECKRULE' | translate}}" ng-click="getTm1Rule(view.dimensionName, element.name, group.name);">
+                                          <a href>
+                                             {{element.name}}
+                                          </a>
+                                       </div>
+                                       <div class="badge ml-0"  style="cursor: default; user-select: none;">
                                           {{group.name}}
                                        </div>
                                     </div>

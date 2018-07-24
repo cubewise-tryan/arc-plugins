@@ -1178,6 +1178,18 @@ arc.directive("usersGroups", function () {
                      currentArray = _.uniqBy(currentArray, "name");
                   }
 
+                  $scope.focusOnGroup = function(itemToAdd){
+                     $scope.view.userGroupsFilter = [];
+                     $scope.view.userGroupsFilter.push(itemToAdd);
+                     $log.log($scope.view.userGroupsFilter);
+                  }
+                  $scope.focusOnElement = function(itemToAdd){
+                     $scope.view.elementsWithGroupsAndSecurityFilter= [];
+                     $scope.view.elementsWithGroupsAndSecurityFilter.push(itemToAdd);
+                     $log.log($scope.view.elementsWithGroupsAndSecurityFilter);
+                  }
+
+
                   $scope.elementsArrayToElementsMDX = function(dimensionName, elementsArray){
                      var elementsMDX = "";
          
@@ -1340,10 +1352,11 @@ arc.directive("usersGroups", function () {
                               if(success.data.Statements.length>0){
                                  $scope.view.elementRule = success.data.Statements[0];
                               }else{
-                                 $scope.view.elementRule = "No Rule";
+                                 $scope.view.elementRule = $translate.instant('ELEMENTSECURITYACCESSPRIVELAGESMESSAGE');
                               }
 
-                              $dialogs.alert("Rules on Element", $scope.view.elementRule);
+                              $dialogs.alert($translate.instant('ELEMENTSECURITYACCESSPRIVELAGESHEADING'), $scope.view.elementRule);
+                                
                               return;
 
                            }else{
