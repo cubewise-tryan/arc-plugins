@@ -95,6 +95,9 @@
                                        <a href="" class="text-primary pl-1 pt-1" ng-click="editGroup($index)" title="{{'EDITUAG' | translate}}" >
                                           <i class="fa fa-address-book-o"></i>
                                        </a>
+                                       <a href="" class="text-primary pl-1 pt-1" ng-click = "showMoreUsers($index)" title="{{'SHOWUSERSALL' | translate}}" >
+                                          <i class="fa fa-users"></i>
+                                       </a>
                                     </td>
                                     <td class="align-top pl-0;" style="width: 40px;" >
                                        <div ng-class="{'text-success font-weight-bold':user.IsActive}" class="form-control form-control-sm pl-0" style="cursor:default; border-color: white;">
@@ -127,11 +130,10 @@
                                              </div>
                                           </div>
                                        </div>
-                                       <div style="float:left;" class="tm1-showMoreGroups" ng-if="group.usersRemaining || group.Users.length > 0">
-                                          <a class="badge badge-secondary badge-sm ml-1" style="color:#fff;" title="{{'SHOWUSERSALL' | translate}}" ng-click="showMoreUsers($index)">
+                                       <div style="float:left;" class="tm1-showMoreGroups" ng-if="group.usersRemaining > 0">
+                                          <a class="badge badge-secondary badge-sm ml-1" style="color:#fff;" title="{{'USERSSHOWMORE' | translate}}">
                                              <i class="fa fa-plus" ></i>
                                              {{group.usersRemaining}}
-                                             <i class="fa fa-search" ></i>
                                           </a>
                                        </div>
                                     </td>
@@ -219,6 +221,9 @@
                                        <a href="" class="text-primary pl-1 pt-1" ng-click="auditUser($index)" title="{{'AUDITUAG' | translate}}" >
                                           <i class=" 	fa fa-drivers-license-o"></i>
                                        </a>
+                                       <a href="" class="text-primary pl-1 pt-1" ng-click = "showMoreGroups($index)" title="{{'SHOWGROUPSALL' | translate}}" >
+                                          <i class="fa fa-users"></i>
+                                       </a>
                                     </td>
                                     <td class="align-top pl-0;" style="width: 40px;" >
                                        <div ng-class="{'text-success font-weight-bold':user.IsActive}" class="form-control form-control-sm pl-0" style="cursor:default; border-color: white;">
@@ -247,10 +252,9 @@
                                           </div>
                                        </div>
                                        <div style="float:left;" class="tm1-showMoreGroups" ng-if="user.groupsRemaining">
-                                          <a class="badge badge-secondary badge-sm ml-1" style="color:#fff;" title="{{'GROUPSSHOWMORE' | translate}}" ng-click="showMoreGroups($index)">
+                                          <a class="badge badge-secondary badge-sm ml-1" style="color:#fff;" title="{{'GROUPSSHOWMORE' | translate}}" >
                                              <i class="fa fa-plus" ></i>
-                                             {{user.groupsRemaining}} more
-                                             <i class="fa fa-arrow-right" ></i>
+                                             {{user.groupsRemaining}}
                                           </a>
                                        </div>
                                     </td>

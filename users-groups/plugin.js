@@ -37,9 +37,9 @@ arc.directive("usersGroups", function () {
             filterUser : ""
          };
 
-         $rootScope.uiPrefs.groupsDisplayNumber = 20;
+         $rootScope.uiPrefs.groupsDisplayNumber = 2;
          //for testing make 2, as test model does not have enough groups. Later make default 20
-         $rootScope.uiPrefs.usersDisplayNumber = 20;
+         $rootScope.uiPrefs.usersDisplayNumber = 2;
          //for testing make 2, as test model does not have enough groups. Later make default 20
 
          $scope.load = function(){
@@ -1732,17 +1732,6 @@ arc.directive("usersGroups", function () {
          };
 
 
-         $scope.showMoreGroups = function(userIndex){
-            var step = $rootScope.uiPrefs.groupsDisplayNumber;
-            $scope.usersWithGroups[userIndex].groupsDisplay = $scope.usersWithGroups[userIndex].groupsDisplay + step;
-            if($scope.usersWithGroups[userIndex].groupsDisplay > $scope.usersWithGroups[userIndex].groupsMax){
-               $scope.usersWithGroups[userIndex].groupsDisplay = $scope.usersWithGroups[userIndex].groupsMax;
-            }
-            $scope.usersWithGroups[userIndex].groupsRemaining = $scope.usersWithGroups[userIndex].groupsMax - $scope.usersWithGroups[userIndex].groupsDisplay;
-
-            return true;
-         }
-
 
          $scope.includedInGroupGroup = true;
          $scope.toggleIncludedInGroupGroup = function(){
@@ -1868,7 +1857,7 @@ arc.directive("usersGroups", function () {
                accessColour = "badge badge-primary"
             }else if(string === "LOCK"){
                accessColour = "badge badge-info"
-            }else if(string === "BLANK"){
+            }else if(string === "NONE"){
                accessColour = "badge badge-warning"
             }else if(string === "GRANT"){
                accessColour = "badge badge-primary"
@@ -2282,6 +2271,116 @@ arc.directive("usersGroups", function () {
          }
 
 
+         $scope.showMoreGroups = function(userIndex){
+            ngDialog.open({
+               template: "__/plugins/users-groups/showGroups.html",
+               className: "ngdialog-theme-default",
+               scope: $scope,
+               controller: ['$rootScope', '$scope', '$http', '$state', '$tm1','$log', function ($rootScope, $scope, $http, $state, $tm1, $log) {
+ 
+                  $scope.view = {
+                     name: $scope.usersWithGroups[userIndex].Name,
+                     groups: $scope.usersWithGroups[userIndex].Groups,
+                     removedGroups : [],
+                     message: "",
+                     messageSuccess: false,
+                     messageWarning: false
+
+                  }
+
+
+                  $scope.groupFilter = function(group){
+                     if($scope.view.removedGroups.length > 0 && $scope.view.removedGroups.indexOf(group.Name)!==-1){
+                        return false
+                     }else{
+                        if(!$scope.selections.filterDisplayGroup){
+                           return true;
+                        }else{
+                           if(group.Name.toLowerCase().indexOf($scope.selections.filterDisplayGroup.toLowerCase())!==-1){
+                              return true;
+   
+                           }else{
+                              return false;
+
+                           }
+                        }
+                     }
+
+                  }
+
+
+                  $scope.removeUserFromGroup = function(user, group){
+                     var prompt = "Remove user " + user + " from group " + group + "?";
+                     $dialogs.confirmDelete(prompt, removeUserFromSelectedGroup);
+         
+                     function removeUserFromSelectedGroup(){
+                        var url = "/Users('"+ user + "')/Groups?$id=Groups('" + group + "')";
+                        $http.delete(encodeURIComponent($scope.instance) + url).then(function(success,error){
+                           if(success.status == 401){
+                              $scope.view.message = $translate.instant("FUNCTIONREMOVEGROUPFROMUSERERROR");
+                              $scope.view.removedGroups = [];
+                              $timeout(function(){
+                                 view.message = null;
+                              }, 5000);
+         
+                              return;
+                              
+                           }else if(success.status < 400){
+                              $scope.view.message = $translate.instant("FUNCTIONREMOVEGROUPFROMUSERSUCCESS");
+                              $scope.view.messageSuccess = true;
+
+                              //add groups to array used in ng-repeat filter logic
+                              $scope.view.removedGroups.push(group);
+
+                              $scope.load();
+            
+                              $timeout(function(){
+                                 $scope.view.message = null;
+                                 $scope.view.messageSuccess = null;
+                              }, 2000);
+            
+                              return;
+            
+                           }else{
+                              // Error to display on page
+                              $log.log(success);
+                              if(success.data && success.data.error && success.data.error.message){
+                                 $scope.view.message = success.data.error.message;
+                                 $scope.view.messageWarning = true;
+                                 $scope.view.removedGroups = [];
+                              }
+                              else {
+                                 $scope.view.message = success.data;
+                                 $scope.view.messageSuccess = false;
+                                 $scope.view.messageWarning = true;
+                                 $scope.view.removedGroups = [];
+                              }
+                              $timeout(function(){
+                                 $scope.view.messageError = null;
+                                 $scope.view.messageWarning = null;
+                              }, 5000);
+                           }
+                        });
+                     }
+         
+                  }
+
+
+                  $scope.closeThisDialog = function(){
+                     ngDialog.close();
+                  }
+
+              
+               }],
+               data: {
+                  view : $scope.view,
+                  groupsWithUsers : $scope.groupsWithUsers,
+                  usersWithGroups : $scope.usersWithGroups,
+               }
+            });
+         }
+
+
          $scope.addUserToGroup = function(user, newGroup, previousGroups){
             //patching, replaces the set of group relationships. Need to add previous groups
             var url = "/Users('" + user + "')";
@@ -2387,7 +2486,7 @@ arc.directive("usersGroups", function () {
                   "READ":0
                },
                capabilities:{
-                  "BLANK":0,
+                  "NONE":0,
                   "DENY":1,
                   "GRANT":2
                }
@@ -2420,7 +2519,7 @@ arc.directive("usersGroups", function () {
                   "READ"
                ],
                capabilities:[
-                  "BLANK",
+                  "NONE",
                   "DENY",
                   "GRANT"
                ]
@@ -2461,7 +2560,7 @@ arc.directive("usersGroups", function () {
             }else{
                if(_.filter(newGroup[tm1Section], function(o){return o.name == group.Name}).length == 0 ){
                   if(tm1Section==="capabilities"){
-                     newGroup[tm1Section].push({name:group.Name, access:"BLANK"});
+                     newGroup[tm1Section].push({name:group.Name, access:"NONE"});
                   }else{
                      newGroup[tm1Section].push({name:group.Name, access:"READ"});
                   }
@@ -3477,7 +3576,7 @@ arc.directive("usersGroups", function () {
                               if($scope.groupCapabilitiesResult.rows[i].cells.length === 0){
                                  var capability = {
                                     name:"",
-                                    access:"BLANK"
+                                    access:"NONE"
                                  };
                                  capability.name = $scope.groupCapabilitiesResult.rows[i]["}Features"].key;
                                  $scope.groupSettings.capabilities.push(capability);
@@ -3490,7 +3589,7 @@ arc.directive("usersGroups", function () {
                                     };
                                     capability.name = $scope.groupCapabilitiesResult.rows[i]["}Features"].key;
                                     if($scope.groupCapabilitiesResult.rows[i].cells[j].value===""){
-                                       capability.access = "BLANK";
+                                       capability.access = "NONE";
                                     }else{
                                        capability.access = $scope.groupCapabilitiesResult.rows[i].cells[j].value;
                                     }
@@ -3549,7 +3648,7 @@ arc.directive("usersGroups", function () {
                               if($scope.groupCapabilitiesResult.rows[i].cells.length === 0){
                                  var capability = {
                                     name:"",
-                                    access:"BLANK"
+                                    access:"NONE"
                                  };
                                  capability.name = $scope.groupCapabilitiesResult.rows[i]["}Features"].key;
                                  newGroup.capabilities.push(capability);
@@ -3562,7 +3661,7 @@ arc.directive("usersGroups", function () {
                                     };
                                     capability.name = $scope.groupCapabilitiesResult.rows[i]["}Features"].key;
                                     if($scope.groupCapabilitiesResult.rows[i].cells[j].value===""){
-                                       capability.access = "BLANK";
+                                       capability.access = "NONE";
                                     }else{
                                        capability.access = $scope.groupCapabilitiesResult.rows[i].cells[j].value;
                                     }
@@ -3605,7 +3704,7 @@ arc.directive("usersGroups", function () {
 
                   $scope.postGroupCapabilitySettings = function(groupName, settingName, newValue){
 
-                     if(newValue==="BLANK"){
+                     if(newValue==="NONE"){
                         newValue = "";
                      }
 

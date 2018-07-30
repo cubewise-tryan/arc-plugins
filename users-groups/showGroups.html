@@ -1,0 +1,79 @@
+
+<div class="tm1-showUsers">
+   <div class="modal-header text-dark bg-white">
+      <span>
+         <i class="fa fa-search"></i>
+         <span translate="SHOWGROUPSHEADING"></span>
+         : {{view.name}}
+      </span>
+   </div>
+
+   <div class="modal-body p-0 m-0">
+      <div class="container-fluid">
+         <div class="row pt-2 pb-2">
+            <div class="col-sm-12">
+               <div class="card">
+                  <div class="card-header">
+                     <div class="row">
+                        <div class="col-sm-2" >
+                           <label translate="SEARCHGROUPNAME"></label>
+                        </div>
+                        <div class="col-sm-10">
+                           <div class="input-group">
+                              <input type="text" class="form-control" ng-model="selections.filterDisplayGroup" placeholder="{{'SEARCHGROUP' | translate}}">
+                              <span class="input-group-append">
+                                 <button ng-disabled="!selections.filterDisplayGroup.length" class="btn btn-secondary" title="{{'CLEARUAG' | translate}}" ng-click="selections.filterDisplayGroup=''" disabled="disabled">
+                                    <i class="fa fa-fw fa-remove"></i>
+                                 </button>
+                              </span>
+                           </div>
+                        </div>
+                     </div>
+
+
+                  </div>
+                  <div class="card-body pt-2">
+                     <table class="table table-hover table-sm">
+                        <thead style="display: block;">
+                           <th style="width: 150px;"></th>
+                           <th style="min-width: 360px;" translate="SHOWGROUPSNAME"></th>
+                        </thead>
+                        <tbody style="display: block; height:340px; overflow-y:auto; width:100%; overflow-x: auto;">
+                           <tr ng-repeat="group in view.groups | filter:groupFilter | orderBy:'Name'">
+                              <td>
+                                 <a href class="text-danger" title="{{'REMOVEGROUPFROMUSER' | translate}}" ng-click="removeUserFromGroup(view.name,group.Name)">
+                                    <i class="fa fa-close"></i>
+                                 </a>
+                              </td>
+                              <td style="min-width: 360px;">
+                                 {{group.Name}}
+                              </td>
+                           </tr>
+                        </tbody>
+                     </table>
+                  </div>
+               </div>
+            </div>
+         </div>
+
+      </div>
+   </div>
+   
+   <div class="modal-footer">
+      <div class="row">
+         <div class="col-md-12">
+            <button ng-class="{'btn btn-success':view.messageSuccess,'btn btn-warning':view.messageWarning}" ng-if="view.message">
+               <span ng-class="{'fa fa-check':view.messageSuccess,'fa fa-warning':view.messageWarning}" aria-hidden="true"></span><span>{{view.message}}</span>
+            </button>
+         </div>
+      </div>
+      <div class="row">
+         <div class="col-md-12">
+            <button class="btn action ng-scope" ng-click="closeThisDialog()" translate="CANCEL"></button>
+         </div>
+      </div>
+
+   </div>
+
+
+</div>

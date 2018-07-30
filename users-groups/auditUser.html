@@ -47,12 +47,10 @@
                                                    <td style="width: 100%;">
                                                       <div ng-repeat = "group in application.groupsWithAccess | orderBy:'name'"> 
                                                          <div style="float:left;">
-                                                            <!-- <div class="input-group mb-1"> -->
-                                                               <div class="badge" ng-class="securityAccessColourMapping(group.access)" style="cursor: default; user-select: none;">{{group.access.substr(0,1)}}</div>
-                                                               <div class="badge m-0 pl-0" style="cursor: default; user-select: none;">
-                                                                  {{group.name}}
-                                                               </div>
-                                                            <!-- </div> -->
+                                                            <div class="badge" ng-class="securityAccessColourMapping(group.access)" style="cursor: default; user-select: none;">{{group.access.substr(0,1)}}</div>
+                                                            <div class="badge m-0 pl-0" style="cursor: default; user-select: none;">
+                                                               {{group.name}}
+                                                            </div>
                                                          </div>
                                                       </div>
                                                    </td>
@@ -204,12 +202,10 @@
                                                    <td style="width: 100%;">
                                                       <div ng-repeat = "group in process.groupsWithAccess | orderBy:'name'">
                                                          <div style="float:left;">
-                                                            <!-- <div class="input-group mb-1"> -->
-                                                               <div class="badge" ng-class="securityAccessColourMapping(group.access)" style="cursor: default; user-select: none;">{{group.access.substr(0,1)}}</div>
-                                                               <div class="badge m-0 pl-0" style="cursor: default; user-select: none;">
-                                                                  {{group.name}}
-                                                               </div>
-                                                            <!-- </div> -->
+                                                            <div class="badge" ng-class="securityAccessColourMapping(group.access)" style="cursor: default; user-select: none;">{{group.access.substr(0,1)}}</div>
+                                                            <div class="badge m-0 pl-0" style="cursor: default; user-select: none;">
+                                                               {{group.name}}
+                                                            </div>
                                                          </div>
                                                       </div>
                                                    </td>
@@ -258,12 +254,10 @@
                                                    <td style="width: 100%;">
                                                       <div ng-repeat = "group in chore.groupsWithAccess | orderBy:'name'" >
                                                          <div style="float:left;">
-                                                            <!-- <div class="input-group mb-1"> -->
-                                                               <div class="badge" ng-class="securityAccessColourMapping(group.access)" style="cursor: default; user-select: none;">{{group.access.substr(0,1)}}</div>
-                                                               <div class="badge m-0 pl-0" style="cursor: default; user-select: none;">
-                                                                  {{group.name}}
-                                                               </div>
-                                                            <!-- </div> -->
+                                                            <div class="badge" ng-class="securityAccessColourMapping(group.access)" style="cursor: default; user-select: none;">{{group.access.substr(0,1)}}</div>
+                                                            <div class="badge m-0 pl-0" style="cursor: default; user-select: none;">
+                                                               {{group.name}}
+                                                            </div>
                                                          </div>
                                                       </div>
                                                    </td>
@@ -310,8 +304,8 @@
                   <div class="badge m-0" style="cursor: default; user-select: none;">
                      ADMIN
                   </div>
-                  <div class="badge m-0 text-danger" style="cursor: default; user-select: none;">
-                     }ElementSecurity
+                  <div class="badge m-0 text-danger" style="cursor: default; user-select: none;" translate="AUDITUSERELEMENTSECURITY">
+                     <!-- Element Security -->
                   </div>
                </div>
             </div>
@@ -322,7 +316,7 @@
             </div>
             <div class="col-md-4 pr-0">
                <div class="float-right">
-                  <button class="btn action ng-scope " ng-click="closeThisDialog()" translate="BACKUAG"></button>
+                  <button class="btn action ng-scope " ng-click="closeThisDialog()" translate="CANCELUAG"></button>
                </div>
             </div>
          </div>
