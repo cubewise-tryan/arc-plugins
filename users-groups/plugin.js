@@ -706,7 +706,8 @@ arc.directive("usersGroups", function () {
                                     for(var j = 0; j < $scope.applicationSecurityResult.rows[i].cells.length; j++){
                                        var group = {
                                           name:"",
-                                          access:""
+                                          access:"",
+                                          order:0
                                        };
    
                                        group.name = $scope.applicationSecurityResult.rows[i].cells[j].key;
@@ -714,6 +715,7 @@ arc.directive("usersGroups", function () {
                                        if(group.access===""){
                                           group.access = "READ";
                                        }
+                                       group.order = $scope.getSecurityAccessOrder(group.access);
                                        item.groupsWithAccess.push(group);
                                        
                                     }
@@ -792,11 +794,13 @@ arc.directive("usersGroups", function () {
                                     for(var j = 0; j < $scope.cubeSecurityResult.rows[i].cells.length; j++){
                                        var group = {
                                           name:"",
-                                          access:""
+                                          access:"",
+                                          order:0
                                        };
                                        if($scope.cubeSecurityResult.rows[i].cells[j].value){
                                           group.name = $scope.cubeSecurityResult.rows[i].cells[j].key;
                                           group.access = $scope.cubeSecurityResult.rows[i].cells[j].value;
+                                          group.order = $scope.getSecurityAccessOrder(group.access);
                                           item.groupsWithAccess.push(group);
                                        }
                                        
@@ -878,12 +882,14 @@ arc.directive("usersGroups", function () {
                                     for(var j = 0; j < $scope.dimensionSecurityResult.rows[i].cells.length; j++){
                                        var group = {
                                           name:"",
-                                          access:""
+                                          access:"",
+                                          order:0
                                        };
 
                                        if($scope.dimensionSecurityResult.rows[i].cells[j].value){
                                           group.name = $scope.dimensionSecurityResult.rows[i].cells[j].key;
                                           group.access = $scope.dimensionSecurityResult.rows[i].cells[j].value;
+                                          group.order = $scope.getSecurityAccessOrder(group.access);
                                           item.groupsWithAccess.push(group);
                                        }
 
@@ -1009,11 +1015,13 @@ arc.directive("usersGroups", function () {
                                     for(var j = 0; j < $scope.processSecurityResult.rows[i].cells.length; j++){
                                        var group = {
                                           name:"",
-                                          access:""
+                                          access:"",
+                                          order:0
                                        };
                                        if($scope.processSecurityResult.rows[i].cells[j].value){
                                           group.name = $scope.processSecurityResult.rows[i].cells[j].key;
                                           group.access = $scope.processSecurityResult.rows[i].cells[j].value;
+                                          group.order = $scope.getSecurityAccessOrder(group.access);
                                           item.groupsWithAccess.push(group);
                                        }
                                        
@@ -1090,11 +1098,13 @@ arc.directive("usersGroups", function () {
                                     for(var j = 0; j < $scope.choreSecurityResult.rows[i].cells.length; j++){
                                        var group = {
                                           name:"",
-                                          access:""
+                                          access:"",
+                                          order:0
                                        };
                                        if($scope.choreSecurityResult.rows[i].cells[j].value){
                                           group.name = $scope.choreSecurityResult.rows[i].cells[j].key;
                                           group.access = $scope.choreSecurityResult.rows[i].cells[j].value;
+                                          group.order = $scope.getSecurityAccessOrder(group.access);
                                           item.groupsWithAccess.push(group);
                                        }
                                        
@@ -1145,7 +1155,7 @@ arc.directive("usersGroups", function () {
          $scope.elementSecurity = function(userNamePassedIn, dimensionNamePassedIn, userGroupsPassedIn){
             ngDialog.open({
                template: "__/plugins/users-groups/elementSecurity.html",
-               className: "ngdialog-theme-default large",
+               className: "ngdialog-theme-default medium",
                scope: $scope,
                controller: ['$rootScope', '$scope', '$http', '$state', '$tm1','$log', function ($rootScope, $scope, $http, $state, $tm1, $log) {
  
@@ -1153,42 +1163,33 @@ arc.directive("usersGroups", function () {
                      userName: userNamePassedIn,
                      dimensionName : dimensionNamePassedIn,
                      userGroups : userGroupsPassedIn,
-                     userGroupsFilter : _.clone(userGroupsPassedIn),
-                     elementsWithGroupsAndSecurity : [],
-                     elementsWithGroupsAndSecurityFilter:[],
-                     accessPrivelages:[],
-                     elementRule:""
+                     elementsFromDimension: [],
+                     elementsSelectedToView:[],
+                     elementRule:"",
+                     showElementsLoading:false,
+                     showAccessPrivelagesLoading:false,
+                     message:"",
+                     messageSuccess:"",
+                     messageWarning:""
                   }
 
 
-                  $scope.reloadGroups = function(){
-                     $scope.view.userGroupsFilter = _.clone($scope.view.userGroups);
-                  }
-                  $scope.reloadElements = function(){
-                     $scope.view.elementsWithGroupsAndSecurityFilter = _.clone($scope.view.elementsWithGroupsAndSecurity);
+                  $scope.removeFromFilter = function(removeFromArray, itemToRemove){
+                     var index = _.findIndex(removeFromArray, function(i){return i.name == itemToRemove.name;});
+                     removeFromArray.splice(index, 1);
                   }
 
-                  $scope.removeFromFilter = function(currentArray, itemToRemove){
-                     var index = _.findIndex(currentArray, function(i){return i.name == itemToRemove.name;});
-                     currentArray.splice(index, 1);
+                  $scope.addToFilter = function(addToArray, itemToAdd){
+                     addToArray.push(itemToAdd);
+                     addToArray = _.uniqBy(addToArray, "Name");
+
                   }
 
-                  $scope.addToFilter = function(currentArray, itemToAdd){
-                     currentArray.push(itemToAdd);
-                     currentArray = _.uniqBy(currentArray, "name");
-                  }
 
-                  $scope.focusOnGroup = function(itemToAdd){
-                     $scope.view.userGroupsFilter = [];
-                     $scope.view.userGroupsFilter.push(itemToAdd);
-                     $log.log($scope.view.userGroupsFilter);
-                  }
-                  $scope.focusOnElement = function(itemToAdd){
-                     $scope.view.elementsWithGroupsAndSecurityFilter= [];
-                     $scope.view.elementsWithGroupsAndSecurityFilter.push(itemToAdd);
-                     $log.log($scope.view.elementsWithGroupsAndSecurityFilter);
-                  }
-
+                  // $scope.focusOnElement = function(itemToAdd){
+                     // $scope.view.elementsFromDimension= [];
+                     // $scope.view.elementsFromDimension.push(itemToAdd);
+                  // }
 
                   $scope.elementsArrayToElementsMDX = function(dimensionName, elementsArray){
                      var elementsMDX = "";
@@ -1196,38 +1197,96 @@ arc.directive("usersGroups", function () {
                      if(elementsArray.constructor === Array){   
                         if(elementsArray.length>0){
                               angular.forEach(elementsArray, function(value, key){
-                                 elementsMDX = elementsMDX + "[" + dimensionName +"].[" + value.name + "],";
+                                 elementsMDX = elementsMDX + "[" + dimensionName +"].[" + value.Name + "],";
                               })
                               elementsMDX = "{" + elementsMDX.slice(0, -1) + "}";
                               return elementsMDX;
          
                         }
                      }else{
-                        elemnetsMDX = "{[" + dimensionName + "].[" + elementsArray + "]}";
+                        elementsMDX = "{[" + dimensionName + "].[" + elementsArray + "]}";
                         return elementsMDX;
                      }
          
          
                   }
 
-                  $scope.removeAllUserGroups = function(){
-                     var prompt = "Remove all filter Groups?";
+                  $scope.removeAllElementsFromDimension = function(){
+                     var prompt = "Remove all Search Elements?";
                      $dialogs.confirmDelete(prompt, removeAll);
 
                      function removeAll(){
-                        $scope.view.userGroupsFilter = [];
+                        $scope.view.elementsFromDimension = [];
                      }
 
                   }
 
-                  $scope.removeAllElements = function(){
-                     var prompt = "Remove all filter Elements?";
+                  $scope.removeAllElementsSelectedToView = function(){
+                     var prompt = "Remove all Access Privelage Results?";
                      $dialogs.confirmDelete(prompt, removeAll);
 
                      function removeAll(){
-                        $scope.view.elementsWithGroupsAndSecurityFilter = [];
+                        $scope.view.elementsSelectedToView = [];
                      }
 
+                  }
+
+
+                  $scope.getElementsFromDimension = function(dimensionName, searchString){
+                     $scope.view.showElementsLoading = true;
+                     var elementSecurityCube = "}ElementSecurity_" + dimensionName;
+                     var elementSecurityExists = _.find($scope.cubesList, function(o) { return o.Name === elementSecurityCube; });
+                     if(typeof elementSecurityExists !== "undefined"){
+
+                        var url = "/Dimensions('" + dimensionName + "')?$expand=DefaultHierarchy($expand=Elements($select=Name;$filter=contains(Name,'" + searchString + "')))";
+
+                        $http.get(encodeURIComponent($scope.instance)+url).then(function(success, error){
+
+                           $scope.view.elementsFromDimension = [];
+
+                           if(success.status == 401){
+                              // Set reload to true to refresh after the user logs in
+                              $scope.reload = true;
+                              return;
+                           
+                           }else if(success.status < 400){
+
+                              if(success.data.DefaultHierarchy.Elements.length>0){
+                                 _.forEach(success.data.DefaultHierarchy.Elements,function(value, key){
+                                    $scope.view.elementsFromDimension.push(value);
+                                 })
+
+                                 $scope.searchElement = "";
+
+                              }else{
+                                 $scope.view.message = "No Matches Found";
+                                 $scope.view.messageWarning = true;
+                                 $timeout(function(){
+                                    $scope.view.message = null;
+                                    $scope.view.messageWarning = false;
+                                 },2000);
+                              }
+   
+
+                           }else{
+                              if(success.data && success.data.error && success.data.error.message){
+                                 $scope.view.message = success.data.error.message;
+                              }else{
+                                 $scope.view.message = success.data;
+                              }
+                              $scope.view.messageWarning = true;
+
+                              $timeout(function(){
+                                 $scope.view.message = null;
+                                 $scope.view.messageWarning = false;
+                              },5000);
+   
+                           }
+   
+                        })
+                        
+                     }
+                     $scope.view.showElementsLoading = false;
                   }
 
 
@@ -1240,12 +1299,9 @@ arc.directive("usersGroups", function () {
                         if(typeof groupsMDX !== "undefined"){
                            var url = "/ExecuteMDX?$expand=Axes($expand=Hierarchies($select=Name;$expand=Dimension($select=Name)),Tuples($expand=Members($select=Name,UniqueName,Ordinal,Attributes;$expand=Parent($select=Name);$expand=Element($select=Name,Type,Level)))),Cells($select=Value,Updateable,Consolidated,RuleDerived,HasPicklist,FormatString,FormattedValue)";
                            
-                           if(elementSelected === null){
-                              var mdx = "SELECT NON EMPTY " + groupsMDX + " ON COLUMNS, NON EMPTY {[" + dimensionName + "].members}  ON ROWS FROM [" + elementSecurityCube + "]"
-                           }else{
-                              var elementsMDX = $scope.elementsArrayToElementsMDX(dimensionName, elementSelected);
-                              var mdx = "SELECT NON EMPTY " + groupsMDX + " ON COLUMNS, NON EMPTY " + elementsMDX + "  ON ROWS FROM [" + elementSecurityCube + "]"
-                           }
+
+                           var elementsMDX = $scope.elementsArrayToElementsMDX(dimensionName, elementSelected);
+                           var mdx = "SELECT " + groupsMDX + " ON COLUMNS, " + elementsMDX + "  ON ROWS FROM [" + elementSecurityCube + "]"
                            
                            var data = { 
                               "MDX" : mdx
@@ -1260,17 +1316,13 @@ arc.directive("usersGroups", function () {
                               }else if(success.status < 400){
                                  var options = {
                                     alias: {},
-                                    suppressZeroRows: 1,
-                                    suppressZeroColumns: 1,
+                                    suppressZeroRows: 0,
+                                    suppressZeroColumns: 0,
                                     maxRows: 50
                                  };
                                  var cubeName = elementSecurityCube;
                                  $scope.elementSecurityResult = $tm1.resultsetTransform($scope.instance, cubeName, success.data, options);
       
-
-                                 $scope.view.elementsWithGroupsAndSecurityFilter = [];
-                                 $scope.view.accessPrivelages = [];
-
                                  for(var i = 0; i < $scope.elementSecurityResult.rows.length; i++){
                                     var item = {
                                        name : "",
@@ -1281,29 +1333,27 @@ arc.directive("usersGroups", function () {
                                     for(var j = 0; j < $scope.elementSecurityResult.rows[i].cells.length; j++){
                                        var group = {
                                           name:"",
-                                          access:""
+                                          access:"",
+                                          order:0
                                        };
    
                                        group.name = $scope.elementSecurityResult.rows[i].cells[j].key;
                                        group.access = $scope.elementSecurityResult.rows[i].cells[j].value;
-                                       if(group.access!==""){
-                                          item.groupsWithAccess.push(group);
+
+                                       if(group.access===""){
+                                          group.access = "NONE";
                                        }
-                                       
+
+                                       group.order = $scope.getSecurityAccessOrder(group.access);
+
+                                       item.groupsWithAccess.push(group);
                                     }
                                     
-                                    if(elementSelected === null){
-                                       $scope.view.elementsWithGroupsAndSecurity.push(item);
-                                       $scope.view.elementsWithGroupsAndSecurityFilter.push(item);
-
-                                    }else{
-                                       $scope.view.elementsWithGroupsAndSecurityFilter.push(item);
-                                    }
-                                    
-                                    $scope.view.accessPrivelages.push(item);
-                                    
-
+                                    $scope.view.elementsSelectedToView.push(item);
                                  }
+
+                                 $scope.view.elementsSelectedToView = _.uniqBy($scope.view.elementsSelectedToView, "name");
+                                 $log.log($scope.view.elementsSelectedToView);
 
                               }else{
                                  if(success.data && success.data.error && success.data.error.message){
@@ -1321,11 +1371,11 @@ arc.directive("usersGroups", function () {
 
 
                   }
-                  $scope.getElementSecurityPerGroup($scope.view.dimensionName, $scope.view.userGroupsFilter, null);
 
-
-                  $scope.refreshAccessPrivelages = function(){
-                     $scope.getElementSecurityPerGroup($scope.view.dimensionName, $scope.view.userGroupsFilter, $scope.view.elementsWithGroupsAndSecurityFilter);
+                  $scope.checkAccessPrivelages = function(){
+                     $scope.view.showAccessPrivelagesLoading = true;
+                     $scope.getElementSecurityPerGroup($scope.view.dimensionName, $scope.view.userGroups, $scope.view.elementsFromDimension);
+                     $scope.view.showAccessPrivelagesLoading = false;
                   }
 
 
@@ -1385,6 +1435,8 @@ arc.directive("usersGroups", function () {
                }
             });
          }
+
+
 
 
          $scope.groupsArrayToGroupsMDX = function(userGroupsArray){
@@ -1858,7 +1910,7 @@ arc.directive("usersGroups", function () {
             }else if(string === "LOCK"){
                accessColour = "badge badge-info"
             }else if(string === "NONE"){
-               accessColour = "badge badge-warning"
+               accessColour = "badge badge-dark"
             }else if(string === "GRANT"){
                accessColour = "badge badge-primary"
             }else if(string === "DENY"){
@@ -1869,6 +1921,19 @@ arc.directive("usersGroups", function () {
 
             return accessColour;
 
+         }
+
+
+         $scope.getSecurityAccessOrder = function(access){
+            var accessMap = {
+               ADMIN:1,
+               LOCK:2,
+               READ:3,
+               RESERVE:4,
+               WRITE:5,
+               NONE:6
+            }
+            return accessMap[access];
          }
 
 

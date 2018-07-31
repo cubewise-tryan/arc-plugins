@@ -19,92 +19,47 @@
    <div class="modal-body p-0 m-0">
       <div class="container-fluid">
          <div class="row mb-2">
-            <div class="col-sm-6 pt-2">
+            <div class="col-sm-12 pt-2">
                <div class="card">
                   <div class="card-header">
                      <div class="row">
-                        <div class="col-sm-2" >
-                           <label translate="{{'ELEMENTSECURITYGROUPS' | translate}}"></label>
-                        </div>
-                        <div class="col-sm-9">
-                           <div class="input-group">
-                              <input type="text" class="form-control " 
-                                 ng-disabled=""
-                                 ng-model="selectedUser"
-                                 uib-typeahead="name as Group.name for Group in view.userGroups | filter:{name : $viewValue} | limitTo:4"
-                                 typeahead-on-select="addToFilter(view.userGroupsFilter, $item)"
-                                 placeholder="{{'ELEMENTSECURITYADDGROUP' | translate}}">
-                              <span class="input-group-append">
-                                 <button class="btn btn-secondary"  title="{{'ELEMENTSECURITYRELOADGROUPS' | translate}}" ng-click="reloadGroups();">
-                                    <i class="fa fa-refresh"></i>
-                                 </button>
-                              </span>
-                           </div>
-                        </div>
-                        <div class="col-sm-1 pl-0">
-                           <div class="toolbar">
-                              <div class="btn-toolbar pull-right" >
-                                 <div class="btn-group">
-                                    <button class="btn btn-secondary"  title="{{'ELEMENTSECURITYREMOVEGROUPS' | translate}}" ng-click="removeAllUserGroups();">
-                                       <i class="fa fa-trash"></i>
-                                    </button>
-                                 </div>
-                              </div>
-                           </div>
-                        </div>
-                     </div>
-                  </div>
-                  <div class="card-body pt-0" style="display:block; height:170px; overflow-y:auto; width:100%;">
-                     <div class="row">
-                        <div class="col-sm-12">
-                           <div ng-repeat = "group in view.userGroupsFilter | orderBy:'name'">
-                              <div  style="float:left;" class="mt-1">
-                                 <div class="input-group">
-                                    <div class="badge m-0 pl-0 pr-0" style="cursor: default; user-select: none;">
-                                       <a><i class="fa fa-fw fa-remove text-danger" ng-click="removeFromFilter(view.userGroupsFilter, group)" title="{{'ELEMENTSECURITYREMOVEGROUP' | translate}}"></i></a>
-                                    </div>
-                                    <div class="badge m-0 pl-0 pr-1" style="cursor: default; user-select: none;">
-                                       <a><i class="fa fa-search text-primary" ng-click="focusOnGroup(group)" title="{{'ELEMENTSECURITYSELECTGROUP' | translate}}"></i></a>
-                                    </div>
-                                    <div class="badge" ng-class="securityAccessColourMapping(group.access)" style="cursor: default; user-select: none;">{{group.access.substr(0,1)}}</div>
-                                    <div class="badge m-0 pl-1" style="cursor: default; user-select: none;">
-                                       {{group.name}}
-                                    </div>
-                                 </div>
-                              </div>
-                           </div>
-                        </div>
-                     </div>
-                  </div>
-               </div>
-            </div>
-            <div class="col-sm-6 pt-2">
-               <div class="card">
-                  <div class="card-header">
-                     <div class="row">
-                        <div class="col-sm-2" >
+                        <div class="col-sm-2 pr-0" >
                            <label translate="{{'ELEMENTSECURITYELEMENTS' | translate}}"></label>
                         </div>
-                        <div class="col-sm-9">
+                        <div class="col-sm-6 pl-0 pr-0">
                            <div class="input-group">
-                              <input type="text" class="form-control " 
-                                 ng-disabled=""
-                                 ng-model="selectedElement"
-                                 uib-typeahead="name as Element.name for Element in view.elementsWithGroupsAndSecurity | filter:{name : $viewValue} | limitTo:4"
-                                 typeahead-on-select="addToFilter(view.elementsWithGroupsAndSecurityFilter, $item)"
-                                 placeholder="{{'ELEMENTSECURITYADDELEMENT' | translate}}">
+                              <input type="text" class="form-control " ng-model="searchElement" placeholder="Type and click Search to Retrieve">
                               <span class="input-group-append">
-                                 <button class="btn btn-secondary"  title="{{'ELEMENTSECURITYRELOADELEMENTS' | translate}}" ng-click="reloadElements();">
-                                    <i class="fa fa-refresh"></i>
+                                 <!-- <button class="btn btn-secondary"  title="{{'ELEMENTSECURITYRELOADELEMENTS' | translate}}" ng-click="searchElement=''"> -->
+                                    <!-- <i class="fa fa-remove"></i> -->
+                                 <!-- </button> -->
+                                 <button class="btn btn-secondary"  title="{{'ELEMENTSECURITYRELOADELEMENTS' | translate}}" ng-click="getElementsFromDimension(view.dimensionName, searchElement)">
+                                    <div>Search</div>
                                  </button>
                               </span>
                            </div>
+
+                        </div>
+                        <div class="col-sm-3 pl-0 pr-0">
+                           <!-- <div class="toolbar"> -->
+                              <div class="btn-toolbar pull-left" >
+                                 <!-- <div class="btn-group"> -->
+
+                                 <!-- </div> -->
+                                 <div class="btn-group pl-2">
+                                    <button class="btn btn-secondary"  title="{{'ELEMENTSECURITYREFRESHACCESSPRIVELAGES' | translate}}" ng-click="checkAccessPrivelages();">
+                                       <!-- {{'ELEMENTSECURITYREFRESHACCESSPRIVELAGES' | translate}} -->
+                                       Select All
+                                    </button>
+                                 </div>
+                              </div>
+                           <!-- </div> -->
                         </div>
                         <div class="col-sm-1 pl-0">
                            <div class="toolbar">
                               <div class="btn-toolbar pull-right" >
                                  <div class="btn-group">
-                                    <button class="btn btn-secondary" title="{{'ELEMENTSECURITYREMOVEELEMENTS' | translate}}" ng-click="removeAllElements();">
+                                    <button class="btn btn-secondary"  title="{{'ELEMENTSECURITYREMOVEGROUPS' | translate}}" ng-click="removeAllElementsFromDimension();">
                                        <i class="fa fa-trash"></i>
                                     </button>
                                  </div>
@@ -113,21 +68,29 @@
                         </div>
                      </div>
                   </div>
-                  <div class="card-body pt-0" style="display:block; height:170px; overflow-y:auto; width:100%;">
+                  <div class="card-body pt-0" style="display:block; height:100px; overflow-y:auto; width:100%;">
                      <div class="row">
-                        <div class="col-sm-12">
-                           <div ng-repeat="element in view.elementsWithGroupsAndSecurityFilter | orderBy:'name'" >
+                        <div class="offset-md-5 mt-5 pt-5" ng-if="view.showAccessPrivelagesLoading">
+                           <div class="input-group">
+                              <span class="input-group-append">
+                                 <i class="fa fa-refresh fa-spin" style="font-size:36px"></i>
+                                 <div class="loading pl-2 pt-2" >Loading...</div>
+                              </span>
+                           </div>
+                        </div>
+                        <div class="col-sm-12" ng-if="!view.showAccessPrivelagesLoading">
+                           <div ng-repeat="element in view.elementsFromDimension | orderBy:'Name'" >
                               <div style="float:left;" class="mt-1">
                                  <div class="input-group">
                                     <div class="input-group">
                                        <div class="badge m-0 pl-0 pr-0" style="cursor: default; user-select: none;">
-                                          <a><i class="fa fa-fw fa-remove text-danger" ng-click="removeFromFilter(view.elementsWithGroupsAndSecurityFilter, element)" title="{{'ELEMENTSECURITYREMOVEELEMENT' | translate}}"></i></a>
+                                          <a><i class="fa fa-fw fa-remove text-danger" ng-click="removeFromFilter(view.elementsFromDimension, element)" title="{{'ELEMENTSECURITYREMOVEELEMENT' | translate}}"></i></a>
                                        </div>
                                        <div class="badge m-0 pl-0 pr-1" style="cursor: default; user-select: none;">
-                                          <a><i class="fa fa-search text-primary" ng-click="focusOnElement(element)" title="{{'ELEMENTSECURITYSELECTELEMENT' | translate}}"></i></a>
+                                          <a><i class="fa fa-search text-primary" ng-click="getElementSecurityPerGroup(view.dimensionName,view.userGroups,element.Name)" title="{{'ELEMENTSECURITYSELECTELEMENT' | translate}}"></i></a>
                                        </div>
                                        <div class="badge m-0 pl-0" style="cursor: default; user-select: none;">
-                                          {{element.name}}
+                                          {{element.Name}}
                                        </div>
                                     </div>
                                  </div>
@@ -151,8 +114,8 @@
                            <div class="toolbar">
                               <div class="btn-toolbar pull-right" >
                                  <div class="btn-group">
-                                    <button class="btn btn-secondary"  title="{{'ELEMENTSECURITYREFRESHACCESSPRIVELAGES' | translate}}" ng-click="refreshAccessPrivelages();">
-                                       {{'ELEMENTSECURITYREFRESHACCESSPRIVELAGES' | translate}}
+                                    <button class="btn btn-secondary"  title="{{'ELEMENTSECURITYREMOVEGROUPS' | translate}}" ng-click="removeAllElementsSelectedToView();">
+                                       <i class="fa fa-trash"></i>
                                     </button>
                                  </div>
                               </div>
@@ -161,30 +124,48 @@
                      </div>
                   </div>
                   <div class="card-body pt-0" style="display:block; height:300px; overflow-y:auto; width:100%;">
-                     <div class="row">
-                        <div class="col-sm-12">
-                           <div ng-repeat="element in view.accessPrivelages | orderBy:'name'" >
-                              <div ng-repeat="group in element.groupsWithAccess | orderBy:'name'" >
-                                 <div style="float:left;" class="mt-1 pr-2">
-                                    <div class="input-group">
-                                       <div class="badge m-0 pl-0 pr-1" style="cursor: default; user-select: none;">
-                                          <a><i class="fa fa-circle text-danger" style="font-size: 5px; vertical-align: middle;"></i></a>
-                                       </div>
-                                       <div class="badge" ng-class="securityAccessColourMapping(group.access)" style="cursor: default; user-select: none;">
-                                          {{group.access.substr(0,1)}}
-                                       </div>
-                                       <div class="badge m-0 pr-0" style="cursor: default; user-select: none;" title="{{'ELEMENTSECURITYACCESSPRIVELAGESCHECKRULE' | translate}}" ng-click="getTm1Rule(view.dimensionName, element.name, group.name);">
-                                          <a href>
-                                             {{element.name}}
-                                          </a>
-                                       </div>
-                                       <div class="badge ml-0"  style="cursor: default; user-select: none;">
-                                          {{group.name}}
-                                       </div>
-                                    </div>
-                                 </div>
-                              </div>
+                     <div class="row" >
+                        <div class="offset-md-5 mt-5 pt-1" ng-if="view.showElementsLoading">
+                           <div class="input-group">
+                              <span class="input-group-append">
+                                 <i class="fa fa-refresh fa-spin" style="font-size:36px"></i>
+                                 <div class="loading pl-2 pt-2" >Loading...</div>
+                              </span>
                            </div>
+                        </div>
+                        <div class="col-sm-12" ng-if="!view.showElementsLoading">
+                           <table class="table table-hover table-sm" >
+                              <thead>
+                                 <th style="width: 100px;" translate="">Name</th>
+                                 <th style="width: 150px;" translate="">Access & Groups</th>
+                              </thead>
+                              <tbody>
+                                 <tr ng-repeat="element in view.elementsSelectedToView | orderBy:'name'">
+                                    <td style="width: 100px;">
+                                       <div class="input-group">
+                                          <div class="badge m-0 pl-0 pr-0" style="cursor: default; user-select: none;">
+                                             <a><i class="fa fa-fw fa-remove text-danger" ng-click="removeFromFilter(view.elementsSelectedToView, element)" title="{{'ELEMENTSECURITYREMOVEELEMENT' | translate}}"></i></a>
+                                          </div>
+                                          <div class="badge m-0 pl-0 pr-1" style="cursor: default; user-select: none;">
+                                             {{element.name}}
+                                          </div>
+                                       </div>
+                                    </td>
+                                    <td style="width: 100px;">
+                                       <div ng-repeat="group in element.groupsWithAccess | orderBy:'order'">
+                                          <div class="badge" ng-class="securityAccessColourMapping(group.access)" style="cursor: default; user-select: none; float:left;">
+                                             {{group.access.substr(0,1)}}
+                                          </div>
+                                          <div class="badge ml-0"  style="cursor: default; user-select: none; float:left;" title="{{'ELEMENTSECURITYACCESSPRIVELAGESCHECKRULE' | translate}}" ng-click="getTm1Rule(view.dimensionName, element.name, group.name);">
+                                             <a href>
+                                                {{group.name}}
+                                             </a>
+                                          </div>
+                                       </div>
+                                    </td>
+                                 </tr>
+                              </tbody>
+                           </table>
                         </div>
                      </div>
                   </div>
@@ -200,25 +181,29 @@
          <div class="row">
             <div class="col-md-5">
                <div class="input-group">
-                  <div class="badge" ng-class="securityAccessColourMapping('READ')">R</div>
+                  <div class="badge" ng-class="securityAccessColourMapping('ADMIN')">A</div>
                   <div class="badge m-0" style="cursor: default; user-select: none;">
-                     READ
-                  </div>
-                  <div class="badge" ng-class="securityAccessColourMapping('WRITE')">W</div>
-                  <div class="badge m-0" style="cursor: default; user-select: none;">
-                     WRITE
-                  </div>
-                  <div class="badge" ng-class="securityAccessColourMapping('RESERVE')">V</div>
-                  <div class="badge m-0" style="cursor: default; user-select: none;">
-                     RESERVE
+                     ADMIN
                   </div>
                   <div class="badge" ng-class="securityAccessColourMapping('LOCK')">L</div>
                   <div class="badge m-0" style="cursor: default; user-select: none;">
                      LOCK
                   </div>
-                  <div class="badge" ng-class="securityAccessColourMapping('ADMIN')">A</div>
+                  <div class="badge" ng-class="securityAccessColourMapping('READ')">R</div>
                   <div class="badge m-0" style="cursor: default; user-select: none;">
-                     ADMIN
+                     READ
+                  </div>
+                  <div class="badge" ng-class="securityAccessColourMapping('RESERVE')">V</div>
+                  <div class="badge m-0" style="cursor: default; user-select: none;">
+                     RESERVE
+                  </div>
+                  <div class="badge" ng-class="securityAccessColourMapping('WRITE')">W</div>
+                  <div class="badge m-0" style="cursor: default; user-select: none;">
+                     WRITE
+                  </div>
+                  <div class="badge" ng-class="securityAccessColourMapping('NONE')">N</div>
+                  <div class="badge m-0" style="cursor: default; user-select: none;">
+                     NONE
                   </div>
                </div>
             </div>
