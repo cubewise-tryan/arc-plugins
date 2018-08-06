@@ -39,7 +39,7 @@
                                                 <th style="min-width: 400px;" translate="AUDITUSERNAME"></th>
                                                 <th style="width: 100%;" translate="AUDITUSERGROUPS"></th>
                                              </thead>
-                                             <tbody style="display: block; height:400px; overflow-y:auto; width:100%; overflow-x: auto;">
+                                             <tbody style="display: block; height:300px; overflow-y:auto; width:100%; overflow-x: auto;">
                                                 <tr ng-repeat="application in applications | orderBy:'name' | filter:applicationFilter track by application.name " >
                                                    <td style="min-width: 400px; cursor: default; user-select: none;">
                                                       {{application.name}}
@@ -91,7 +91,7 @@
                                                 <th style="min-width: 400px;" translate="AUDITUSERNAME"></th>
                                                 <th style="width: 100%;" translate="AUDITUSERGROUPS"></th>
                                              </thead>
-                                             <tbody style="display: block; height:120px; overflow-y:auto; width:100%; overflow-x: auto;">
+                                             <tbody style="display: block; height:100px; overflow-y:auto; width:100%; overflow-x: auto;">
                                                 <tr ng-repeat="cube in cubes | orderBy:'name' | filter:cubeFilter track by cube.name">
                                                    <td style="min-width: 400px;" ng-class="{'bg-info' : cube.name == cubeSelected}">
                                                       <a href ng-click="getDimensionsPerCube(cube.name);"
@@ -137,7 +137,7 @@
                                                 <th style="min-width: 400px;" translate="AUDITUSERNAME"></th>
                                                 <th style="width: 100%;" translate="AUDITUSERGROUPS"></th>
                                              </thead>
-                                             <tbody style="display: block; height:200px; overflow-y:auto; width:100%; overflow-x: auto;">
+                                             <tbody style="display: block; height:100px; overflow-y:auto; width:100%; overflow-x: auto;">
                                                 <tr ng-repeat="dimension in dimensions | orderBy:'name' | filter:dimensionFilter track by dimension.name">
                                                    <td ng-if="!dimension.securityCube" style="min-width: 400px; cursor: default; user-select: none;">
                                                       {{dimension.name}}
@@ -194,7 +194,7 @@
                                                 <th style="min-width: 400px;" translate="AUDITUSERNAME"></th>
                                                 <th style="width:100%;" translate="AUDITUSERGROUPS"></th>
                                              </thead>
-                                             <tbody style="display: block; height:400px; overflow-y: auto; width: 100%; overflow-x: auto;">
+                                             <tbody style="display: block; height:300px; overflow-y: auto; width: 100%; overflow-x: auto;">
                                                 <tr ng-repeat="process in processes | orderBy:'name' | filter:processFilter track by process.name">
                                                    <td style="min-width: 400px; cursor: default; user-select: none;">
                                                       {{process.name}}
@@ -246,7 +246,7 @@
                                                 <th style="min-width: 400px;" translate="AUDITUSERNAME"></th>
                                                 <th style="width: 100%;" translate="AUDITUSERGROUPS"></th>
                                              </thead>
-                                             <tbody style = "display: block; height: 400px; overflow-y: auto; width: 100%; overflow-x: auto;">
+                                             <tbody style = "display: block; height: 300px; overflow-y: auto; width: 100%; overflow-x: auto;">
                                                 <tr ng-repeat="chore in chores | filter: choreFilter track by chore.name">
                                                    <td style="min-width: 400px; cursor: default; user-select: none;">
                                                       {{chore.name}}
@@ -282,7 +282,7 @@
    <div class="modal-footer">
       <div class="container-fluid">
          <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-8">
                <div class="input-group">
                   <div class="badge" ng-class="securityAccessColourMapping('ADMIN')">A</div>
                   <div class="badge m-0" style="cursor: default; user-select: none;">
@@ -312,12 +312,12 @@
                   </div>
                </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
                <button ng-class="{'btn btn-success':view.messageSuccess,'btn btn-warning':view.messageWarning}" ng-if="view.message">
                   <span ng-class="{'fa fa-check':view.messageSuccess,'fa fa-warning':view.messageWarning}" aria-hidden="true"></span><span>{{view.message}}</span>
                </button>
             </div>
-            <div class="col-md-3 pr-0">
+            <div class="col-md-2 pr-0">
                <div class="float-right">
                   <button class="btn action ng-scope " ng-click="closeThisDialog()" translate="CANCELUAG"></button>
                </div>
