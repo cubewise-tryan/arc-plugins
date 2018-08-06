@@ -1,21 +1,21 @@
-<div class="tm1-usersGroups">
+<div class="tm1-users-groups">
 
-   <div class="tm1-usersGroups-Heading">
+   <div class="tm1-users-groups-heading">
       <div class="toolbar">
          <label class="page-title">
             <i class="fa fa-sitemap"></i> {{instance | uppercase}}:<span translate="MANAGEUAG"></span>
          </label>
          <button ng-class="{'btn btn-success' : messageSuccess, 'btn btn-warning' : messageWarning}" class="ml-2" ng-if="message">
-            <span ng-class="{'fa fa-check' : messageSuccess,'fa fa-warning' : messageWarning}" aria-hidden="true"></span><span>{{message}}</span>
+            <span ng-class="{'fa fa-check' : messageSuccess,'fa fa-warning' : messageWarning}" class="pr-1" aria-hidden="true"></span><span>{{message}}</span>
          </button>
       </div>
    </div>
 
-   <div class="tm1-usersGroups-Body">      
+   <div class="tm1-users-groups-body">      
       <uib-tabset>
 
-         <uib-tab disable="!usersWithGroups.length" heading="{{'TABUSERS' | translate}}" class="tm1-usersTab">
-            <div class="row" class="tm1-usersTab-Tools">
+         <uib-tab disable="!usersWithGroups.length" heading="{{'TABUSERS' | translate}}" class="tm1-userstab">
+            <div class="row" class="tm1-users-tab-tools">
                <div class="col-4">
                   <div class="input-group">
                      <input type="text" ng-model="selections.filterUser" placeholder="{{'SEARCHUSER' | translate}}" class="form-control" style="display:inline;" />
@@ -57,7 +57,7 @@
                </div>
             </div>
 
-            <div class="row" class="tm1-usersTab-Table" >
+            <div class="row" class="tm1-users-tab-table" >
                <div class="col-12">
                   <div auto-height>
                      <div class="card" >
@@ -121,6 +121,7 @@
                                        <div style="float:left;cursor: default;" class="tm1-showMoreGroups" ng-if="user.groupsRemaining">
                                           <div class="badge badge-secondary badge-sm ml-1" style="color:#fff;" title="{{'GROUPSSHOWMORE' | translate}}" >
                                              <i class="fa fa-plus" ></i>
+                                             <a><i class="fa fa-search text-white" ng-click = "showMoreGroups($index)" title="{{'SHOWGROUPSALL' | translate}}"></i></a>
                                              {{user.groupsRemaining}}
                                           </div>
                                        </div>
@@ -135,8 +136,8 @@
             </div>
          </uib-tab>
 
-         <uib-tab disable="!groupsWithUsers.length" heading="{{'TABGROUPS' | translate}}" class="tm1-groupsTab">
-            <div class="row" class="tm1-groupsTab-Tools">
+         <uib-tab disable="!groupsWithUsers.length" heading="{{'TABGROUPS' | translate}}" class="tm1-groupstab">
+            <div class="row" class="tm1-groupstab-tools">
                <div class="col-4">
                   <div class="input-group">
                      <input type="text" ng-model="selections.filterGroupGroup" placeholder="{{'SEARCHGROUP' | translate}}" class="form-control" style="display:inline;" />
@@ -180,7 +181,7 @@
                </div>
             </div>
 
-            <div class="row" class="tm1-groupsTab-Table">
+            <div class="row" class="tm1-groupstab-table">
                <div class="offset-md-5 mt-5 pt-5" ng-if="!groupsWithUsers.length">
                   <div class="input-group">
                      <span class="input-group-append">
@@ -254,6 +255,7 @@
                                        <div style="float:left; cursor: default;" class="tm1-showMoreGroups" ng-if="group.usersRemaining > 0">
                                           <div class="badge badge-secondary badge-sm ml-1" style="color:#fff;" title="{{'USERSSHOWMORE' | translate}}">
                                              <i class="fa fa-plus" ></i>
+                                             <a><i class="fa fa-search text-white" ng-click = "showMoreUsers($index)" title="{{'SHOWUSERSALL' | translate}}"></i></a>
                                              {{group.usersRemaining}}
                                           </div>
                                        </div>

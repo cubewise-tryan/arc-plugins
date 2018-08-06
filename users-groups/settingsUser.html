@@ -1,4 +1,4 @@
-<div class="tm1-auditUser">
+<div class="tm1-settings-user">
    <div class="modal-header text-dark bg-white">
       <span>
          <i class="fa fa-pencil-square-o"></i>
@@ -27,12 +27,21 @@
                                                 <th style="width: 100%;" translate="SETTINGSUSERVALUE"></th>
                                              </thead>
                                              <tbody style="display: block; height:350px; overflow-y:auto; width:100%; overflow-x: auto;">
-                                                <tr ng-repeat="clientProperty in clientProperties track by clientProperty.name">
+                                                <tr ng-repeat="clientProperty in clientProperties track by $index">
                                                    <td style="min-width: 400px;">
                                                       {{clientProperty.name}}
                                                    </td>
-                                                   <td style="width: 100%;">
-                                                      <input type="text" class="form-control" ng-readonly="clientProperty.isReadOnly" ng-model="clientProperty.value" placeholder="{{clientProperty.value}}" ng-blur="updateClientProperty(view.name, clientProperty.name, clientProperty.value)">
+                                                   <td style="width: 100%;" ng-if="!clientProperty.isCheckBoxType">
+                                                      <input type="text" class="form-control"  ng-readonly="clientProperty.isReadOnly" 
+                                                            ng-model="clientProperty.value" 
+                                                            placeholder="{{clientProperty.value}}" 
+                                                            ng-blur="updateClientProperty(view.name, clientProperty.name, $index, clientProperty.value)">
+                                                   </td>
+                                                   <td style="width: 100%;" ng-if="clientProperty.isCheckBoxType">
+                                                      <input type="checkbox" ng-model="clientProperty.checkBoxIsActive"
+                                                               ng-true-value='"1"'
+                                                               ng-false-value='"0"'
+                                                               ng-click="updateClientProperty(view.name, clientProperty.name, $index, clientProperty.checkBoxIsActive)">
                                                    </td>
                                                 </tr>
                                              </tbody>
@@ -87,7 +96,7 @@
       <div class="row">
          <div class="col-sm-12">
             <button ng-class="{'btn btn-success' : view.messageSuccess, 'btn btn-warning' : view.messageWarning}" ng-if="view.message">
-               <span ng-class="{'fa fa-check' : view.messageSuccess,'fa fa-warning' : view.messageWarning}" aria-hidden="true"></span><span>{{view.message}}</span>
+               <span ng-class="{'fa fa-check' : view.messageSuccess,'fa fa-warning' : view.messageWarning}" class="pr-1" aria-hidden="true"></span><span>{{view.message}}</span>
             </button>
          </div>
       </div>

@@ -1489,9 +1489,20 @@ arc.directive("usersGroups", function () {
 
 
                   $scope.getClientPropertiesPerUser = function(userName){
+
+                     $scope.mappingReadOnly = {
+                        "PasswordLastTimeUpdated":true,
+                        "STATUS":true
+                     }
+   
+                     $scope.mappingCheckBox = {
+                        "ReadOnlyUser":true,
+                        "IsDisabled":true
+                     }
+
                      var userMDX = "{[}Clients].[}Clients].[" + userName + "]}";
                      var url = "/ExecuteMDX?$expand=Axes($expand=Hierarchies($select=Name;$expand=Dimension($select=Name)),Tuples($expand=Members($select=Name,UniqueName,Ordinal,Attributes;$expand=Parent($select=Name);$expand=Element($select=Name,Type,Level)))),Cells($select=Value,Updateable,Consolidated,RuleDerived,HasPicklist,FormatString,FormattedValue)";
-                     var mdx = "SELECT " + userMDX + "ON COLUMNS, { EXCEPT( {TM1SUBSETALL( [}ClientProperties] )}, { [}ClientProperties].[PASSWORD] }) } ON ROWS FROM [}ClientProperties]";
+                     var mdx = "SELECT " + userMDX + "ON COLUMNS, { EXCEPT( {TM1SUBSETALL( [}ClientProperties] )}, { [}ClientProperties].[PASSWORD], [}ClientProperties].[STATUS] }) } ON ROWS FROM [}ClientProperties]";
 
                      var data = { 
                         "MDX" : mdx
@@ -1513,23 +1524,37 @@ arc.directive("usersGroups", function () {
                            };
                            var cubeName = "}ClientProperties";
                            $scope.clientPropertiesResult = $tm1.resultsetTransform($scope.instance, cubeName, success.data, options);
-                           $log.log($scope.clientPropertiesResult);
+                           // $log.log($scope.clientPropertiesResult);
 
                            $scope.clientProperties = [];
                            for(var i = 0; i < $scope.clientPropertiesResult.rows.length; i++){
                               var item = {
                                  name : "",
                                  value : "",
-                                 isReadOnly : false
+                                 isReadOnly : false,
+                                 isCheckBoxType : false,
+                                 checkBoxIsActive : 0
                               }
                               item.name = $scope.clientPropertiesResult.rows[i]["}ClientProperties"].name;
+
                               item.value = $scope.clientPropertiesResult.rows[i].cells[0].value;
-                              if($scope.clientPropertiesResult.rows[i]["}ClientProperties"].name == "PasswordLastTimeUpdated"){
+
+                              if($scope.mappingReadOnly[item.name]){
                                  item.isReadOnly = true;
                               }
+                              if($scope.mappingCheckBox[item.name]){
+                                 item.isCheckBoxType = true;
+                                 if(item.value === 1){
+                                    item.checkBoxIsActive = true
+                                 }else if(item.value === 0){
+                                    item.checkBoxIsActive = false
+                                 }
+                              }
+
 
                               $scope.clientProperties.push(item);
                            }
+                           $log.log($scope.clientProperties);
 
                         }else{
                            if(success.data && success.data.error && success.data.error.message){
@@ -1546,7 +1571,15 @@ arc.directive("usersGroups", function () {
                   }
 
 
-                  $scope.updateClientProperty = function(userName, propertyName, newValue){
+                  $scope.updateClientProperty = function(userName, propertyName, index, newValue){
+                     //the cube takes only string values at present, so need to convert the boolean to a string equivalent
+                     //also flip the signage
+                     if(newValue === "1"){
+                        $scope.clientProperties[index].value = 1;
+                     }else if(newValue === "0"){
+                        $scope.clientProperties[index].value = 0;
+                     };
+
                      var url = "/Cubes('}ClientProperties')/tm1.Update ";
                      var data = {
                         "Cells" : [
@@ -3196,134 +3229,107 @@ arc.directive("usersGroups", function () {
                   $scope.retrieveSecurity = function(rowName, cubeName, tm1Item){
                      var deferred = $q.defer();
 
-                     var url = "/ExecuteMDX?$expand=Axes($expand=Hierarchies($select=Name;$expand=Dimension($select=Name)),Tuples($expand=Members($select=Name,UniqueName,Ordinal,Attributes;$expand=Parent($select=Name);$expand=Element($select=Name,Type,Level)))),Cells($select=Value,Updateable,Consolidated,RuleDerived,HasPicklist,FormatString,FormattedValue)";
-                     var mdxColumn = "{[}Groups].[" + $scope.newGroup.name + "]}";
-                     var mdxRow = "[" + rowName + "]";
-                     var mdxFrom = "[" + cubeName + "]";
+                     //if the security cube does not exist, move on to the next cube
+                     var securityCubeExists = _.find($scope.cubesList, function(o) { return o.Name === cubeName; });
+                     if(typeof securityCubeExists === "undefined"){
+                        deferred.resolve({name:true});
 
-                     if(cubeName === "}ApplicationSecurity"){
-                        var mdxFull = "SELECT " + mdxColumn + " ON COLUMNS, {TM1SUBSETALL(" + mdxRow +  ")} ON ROWS FROM " + mdxFrom;
                      }else{
-                        var mdxFull = "SELECT NON EMPTY " + mdxColumn + " ON COLUMNS, NON EMPTY {TM1SUBSETALL(" + mdxRow +  ")} ON ROWS FROM " + mdxFrom;
-                     }
-
-                      
-                     var data = {
-                        "MDX" : mdxFull
-                     }
-
-                     $http.post(encodeURIComponent($scope.instance) + url, data).then(function(success, error){
-                        if(success.status < 400){
-                           if(cubeName === "}ApplicationSecurity"){
-                              //For application security one needs to handle READ and NONE values specifically
-                              var options = {
-                                 alias: {},
-                                 suppressZeroRows: 0,
-                                 suppressZeroColumns: 1,
-                                 maxRows: 50
-                              };
+                        var url = "/ExecuteMDX?$expand=Axes($expand=Hierarchies($select=Name;$expand=Dimension($select=Name)),Tuples($expand=Members($select=Name,UniqueName,Ordinal,Attributes;$expand=Parent($select=Name);$expand=Element($select=Name,Type,Level)))),Cells($select=Value,Updateable,Consolidated,RuleDerived,HasPicklist,FormatString,FormattedValue)";
+                        var mdxColumn = "{[}Groups].[" + $scope.newGroup.name + "]}";
+                        var mdxRow = "[" + rowName + "]";
+                        var mdxFrom = "[" + cubeName + "]";
    
-                              $scope.cubeSecurityResult = $tm1.resultsetTransform($scope.instance, cubeName, success.data, options);
-
-                              for(var i = 0; i < $scope.cubeSecurityResult.rows.length; i++){
-                                 var item = {
-                                    name : "",
-                                    access : "READ"
-                                 }
-                                 
-                                 if($scope.cubeSecurityResult.rows[i][rowName].name !=="}Applications"){
-                                    item.name = $scope.cubeSecurityResult.rows[i][rowName].name;
+                        if(cubeName === "}ApplicationSecurity"){
+                           var mdxFull = "SELECT " + mdxColumn + " ON COLUMNS, {TM1SUBSETALL(" + mdxRow +  ")} ON ROWS FROM " + mdxFrom;
+                        }else{
+                           var mdxFull = "SELECT NON EMPTY " + mdxColumn + " ON COLUMNS, NON EMPTY {TM1SUBSETALL(" + mdxRow +  ")} ON ROWS FROM " + mdxFrom;
+                        }
    
-                                    for(var j = 0; j < $scope.cubeSecurityResult.rows[i].cells.length; j++){
-                                       if($scope.cubeSecurityResult.rows[i].cells[j].value !== ""){
-                                          item.access = $scope.cubeSecurityResult.rows[i].cells[j].value;
-                                       }
+                         
+                        var data = {
+                           "MDX" : mdxFull
+                        }
    
+                        $http.post(encodeURIComponent($scope.instance) + url, data).then(function(success, error){
+                           if(success.status < 400){
+                              if(cubeName === "}ApplicationSecurity"){
+                                 //For application security one needs to handle READ and NONE values specifically
+                                 var options = {
+                                    alias: {},
+                                    suppressZeroRows: 0,
+                                    suppressZeroColumns: 1,
+                                    maxRows: 50
+                                 };
+      
+                                 $scope.cubeSecurityResult = $tm1.resultsetTransform($scope.instance, cubeName, success.data, options);
+   
+                                 for(var i = 0; i < $scope.cubeSecurityResult.rows.length; i++){
+                                    var item = {
+                                       name : "",
+                                       access : "READ"
                                     }
                                     
-                                    if(item.access!=="NONE"){
-                                       $scope.newGroup[tm1Item].push(item);
+                                    if($scope.cubeSecurityResult.rows[i][rowName].name !=="}Applications"){
+                                       item.name = $scope.cubeSecurityResult.rows[i][rowName].name;
+      
+                                       for(var j = 0; j < $scope.cubeSecurityResult.rows[i].cells.length; j++){
+                                          if($scope.cubeSecurityResult.rows[i].cells[j].value !== ""){
+                                             item.access = $scope.cubeSecurityResult.rows[i].cells[j].value;
+                                          }
+      
+                                       }
+                                       
+                                       if(item.access!=="NONE"){
+                                          $scope.newGroup[tm1Item].push(item);
+                                       }
                                     }
+   
+                                    
                                  }
-
-                                 
+   
+                              }else{
+                                 var options = {
+                                    alias: {},
+                                    suppressZeroRows: 1,
+                                    suppressZeroColumns: 1,
+                                    maxRows: 50
+                                 };
+      
+                                 $scope.cubeSecurityResult = $tm1.resultsetTransform($scope.instance, cubeName, success.data, options);
+   
+                                 for(var i = 0; i < $scope.cubeSecurityResult.rows.length; i++){
+                                    var item = {
+                                       name : "",
+                                       access : ""
+                                    }
+      
+                                    item.name = $scope.cubeSecurityResult.rows[i][rowName].name;
+      
+                                    for(var j = 0; j < $scope.cubeSecurityResult.rows[i].cells.length; j++){
+                                          item.access = $scope.cubeSecurityResult.rows[i].cells[j].value;                                 
+                                    }
+      
+                                    $scope.newGroup[tm1Item].push(item);
+                                 }
+   
                               }
-
+   
+   
+                              deferred.resolve({name:true});
+   
                            }else{
-                              var options = {
-                                 alias: {},
-                                 suppressZeroRows: 1,
-                                 suppressZeroColumns: 1,
-                                 maxRows: 50
-                              };
+                              deferred.reject(success);
    
-                              $scope.cubeSecurityResult = $tm1.resultsetTransform($scope.instance, cubeName, success.data, options);
-
-                              for(var i = 0; i < $scope.cubeSecurityResult.rows.length; i++){
-                                 var item = {
-                                    name : "",
-                                    access : ""
-                                 }
-   
-                                 item.name = $scope.cubeSecurityResult.rows[i][rowName].name;
-   
-                                 for(var j = 0; j < $scope.cubeSecurityResult.rows[i].cells.length; j++){
-                                       item.access = $scope.cubeSecurityResult.rows[i].cells[j].value;                                 
-                                 }
-   
-                                 $scope.newGroup[tm1Item].push(item);
-                              }
-
                            }
+                        })
 
-
-                           deferred.resolve({name:true});
-
-                        }else{
-                           deferred.reject(success);
-
-                        }
-                     })
+                     }
 
                      return deferred.promise;
 
                   }
 
-                  $scope.retrieveGroupSecurityApplications = function(){
-                     var applicationSecurityExists = _.find($scope.cubesList, function(o) { return o.Name === '}ApplicationSecurity'; });
-                     if(typeof applicationSecurityExists !== "undefined"){
-                        return $scope.retrieveSecurity("}ApplicationEntries","}ApplicationSecurity","applications");
-                     }
-                     
-                  }
-                  $scope.retrieveGroupSecurityCubes = function(){
-                     var cubeSecurityExists = _.find($scope.cubesList, function(o) { return o.Name === '}CubeSecurity'; });
-                     if(typeof cubeSecurityExists !== "undefined"){
-                        return $scope.retrieveSecurity("}Cubes","}CubeSecurity","cubes");
-                     }
-                     
-                  }
-                  $scope.retrieveGroupSecurityDimensions = function(){
-                     var dimensionSecurityExists = _.find($scope.cubesList, function(o) { return o.Name === '}DimensionSecurity'; });
-                     if(typeof dimensionSecurityExists !== "undefined"){
-                        return $scope.retrieveSecurity("}Dimensions","}DimensionSecurity","dimensions");
-                     }
-
-                  }
-                  $scope.retrieveGroupSecurityProcesses = function(){
-                     var processSecurityExists = _.find($scope.cubesList, function(o) { return o.Name === '}ProcessSecurity'; });
-                     if(typeof processSecurityExists !== "undefined"){
-                        return $scope.retrieveSecurity("}Processes","}ProcessSecurity","processes");
-                     }
-
-                  }
-                  $scope.retrieveGroupSecurityChores = function(){
-                     var choreSecurityExists = _.find($scope.cubesList, function(o) { return o.Name === '}ChoreSecurity'; });
-                     if(typeof choreSecurityExists !== "undefined"){
-                        return $scope.retrieveSecurity("}Chores","}ChoreSecurity","chores");
-                     }
-
-                  }
 
                   $scope.retrieveErrorHandler = function(rejectedObject){
                      if(rejectedObject.status >=400 ){
@@ -3352,11 +3358,11 @@ arc.directive("usersGroups", function () {
 
 
                   $scope.retrieveGroupSecurityAll = function(){
-                     $scope.retrieveGroupSecurityApplications()
-                        .then($scope.retrieveGroupSecurityCubes)
-                        .then($scope.retrieveGroupSecurityDimensions)
-                        .then($scope.retrieveGroupSecurityProcesses)
-                        .then($scope.retrieveGroupSecurityChores)
+                     $scope.retrieveSecurity("}ApplicationEntries","}ApplicationSecurity","applications")
+                        .then($scope.retrieveSecurity("}Cubes","}CubeSecurity","cubes"))
+                        .then($scope.retrieveSecurity("}Dimensions","}DimensionSecurity","dimensions"))
+                        .then($scope.retrieveSecurity("}Processes","}ProcessSecurity","processes"))
+                        .then($scope.retrieveSecurity("}Chores","}ChoreSecurity","chores"))
                         .catch($scope.retrieveErrorHandler);
                   }
                   $scope.retrieveGroupSecurityAll();

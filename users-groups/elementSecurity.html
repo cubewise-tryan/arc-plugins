@@ -1,4 +1,4 @@
-<div class="tm1-auditUser">
+<div class="tm1-element-security">
    <div class="modal-header text-dark bg-white">
       <div class="container-fluid">
          <div class="row">
@@ -30,9 +30,6 @@
                            <div class="input-group">
                               <input type="text" class="form-control " ng-model="searchElement" placeholder="Type and click Search to Retrieve">
                               <span class="input-group-append">
-                                 <!-- <button class="btn btn-secondary"  title="{{'ELEMENTSECURITYRELOADELEMENTS' | translate}}" ng-click="searchElement=''"> -->
-                                    <!-- <i class="fa fa-remove"></i> -->
-                                 <!-- </button> -->
                                  <button class="btn btn-secondary"  title="{{'ELEMENTSECURITYRELOADELEMENTS' | translate}}" ng-click="getElementsFromDimension(view.dimensionName, searchElement)">
                                     <div>Search</div>
                                  </button>
@@ -41,19 +38,13 @@
 
                         </div>
                         <div class="col-sm-3 pl-0 pr-0">
-                           <!-- <div class="toolbar"> -->
-                              <div class="btn-toolbar pull-left" >
-                                 <!-- <div class="btn-group"> -->
-
-                                 <!-- </div> -->
-                                 <div class="btn-group pl-2">
-                                    <button class="btn btn-secondary"  title="{{'ELEMENTSECURITYREFRESHACCESSPRIVELAGES' | translate}}" ng-click="checkAccessPrivelages();">
-                                       <!-- {{'ELEMENTSECURITYREFRESHACCESSPRIVELAGES' | translate}} -->
-                                       Select All
-                                    </button>
-                                 </div>
+                           <div class="btn-toolbar pull-left" >
+                              <div class="btn-group pl-2">
+                                 <button class="btn btn-secondary"  title="{{'ELEMENTSECURITYREFRESHACCESSPRIVELAGES' | translate}}" ng-click="checkAccessPrivelages();">
+                                    Select All
+                                 </button>
                               </div>
-                           <!-- </div> -->
+                           </div>
                         </div>
                         <div class="col-sm-1 pl-0">
                            <div class="toolbar">
@@ -209,7 +200,7 @@
             </div>
             <div class="col-md-3">
                <button ng-class="{'btn btn-success':view.messageSuccess,'btn btn-warning':view.messageWarning}" ng-if="view.message">
-                  <span ng-class="{'fa fa-check':view.messageSuccess,'fa fa-warning':view.messageWarning}" aria-hidden="true"></span><span>{{view.message}}</span>
+                  <span ng-class="{'fa fa-check':view.messageSuccess,'fa fa-warning':view.messageWarning}" class="pr-1" aria-hidden="true"></span><span>{{view.message}}</span>
                </button>
             </div>
             <div class="col-md-4 pr-0">
