@@ -50,7 +50,7 @@
                                  <form>
                                     <div class="form-group row p-2">
                                        <div class="input-group">
-                                          <div ng-repeat="application in newGroup.applications | orderBy:'name'" >
+                                          <div ng-repeat="application in newGroup.applications.items | orderBy:'name'" >
                                              <div style="float:left;" class="mt-1">
                                                 <div class="input-group">
                                                    <div class="badge m-0 pl-0 pr-0" style="cursor: default; user-select: none;">
@@ -108,7 +108,7 @@
                                  <form>
                                     <div class="form-group row p-2">
                                        <div class="input-group">
-                                          <div ng-repeat="cube in newGroup.cubes | orderBy:'name'" >
+                                          <div ng-repeat="cube in newGroup.cubes.items | orderBy:'name'" >
                                              <div style="float:left;" class="mt-1">
                                                 <div class="input-group">
                                                    <div class="badge m-0 pl-0 pr-0" style="cursor: default; user-select: none;">
@@ -167,7 +167,7 @@
                                  <form>
                                     <div class="form-group row p-2">
                                        <div class="input-group">
-                                          <div ng-repeat="dimension in newGroup.dimensions | orderBy:'name'" >
+                                          <div ng-repeat="dimension in newGroup.dimensions.items | orderBy:'name'" >
                                              <div style="float:left;" class="mt-1">
                                                 <div class="input-group" >
                                                    <div class="badge m-0 pl-0 pr-0" style="cursor: default; user-select: none;">
@@ -226,7 +226,7 @@
                                  <form>
                                     <div class="form-group row p-2">
                                        <div class="input-group">
-                                          <div ng-repeat="process in newGroup.processes | orderBy:'name'" >
+                                          <div ng-repeat="process in newGroup.processes.items | orderBy:'name'" >
                                              <div style="float:left;" class="mt-1">
                                                 <div class="input-group">
                                                    <div class="badge m-0 pl-0 pr-0" style="cursor: default; user-select: none;">
@@ -284,7 +284,7 @@
                                  <form>
                                     <div class="form-group row p-2">
                                        <div class="input-group">
-                                          <div ng-repeat="chore in newGroup.chores | orderBy:'name'" >
+                                          <div ng-repeat="chore in newGroup.chores.items | orderBy:'name'" >
                                              <div style="float:left;" class="mt-1">
                                                 <div class="input-group">
                                                    <div class="badge m-0 pl-0 pr-0" style="cursor: default; user-select: none;">
@@ -345,7 +345,7 @@
             </div>
             <div class="col-md-4 pr-0">
                <div class="float-right">
-                  <button class="btn btn-primary action ng-scope" ng-disabled="!newGroup.name.length > 0" ng-click="updateGroup()" translate="CREATEUAG"></button>                     
+                  <button class="btn btn-primary action ng-scope" ng-disabled="!newGroup.name.length > 0" ng-click="updateGroup()" translate="UPDATEUAG"></button>                     
                   <button class="btn action ng-scope " ng-click="closeThisDialog()" translate="CANCEL"></button>
                </div>
             </div>

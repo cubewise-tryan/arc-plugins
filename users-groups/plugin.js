@@ -2632,13 +2632,17 @@ arc.directive("usersGroups", function () {
             currentIndex = assignedAccessObj[tm1Section][currentAccess];
             nextIndex = currentIndex+1;
 
-            var itemIndex = _.findIndex(newGroup[tm1Section], function(i){return i.name == itemName;});
+            var itemIndex = _.findIndex(newGroup[tm1Section].items, function(i){return i.name == itemName;});
 
             if(nextIndex > assignedAccessArray[tm1Section].length-1){
-               newGroup[tm1Section][itemIndex].access = assignedAccessArray[tm1Section][0];
+               newGroup[tm1Section].items[itemIndex].access = assignedAccessArray[tm1Section][0];
             }else{
-               newGroup[tm1Section][itemIndex].access = assignedAccessArray[tm1Section][nextIndex];
+               newGroup[tm1Section].items[itemIndex].access = assignedAccessArray[tm1Section][nextIndex];
             }
+
+            //update flag
+            newGroup[tm1Section].update = true;
+
          }
 
 
@@ -2646,53 +2650,64 @@ arc.directive("usersGroups", function () {
             if(tm1Section === "applications"){
                for(var i=0; i < $scope.applicationsListWithChildren[group.Name].length; i++){
                   var child = $scope.applicationsListWithChildren[group.Name][i]
-                  newGroup[tm1Section].push({name:child, access:"READ"});
+                  newGroup[tm1Section].items.push({name:child, access:"READ"});
                }
 
                for(var i=0; i < $scope.applicationsListWithParents[group.Name].length; i++){
                   var child = $scope.applicationsListWithParents[group.Name][i]
-                  newGroup[tm1Section].push({name:child, access:"READ"});
+                  newGroup[tm1Section].items.push({name:child, access:"READ"});
                }
 
                //remove duplicates
-               newGroup[tm1Section] = _.uniqBy(newGroup[tm1Section], "name");
+               newGroup[tm1Section].items = _.uniqBy(newGroup[tm1Section].items, "name");
+
+               //update flag
+               newGroup[tm1Section].update = true;
 
             }else{
                if(_.filter(newGroup[tm1Section], function(o){return o.name == group.Name}).length == 0 ){
                   if(tm1Section==="capabilities"){
-                     newGroup[tm1Section].push({name:group.Name, access:"NONE"});
+                     newGroup[tm1Section].items.push({name:group.Name, access:"NONE"});
                   }else{
-                     newGroup[tm1Section].push({name:group.Name, access:"READ"});
+                     newGroup[tm1Section].items.push({name:group.Name, access:"READ"});
                   }
                   
                }
-               $log.log(newGroup[tm1Section]);
+
+               //update flag
+               newGroup[tm1Section].update = true;
+
+               // $log.log(newGroup[tm1Section]);
 
             }
 
          }
 
          $scope.removeTm1SectionItemFromNewGroup = function(newGroup, tm1Section, groupName){
-            var groupIndex = _.findIndex(newGroup[tm1Section], function(i){return i.name == groupName;});
-            var itemObjToRemove = newGroup[tm1Section][groupIndex];
+            var groupIndex = _.findIndex(newGroup[tm1Section].items, function(i){return i.name == groupName;});
+            var itemObjToRemove = newGroup[tm1Section].items[groupIndex];
 
             if(tm1Section === "applications"){
                for(var i=0; i < $scope.applicationsListWithChildren[itemObjToRemove.name].length; i++){
                   var child = $scope.applicationsListWithChildren[itemObjToRemove.name][i]
 
-                  var childIndex = _.findIndex(newGroup[tm1Section], function(i){return i.name == child;});
+                  var childIndex = _.findIndex(newGroup[tm1Section].items, function(i){return i.name == child;});
                   if(childIndex !==-1){
-                     newGroup[tm1Section][childIndex].access = "NONE";
+                     newGroup[tm1Section].items[childIndex].access = "NONE";
                      
-                     newGroup["applicationsNONE"].push(newGroup[tm1Section][childIndex]);
-                     newGroup[tm1Section].splice(childIndex, 1);
+                     newGroup[tm1Section].itemsNONE.push(newGroup[tm1Section].items[childIndex]);
+                     newGroup[tm1Section].items.splice(childIndex, 1);
                   }
 
                }
 
             }else{
-               newGroup[tm1Section].splice(groupIndex, 1);
+               newGroup[tm1Section].itemsNONE.push(newGroup[tm1Section].items[groupIndex]);
+               newGroup[tm1Section].items.splice(groupIndex, 1);
             }
+
+            //update flag
+            newGroup[tm1Section].update = true;
             
 
          }
@@ -2700,7 +2715,9 @@ arc.directive("usersGroups", function () {
          $scope.addCloneGroupsToNewGroupApplications = function(newGroup, cloneGroup){
             var groupsMDX = $scope.groupsArrayToGroupsMDX(cloneGroup);
 
-            if(typeof groupsMDX !== "undefined"){
+            var securityCubeExists = _.find($scope.cubesList, function(o) { return o.Name === '}ApplicationSecurity'; });
+
+            if(typeof groupsMDX !== "undefined" && typeof securityCubeExists!=="undefined"){
                var url = "/ExecuteMDX?$expand=Axes($expand=Hierarchies($select=Name;$expand=Dimension($select=Name)),Tuples($expand=Members($select=Name,UniqueName,Ordinal,Attributes;$expand=Parent($select=Name);$expand=Element($select=Name,Type,Level)))),Cells($select=Value,Updateable,Consolidated,RuleDerived,HasPicklist,FormatString,FormattedValue)";
                var mdx = "SELECT " + groupsMDX + "ON COLUMNS, {TM1SUBSETALL( [}ApplicationEntries] )} ON ROWS FROM [}ApplicationSecurity]"
                var data = { 
@@ -2737,7 +2754,7 @@ arc.directive("usersGroups", function () {
                            }
 
                            if(application.access!=="NONE" && application.name!=="}Applications"){
-                              newGroup.applications.push(application);
+                              newGroup.applications.items.push(application);
                            }
                            
                         }
@@ -2745,7 +2762,11 @@ arc.directive("usersGroups", function () {
                      }
 
                      //remove duplicates
-                     newGroup.applications = _.uniqBy(newGroup.applications, "name");
+                     newGroup.applications.items = _.uniqBy(newGroup.applications.items, "name");
+                     $log.log(newGroup);
+
+                     //flag to be updated
+                     newGroup.applications.update = true;
 
                   }else{
                      if(success.data && success.data.error && success.data.error.message){
@@ -2767,7 +2788,9 @@ arc.directive("usersGroups", function () {
          $scope.addCloneGroupsToNewGroupCubes = function(newGroup, cloneGroup){
             var groupsMDX = $scope.groupsArrayToGroupsMDX(cloneGroup);
 
-            if(typeof groupsMDX != "undefined"){
+            var securityCubeExists = _.find($scope.cubesList, function(o) { return o.Name === '}CubeSecurity'; });
+
+            if(typeof groupsMDX !== "undefined" && typeof securityCubeExists!=="undefined"){
                var url = "/ExecuteMDX?$expand=Axes($expand=Hierarchies($select=Name;$expand=Dimension($select=Name)),Tuples($expand=Members($select=Name,UniqueName,Ordinal,Attributes;$expand=Parent($select=Name);$expand=Element($select=Name,Type,Level)))),Cells($select=Value,Updateable,Consolidated,RuleDerived,HasPicklist,FormatString,FormattedValue)";
                var mdx = "SELECT NON EMPTY " + groupsMDX + " ON COLUMNS, NON EMPTY {TM1SUBSETALL( [}Cubes] )} ON ROWS FROM [}CubeSecurity]"
                var data = { 
@@ -2800,7 +2823,7 @@ arc.directive("usersGroups", function () {
                            if($scope.groupCubeSecurityResult.rows[i].cells[j].value){
                               cube.name = $scope.groupCubeSecurityResult.rows[i]["}Cubes"].key;
                               cube.access = $scope.groupCubeSecurityResult.rows[i].cells[j].value;
-                              newGroup.cubes.push(cube);
+                              newGroup.cubes.items.push(cube);
                            }
                            
                         }
@@ -2808,7 +2831,11 @@ arc.directive("usersGroups", function () {
                      }
 
                      //remove duplicates
-                     newGroup.cubes = _.uniqBy(newGroup.cubes, "name");
+                     newGroup.cubes.items = _.uniqBy(newGroup.cubes.items, "name");
+                     $log.log(newGroup);
+                     
+                     //flag to be updated
+                     newGroup.cubes.update = true;
 
                   }else{
                      if(success.data && success.data.error && success.data.error.message){
@@ -2830,7 +2857,9 @@ arc.directive("usersGroups", function () {
          $scope.addCloneGroupsToNewGroupDimensions = function(newGroup, cloneGroup){
             var groupsMDX = $scope.groupsArrayToGroupsMDX(cloneGroup);
 
-            if(typeof groupsMDX != "undefined"){
+            var securityCubeExists = _.find($scope.cubesList, function(o) { return o.Name === '}DimensionSecurity'; });
+
+            if(typeof groupsMDX !== "undefined" && typeof securityCubeExists!=="undefined"){
                var url = "/ExecuteMDX?$expand=Axes($expand=Hierarchies($select=Name;$expand=Dimension($select=Name)),Tuples($expand=Members($select=Name,UniqueName,Ordinal,Attributes;$expand=Parent($select=Name);$expand=Element($select=Name,Type,Level)))),Cells($select=Value,Updateable,Consolidated,RuleDerived,HasPicklist,FormatString,FormattedValue)";
                var mdx = "SELECT NON EMPTY " + groupsMDX + " ON COLUMNS, NON EMPTY {TM1SUBSETALL( [}Dimensions] )} ON ROWS FROM [}DimensionSecurity]"
                var data = { 
@@ -2863,7 +2892,7 @@ arc.directive("usersGroups", function () {
                            if($scope.groupDimensionSecurityResult.rows[i].cells[j].value){
                               dimension.name = $scope.groupDimensionSecurityResult.rows[i]["}Dimensions"].key;
                               dimension.access = $scope.groupDimensionSecurityResult.rows[i].cells[j].value;
-                              newGroup.dimensions.push(dimension);
+                              newGroup.dimensions.items.push(dimension);
                            }
                            
                         }
@@ -2871,7 +2900,11 @@ arc.directive("usersGroups", function () {
                      }
 
                      //remove duplicates
-                     newGroup.dimensions = _.uniqBy(newGroup.dimensions, "name");
+                     newGroup.dimensions.items = _.uniqBy(newGroup.dimensions.items, "name");
+                     $log.log(newGroup);
+
+                     //flag to be updated
+                     newGroup.dimensions.update = true;
 
                   }else{
                      if(success.data && success.data.error && success.data.error.message){
@@ -2893,7 +2926,9 @@ arc.directive("usersGroups", function () {
          $scope.addCloneGroupsToNewGroupProcesses = function(newGroup, cloneGroup){
             var groupsMDX = $scope.groupsArrayToGroupsMDX(cloneGroup);
 
-            if(typeof groupsMDX != "undefined"){
+            var securityCubeExists = _.find($scope.cubesList, function(o) { return o.Name === '}ProcessSecurity'; });
+
+            if(typeof groupsMDX !== "undefined" && typeof securityCubeExists!=="undefined"){
                var url = "/ExecuteMDX?$expand=Axes($expand=Hierarchies($select=Name;$expand=Dimension($select=Name)),Tuples($expand=Members($select=Name,UniqueName,Ordinal,Attributes;$expand=Parent($select=Name);$expand=Element($select=Name,Type,Level)))),Cells($select=Value,Updateable,Consolidated,RuleDerived,HasPicklist,FormatString,FormattedValue)";
                var mdx = "SELECT NON EMPTY " + groupsMDX + " ON COLUMNS, NON EMPTY {TM1SUBSETALL( [}Processes] )} ON ROWS FROM [}ProcessSecurity]"
                var data = { 
@@ -2926,7 +2961,7 @@ arc.directive("usersGroups", function () {
                            if($scope.groupProcessSecurityResult.rows[i].cells[j].value){
                               processItem.name = $scope.groupProcessSecurityResult.rows[i]["}Processes"].key;
                               processItem.access = $scope.groupProcessSecurityResult.rows[i].cells[j].value;
-                              newGroup.processes.push(processItem);
+                              newGroup.processes.items.push(processItem);
                            }
                            
                         }
@@ -2934,8 +2969,11 @@ arc.directive("usersGroups", function () {
                      }
 
                      //remove duplicates
-                     newGroup.processes = _.uniqBy(newGroup.processes, "name");
-                     $log.log(newGroup.processes);
+                     newGroup.processes.items = _.uniqBy(newGroup.processes.items, "name");
+                     $log.log(newGroup);
+
+                     //flag to be updated
+                     newGroup.processes.update = true;
 
                   }else{
                      if(success.data && success.data.error && success.data.error.message){
@@ -2957,7 +2995,9 @@ arc.directive("usersGroups", function () {
          $scope.addCloneGroupsToNewGroupChores = function(newGroup, cloneGroup){
             var groupsMDX = $scope.groupsArrayToGroupsMDX(cloneGroup);
 
-            if(typeof groupsMDX != "undefined"){
+            var securityCubeExists = _.find($scope.cubesList, function(o) { return o.Name === '}ChoreSecurity'; });
+
+            if(typeof groupsMDX !== "undefined" && typeof securityCubeExists!=="undefined"){
                var url = "/ExecuteMDX?$expand=Axes($expand=Hierarchies($select=Name;$expand=Dimension($select=Name)),Tuples($expand=Members($select=Name,UniqueName,Ordinal,Attributes;$expand=Parent($select=Name);$expand=Element($select=Name,Type,Level)))),Cells($select=Value,Updateable,Consolidated,RuleDerived,HasPicklist,FormatString,FormattedValue)";
                var mdx = "SELECT NON EMPTY " + groupsMDX + " ON COLUMNS, NON EMPTY {TM1SUBSETALL( [}Chores] )} ON ROWS FROM [}ChoreSecurity]"
                var data = { 
@@ -2990,7 +3030,7 @@ arc.directive("usersGroups", function () {
                            if($scope.groupChoreSecurityResult.rows[i].cells[j].value){
                               chore.name = $scope.groupChoreSecurityResult.rows[i]["}Chores"].key;
                               chore.access = $scope.groupChoreSecurityResult.rows[i].cells[j].value;
-                              newGroup.chores.push(chore);
+                              newGroup.chores.items.push(chore);
                            }
                            
                         }
@@ -2998,7 +3038,11 @@ arc.directive("usersGroups", function () {
                      }
 
                      //remove duplicates
-                     newGroup.chores = _.uniqBy(newGroup.chores, "name");
+                     newGroup.chores.items = _.uniqBy(newGroup.chores.items, "name");
+                     $log.log(newGroup.chores);
+
+                     //flag to be updated
+                     newGroup.chores.update = true;
 
                   }else{
                      if(success.data && success.data.error && success.data.error.message){
@@ -3026,11 +3070,17 @@ arc.directive("usersGroups", function () {
          }
 
          $scope.clearCLoneGroupsToNewGroupAll = function(newGroup){
-            newGroup.applications = [];
-            newGroup.cubes = [];
-            newGroup.dimensions = [];
-            newGroup.processes = [];
-            newGroup.chores = [];
+            newGroup.applications.items = [];
+            newGroup.cubes.items = [];
+            newGroup.dimensions.items = [];
+            newGroup.processes.items = [];
+            newGroup.chores.items = [];
+
+            newGroup.applications.update = false;
+            newGroup.cubes.update = false;
+            newGroup.dimensions.update = false;
+            newGroup.processes.update = false;
+            newGroup.chores.update = false;
          }
 
 
@@ -3045,7 +3095,7 @@ arc.directive("usersGroups", function () {
 
             $http.post(encodeURIComponent($scope.instance)+ url, data).then(function(success, error){
                if(success.status < 400){
-                  deferred.resolve(newGroup);
+                  deferred.resolve(success);
 
                }else{
                   deferred.reject(success);
@@ -3057,130 +3107,867 @@ arc.directive("usersGroups", function () {
             return deferred.promise;
          }
 
-         $scope.updateValues = function(newGroup){
-            var deferred = $q.defer();
 
-            var transformAndPost = function(tm1Item, tm1Dimension, tm1Cube){
-               var deferred = $q.defer();
+         $scope.addGroup = function(){
+            ngDialog.open({
+               template: "__/plugins/users-groups/addGroup.html",
+               className: "ngdialog-theme-default large",
+               scope: $scope,
+               controller: ['$rootScope', '$scope', '$http', '$state', '$tm1','$q','$log', function ($rootScope, $scope, $http, $state, $tm1, $q, $log) {
+ 
+                  $scope.view = {
+                     message:"",
+                     messageWarning:false,
+                     messageSuccess:false
+                  }
 
-               var data = [];
 
-               if(tm1Item === "applications"){
-                  if(newGroup[tm1Item].length === 0){
-                     //then load all elements with NONE
-                     for(var i = 0; i < $scope.applicationsList.length; i++){
-                        var item =  {
-                           "Cells":[
-                              {"Tuple@odata.bind": [
-                                 "Dimensions('" + tm1Dimension + "')/Hierarchies('" + tm1Dimension + "')/Elements('"+ $scope.applicationsList[i].Name +"')",
-                                 "Dimensions('}Groups')/Hierarchies('}Groups')/Elements('" + newGroup.name + "')"
-                                 ]
-                              }
-                           ],
-                           "Value" : "NONE"
-                        }
-                        data.push(item);
-
+                  $scope.newGroup = {
+                     name:"",
+                     applications:{
+                        update:false,
+                        items:[],
+                        itemsNONE:[]
+                     },
+                     cubes: {
+                        update:false,
+                        items:[]
+                     },
+                     dimensions:{
+                        update:false,
+                        items:[]
+                     },
+                     processes:{
+                        update:false,
+                        items:[]
+                     },
+                     chores:{
+                        update:false,
+                        items:[]
                      }
 
-                  }else{
-                     //for application security, NONE is triggered when you remove the item from the UI. These items are pushed to a seperate array
-                     //load this array here
-                     for(var i = 0; i < newGroup["applicationsNONE"].length; i++){
-                        var item =  {
-                           "Cells":[
-                              {"Tuple@odata.bind": [
-                                 "Dimensions('" + tm1Dimension + "')/Hierarchies('" + tm1Dimension + "')/Elements('" + newGroup["applicationsNONE"][i].name + "')",
-                                 "Dimensions('}Groups')/Hierarchies('}Groups')/Elements('" + newGroup.name + "')"
-                                 ]
-                              }
-                           ],
-                           "Value" : newGroup["applicationsNONE"][i].access
+                  }
+
+
+                  $scope.deleteSelection = function(tm1ItemSelected){
+                     $dialogs.confirmDelete(tm1ItemSelected, deleteTm1ItemsSelected);
+         
+                     function deleteTm1ItemsSelected(){
+                        if(tm1ItemSelected==="all"){
+                           $scope.newGroup.applications.items = [];
+                           $scope.newGroup.cubes.items = [];
+                           $scope.newGroup.dimensions.items = [];
+                           $scope.newGroup.processes.items = [];
+                           $scope.newGroup.chores.items = [];
+                        }else{
+                           $scope.newGroup[tm1ItemSelected].items = [];
                         }
-                        data.push(item);
+
+                     }
+                  }
+
+
+                  $scope.addSuccess = function(){
+                     //success to display on page
+                     $scope.view.message = $translate.instant("FUNCTIONADDGROUPSUCCESS");
+                     $scope.view.messageSuccess = true;
+         
+                     $timeout(function(){
+                        $scope.view.message = null;
+                        $scope.view.messageSuccess = false;
+                        $scope.ngDialogData.load();
+                        $scope.closeThisDialog();
+                     }, 1000);
+                  }
+         
+         
+                  $scope.addErrorHandler = function(rejectedObject){
+                     if(rejectedObject.status >=400 ){
+                        // Error to display on page
+                        if(rejectedObject.data && rejectedObject.data.error && rejectedObject.data.error.message){
+                           $scope.view.message = rejectedObject.data.error.message;
+                           $scope.view.messageWarning = true;
+         
+                        }
+                        else {
+                           $scope.view.message = rejectedObject.data;
+                           $scope.view.messageWarning = true;
+                        }
+         
+                     }else{
+                        $scope.view.message = $translate.instant("FUNCTIONADDGROUPERROR");
+                        $scope.view.messageWarning = true;
+                        $log.log(rejectedObject);
+         
+                     }
+                     $timeout(function(){
+                        $scope.view.message = null;
+                        $scope.view.messageWarning = false;
+                     }, 2000);
+                  }
+
+                  //CubeSecurity
+                  $scope.cubeSecurityCheckUpdate = function(){
+                     var deferred = $q.defer();
+
+                     var checkObject = {
+                        update:false,
+                        securityCubeExists:false,
+                        data:{}
                      }
 
-                     for(var i = 0; i < newGroup[tm1Item].length; i++){
-                        //for application security, blank cells and READ cells are both handled as READ. But on frontend display we want to display READ
-                        if(newGroup[tm1Item][i].access === "READ"){
-                           newGroup[tm1Item][i].access = "";
-                        }
+                     if($scope.newGroup['cubes'].update){
+                        checkObject.update = true;
+                        deferred.resolve(checkObject);
 
-                        var item =  {
-                           "Cells":[
-                              {"Tuple@odata.bind": [
-                                 "Dimensions('" + tm1Dimension + "')/Hierarchies('" + tm1Dimension + "')/Elements('" + newGroup[tm1Item][i].name + "')",
-                                 "Dimensions('}Groups')/Hierarchies('}Groups')/Elements('" + newGroup.name + "')"
-                                 ]
-                              }
-                           ],
-                           "Value" : newGroup[tm1Item][i].access
-                        }
-                        data.push(item);
-
-
+                     }else{
+                        checkObject.update = false;
+                        deferred.resolve(checkObject);
 
                      }
                      
+         
+                     return deferred.promise;
                   }
 
-               }else{
-                  for(var i = 0; i < newGroup[tm1Item].length; i++){
-                     var item =  {
-                        "Cells":[
-                           {"Tuple@odata.bind": [
-                              "Dimensions('" + tm1Dimension + "')/Hierarchies('" + tm1Dimension + "')/Elements('" + newGroup[tm1Item][i].name + "')",
-                              "Dimensions('}Groups')/Hierarchies('}Groups')/Elements('" + newGroup.name + "')"
-                              ]
+                  $scope.cubeSecurityCheckExistence = function(checkObject){
+                     var deferred = $q.defer();
+
+                     if(checkObject.update){
+                        var url = "/Cubes('}CubeSecurity')";
+            
+                        $http.get(encodeURIComponent($scope.instance) + url).then(function(success){
+                           if(success.status < 400){
+                              checkObject.securityCubeExists = true;
+                              deferred.resolve(checkObject);
+                           }else{
+                              deferred.resolve(checkObject);
                            }
-                        ],
-                        "Value" : newGroup[tm1Item][i].access
+                        });
+
+                     }else{
+                        deferred.resolve(checkObject);
+
                      }
-                     data.push(item);
+
+
+                     return deferred.promise;
                   }
 
+                  $scope.cubeSecurityCreateCube = function(checkObject){
+                     var deferred = $q.defer();
+
+                     if(checkObject.update){
+                        if(checkObject.securityCubeExists){
+                           deferred.resolve(checkObject);
+   
+                        }else{
+                           var url = "/Cubes";
+                           var data = "{\"Name\": \"}CubeSecurity\", \"Dimensions@odata.bind\":[\"Dimensions('}Cubes')\",\"Dimensions('}Groups')\"]}";
+               
+                           $http.post(encodeURIComponent($scope.instance) + url, data).then(function(success){
+                              if(success.status < 400){
+                                 checkObject.securityCubeExists = true;
+                                 deferred.resolve(checkObject);
+                              }else{
+                                 deferred.reject(success);
+                              }
+                           });
+   
+                        }
+                     }else{
+                        deferred.resolve(checkObject);
+                     }
+
+                     return deferred.promise;
+                  }
+
+                  $scope.cubeSecurityBuildData = function(checkObject){
+                     var deferred = $q.defer();
+
+                     if(checkObject.update){
+                        //build data object
+                        var data = [];
+            
+                        for(var i = 0; i < $scope.newGroup['cubes'].items.length; i++){
+                           var item =  {
+                              "Cells":[
+                                 {"Tuple@odata.bind": [
+                                    "Dimensions('}Cubes')/Hierarchies('}Cubes')/Elements('" + $scope.newGroup['cubes'].items[i].name + "')",
+                                    "Dimensions('}Groups')/Hierarchies('}Groups')/Elements('" + $scope.newGroup.name + "')"
+                                    ]
+                                 }
+                              ],
+                              "Value" : $scope.newGroup['cubes'].items[i].access
+                           }
+                           data.push(item);
+                        }
+               
+                        checkObject.data = data;
+                        deferred.resolve(checkObject);
+
+                     }else{
+                        deferred.resolve(checkObject);
+
+                     }
+
+                     return deferred.promise;
+                  }
+
+                  $scope.cubeSecurityLoadData = function(checkObject){
+                     var deferred = $q.defer();
+
+                     if(checkObject.update){
+                        var url = "/Cubes('}CubeSecurity')/tm1.Update";
+
+                        $http.post(encodeURIComponent($scope.instance) + url, checkObject.data).then(function(success){
+                           if(success.status < 400){
+                              deferred.resolve(success);
+            
+                           }else{
+                              deferred.reject(success);
+                           }
+            
+                        });
+                     }else{
+                        deferred.resolve(checkObject);
+                     }
+
+                     return deferred.promise;
+                  }
+
+                  //DimensionSecurity
+                  $scope.dimensionSecurityCheckUpdate = function(){
+                     var deferred = $q.defer();
+
+                     var checkObject = {
+                        update:false,
+                        securityCubeExists:false,
+                        data:{}
+                     }
+
+                     if($scope.newGroup['dimensions'].update){
+                        checkObject.update = true;
+                        deferred.resolve(checkObject);
+
+                     }else{
+                        checkObject.update = false;
+                        deferred.resolve(checkObject);
+
+                     }
+                     
+         
+                     return deferred.promise;
+                  }
+
+                  $scope.dimensionSecurityCheckExistence = function(checkObject){
+                     var deferred = $q.defer();
+
+                     if(checkObject.update){
+                        var url = "/Cubes('}DimensionSecurity')";
+            
+                        $http.get(encodeURIComponent($scope.instance) + url).then(function(success){
+                           if(success.status < 400){
+                              checkObject.securityCubeExists = true;
+                              deferred.resolve(checkObject);
+                           }else{
+                              deferred.resolve(checkObject);
+                           }
+                        });
+                     }else{
+                        deferred.resolve(checkObject);
+
+                     }
+
+
+                     return deferred.promise;
+                  }
+
+                  $scope.dimensionSecurityCreateCube = function(checkObject){
+                     var deferred = $q.defer();
+
+                     if(checkObject.update){
+                        if(checkObject.securityCubeExists){
+                           deferred.resolve(checkObject);
+   
+                        }else{
+                           var url = "/Cubes";
+                           var data = "{\"Name\": \"}DimensionSecurity\", \"Dimensions@odata.bind\":[\"Dimensions('}Dimensions')\",\"Dimensions('}Groups')\"]}";
+               
+                           $http.post(encodeURIComponent($scope.instance) + url, data).then(function(success){
+                              if(success.status < 400){
+                                 checkObject.securityCubeExists = true;
+                                 deferred.resolve(checkObject);
+                              }else{
+                                 deferred.reject(success);
+                              }
+                           });
+   
+                        }
+                     }else{
+                        deferred.resolve(checkObject);
+                     }
+
+                     return deferred.promise;
+                  }
+
+                  $scope.dimensionSecurityBuildData = function(checkObject){
+                     var deferred = $q.defer();
+
+                     if(checkObject.update){
+                        //build data object
+                        var data = [];
+            
+                        for(var i = 0; i < $scope.newGroup['dimensions'].items.length; i++){
+                           var item =  {
+                              "Cells":[
+                                 {"Tuple@odata.bind": [
+                                    "Dimensions('}Dimensions')/Hierarchies('}Dimensions')/Elements('" + $scope.newGroup['dimensions'].items[i].name + "')",
+                                    "Dimensions('}Groups')/Hierarchies('}Groups')/Elements('" + $scope.newGroup.name + "')"
+                                    ]
+                                 }
+                              ],
+                              "Value" : $scope.newGroup['dimensions'].items[i].access
+                           }
+                           data.push(item);
+                        }
+               
+                        checkObject.data = data;
+                        deferred.resolve(checkObject);
+
+                     }else{
+                        deferred.resolve(checkObject);
+
+                     }
+
+                     return deferred.promise;
+                  }
+
+                  $scope.dimensionSecurityLoadData = function(checkObject){
+                     var deferred = $q.defer();
+
+                     if(checkObject.update){
+                        var url = "/Cubes('}DimensionSecurity')/tm1.Update";
+
+                        $http.post(encodeURIComponent($scope.instance) + url, checkObject.data).then(function(success){
+                           if(success.status < 400){
+                              deferred.resolve(success);
+            
+                           }else{
+                              deferred.reject(success);
+                           }
+            
+                        });
+                     }else{
+                        deferred.resolve(checkObject);
+                     }
+
+                     return deferred.promise;
+                  }
+
+                  //ProcessSecurity
+                  $scope.processSecurityCheckUpdate = function(){
+                     var deferred = $q.defer();
+
+                     var checkObject = {
+                        update:false,
+                        securityCubeExists:false,
+                        data:{}
+                     }
+
+                     if($scope.newGroup['processes'].update){
+                        checkObject.update = true;
+                        deferred.resolve(checkObject);
+
+                     }else{
+                        checkObject.update = false;
+                        deferred.resolve(checkObject);
+
+                     }
+                     
+         
+                     return deferred.promise;
+                  }
+
+                  $scope.processSecurityCheckExistence = function(checkObject){
+                     var deferred = $q.defer();
+
+                     if(checkObject.update){
+                        var url = "/Cubes('}ProcessSecurity')";
+            
+                        $http.get(encodeURIComponent($scope.instance) + url).then(function(success){
+                           if(success.status < 400){
+                              checkObject.securityCubeExists = true;
+                              deferred.resolve(checkObject);
+                           }else{
+                              deferred.resolve(checkObject);
+                           }
+                        });
+                     }else{
+                        deferred.resolve(checkObject);
+
+                     }
+
+
+                     return deferred.promise;
+                  }
+
+                  $scope.processSecurityCreateCube = function(checkObject){
+                     var deferred = $q.defer();
+
+                     if(checkObject.update){
+                        if(checkObject.securityCubeExists){
+                           deferred.resolve(checkObject);
+   
+                        }else{
+                           var url = "/Cubes";
+                           var data = "{\"Name\": \"}ProcessSecurity\", \"Dimensions@odata.bind\":[\"Dimensions('}Processes')\",\"Dimensions('}Groups')\"]}";
+               
+                           $http.post(encodeURIComponent($scope.instance) + url, data).then(function(success){
+                              if(success.status < 400){
+                                 checkObject.securityCubeExists = true;
+                                 deferred.resolve(checkObject);
+                              }else{
+                                 deferred.reject(success);
+                              }
+                           });
+   
+                        }
+                     }else{
+                        deferred.resolve(checkObject);
+                     }
+
+
+                     return deferred.promise;
+                  }
+
+                  $scope.processSecurityBuildData = function(checkObject){
+                     var deferred = $q.defer();
+
+                     if(checkObject.update){
+                        //build data object
+                        var data = [];
+            
+                        for(var i = 0; i < $scope.newGroup['processes'].items.length; i++){
+                           var item =  {
+                              "Cells":[
+                                 {"Tuple@odata.bind": [
+                                    "Dimensions('}Processes')/Hierarchies('}Processes')/Elements('" + $scope.newGroup['processes'].items[i].name + "')",
+                                    "Dimensions('}Groups')/Hierarchies('}Groups')/Elements('" + $scope.newGroup.name + "')"
+                                    ]
+                                 }
+                              ],
+                              "Value" : $scope.newGroup['processes'].items[i].access
+                           }
+                           data.push(item);
+                        }
+               
+                        checkObject.data = data;
+                        deferred.resolve(checkObject);
+
+                     }else{
+                        deferred.resolve(checkObject);
+
+                     }
+
+                     return deferred.promise;
+                  }
+
+                  $scope.processSecurityLoadData = function(checkObject){
+                     var deferred = $q.defer();
+
+                     if(checkObject.update){
+                        var url = "/Cubes('}ProcessSecurity')/tm1.Update";
+
+                        $http.post(encodeURIComponent($scope.instance) + url, checkObject.data).then(function(success){
+                           if(success.status < 400){
+                              deferred.resolve(success);
+            
+                           }else{
+                              deferred.reject(success);
+                           }
+            
+                        });
+                     }else{
+                        deferred.resolve(checkObject);
+                     }
+
+                     return deferred.promise;
+                  }
+
+
+                  //ChoreSecurity
+                  $scope.choreSecurityCheckUpdate = function(){
+                     var deferred = $q.defer();
+
+                     var checkObject = {
+                        update:false,
+                        securityCubeExists:false,
+                        data:{}
+                     }
+
+                     if($scope.newGroup['chores'].update){
+                        checkObject.update = true;
+                        deferred.resolve(checkObject);
+
+                     }else{
+                        checkObject.update = false;
+                        deferred.resolve(checkObject);
+
+                     }
+                     
+         
+                     return deferred.promise;
+                  }
+
+                  $scope.choreSecurityCheckExistence = function(checkObject){
+                     var deferred = $q.defer();
+
+                     if(checkObject.update){
+                        var url = "/Cubes('}ChoreSecurity')";
+            
+                        $http.get(encodeURIComponent($scope.instance) + url).then(function(success){
+                           if(success.status < 400){
+                              checkObject.securityCubeExists = true;
+                              deferred.resolve(checkObject);
+                           }else{
+                              deferred.resolve(checkObject);
+                           }
+                        });
+                     }else{
+                        deferred.resolve(checkObject);
+
+                     }
+
+
+                     return deferred.promise;
+                  }
+
+                  $scope.choreSecurityCreateCube = function(checkObject){
+                     var deferred = $q.defer();
+
+                     if(checkObject.update){
+                        if(checkObject.securityCubeExists){
+                           deferred.resolve(checkObject);
+   
+                        }else{
+                           var url = "/Cubes";
+                           var data = "{\"Name\": \"}ChoreSecurity\", \"Dimensions@odata.bind\":[\"Dimensions('}Chores')\",\"Dimensions('}Groups')\"]}";
+               
+                           $http.post(encodeURIComponent($scope.instance) + url, data).then(function(success){
+                              if(success.status < 400){
+                                 checkObject.securityCubeExists = true;
+                                 deferred.resolve(checkObject);
+                              }else{
+                                 deferred.reject(success);
+                              }
+                           });
+   
+                        }
+
+                     }else{
+                        deferred.resolve(checkObject);
+
+                     }
+
+
+                     return deferred.promise;
+                  }
+
+                  $scope.choreSecurityBuildData = function(checkObject){
+                     var deferred = $q.defer();
+
+                     if(checkObject.update){
+                        //build data object
+                        var data = [];
+            
+                        for(var i = 0; i < $scope.newGroup['chores'].items.length; i++){
+                           var item =  {
+                              "Cells":[
+                                 {"Tuple@odata.bind": [
+                                    "Dimensions('}Chores')/Hierarchies('}Chores')/Elements('" + $scope.newGroup['chores'].items[i].name + "')",
+                                    "Dimensions('}Groups')/Hierarchies('}Groups')/Elements('" + $scope.newGroup.name + "')"
+                                    ]
+                                 }
+                              ],
+                              "Value" : $scope.newGroup['chores'].items[i].access
+                           }
+                           data.push(item);
+                        }
+               
+                        checkObject.data = data;
+                        deferred.resolve(checkObject);
+
+                     }else{
+                        deferred.resolve(checkObject);
+
+                     }
+
+                     return deferred.promise;
+                  }
+
+                  $scope.choreSecurityLoadData = function(checkObject){
+                     var deferred = $q.defer();
+
+                     if(checkObject.update){
+                        var url = "/Cubes('}ChoreSecurity')/tm1.Update";
+
+                        $http.post(encodeURIComponent($scope.instance) + url, checkObject.data).then(function(success){
+                           if(success.status < 400){
+                              deferred.resolve(success);
+            
+                           }else{
+                              deferred.reject(success);
+                           }
+            
+                        });
+                     }else{
+                        deferred.resolve(checkObject);
+                     }
+
+                     return deferred.promise;
+                  }
+
+
+                  //ApplicationSecurity
+                  $scope.applicationSecurityCheckUpdate = function(){
+                     var deferred = $q.defer();
+
+                     var checkObject = {
+                        update:false,
+                        securityCubeExists:false,
+                        data:{}
+                     }
+
+                     if($scope.newGroup['applications'].update){
+                        checkObject.update = true;
+                        deferred.resolve(checkObject);
+
+                     }else{
+                        checkObject.update = false;
+                        deferred.resolve(checkObject);
+
+                     }
+                     
+         
+                     return deferred.promise;
+                  }
+
+                  $scope.applicationSecurityCheckExistence = function(checkObject){
+                     var deferred = $q.defer();
+
+                     if(checkObject.update){
+                        var url = "/Cubes('}ApplicationSecurity')";
+            
+                        $http.get(encodeURIComponent($scope.instance) + url).then(function(success){
+                           if(success.status < 400){
+                              checkObject.securityCubeExists = true;
+                              deferred.resolve(checkObject);
+                           }else{
+                              deferred.resolve(checkObject);
+                           }
+                        });
+                     }else{
+                        deferred.resolve(checkObject);
+
+                     }
+
+                     return deferred.promise;
+                  }
+
+                  $scope.applicationSecurityCreateCube = function(checkObject){
+                     var deferred = $q.defer();
+
+                     if(checkObject.update){
+                        if(checkObject.securityCubeExists){
+                           deferred.resolve(checkObject);
+   
+                        }else{
+                           var url = "/Cubes";
+                           var data = "{\"Name\": \"}ApplicationSecurity\", \"Dimensions@odata.bind\":[\"Dimensions('}ApplicationEntries')\",\"Dimensions('}Groups')\"]}";
+               
+                           $http.post(encodeURIComponent($scope.instance) + url, data).then(function(success){
+                              if(success.status < 400){
+                                 checkObject.securityCubeExists = true;
+                                 deferred.resolve(checkObject);
+                              }else{
+                                 deferred.reject(success);
+                              }
+                           });
+   
+                        }
+
+                     }else{
+                        deferred.resolve(checkObject);
+
+                     }
+
+                     return deferred.promise;
+                  }
+
+                  $scope.applicationSecurityBuildData = function(checkObject){
+                     var deferred = $q.defer();
+
+                     if(checkObject.update){
+                        //build data object
+                        var data = [];
+            
+                        if($scope.newGroup['applications'].length === 0){
+                           //then load all elements with NONE
+                           for(var i = 0; i < $scope.applicationsList.length; i++){
+                              var item =  {
+                                 "Cells":[
+                                    {"Tuple@odata.bind": [
+                                       "Dimensions('}ApplicationEntries')/Hierarchies('}ApplicationEntries')/Elements('"+ $scope.applicationsList[i].Name +"')",
+                                       "Dimensions('}Groups')/Hierarchies('}Groups')/Elements('" + $scope.newGroup.name + "')"
+                                       ]
+                                    }
+                                 ],
+                                 "Value" : "NONE"
+                              }
+                              data.push(item);
+      
+                           }
+      
+                        }else{
+                           //for application security, NONE is triggered when you remove the item from the UI. These items are pushed to a seperate array
+                           //load this array here
+                           for(var i = 0; i < $scope.newGroup["applications"].itemsNONE.length; i++){
+                              var item =  {
+                                 "Cells":[
+                                    {"Tuple@odata.bind": [
+                                       "Dimensions('}ApplicationEntries')/Hierarchies('}ApplicationEntries')/Elements('" + $scope.newGroup["applications"].itemsNONE[i].name + "')",
+                                       "Dimensions('}Groups')/Hierarchies('}Groups')/Elements('" + $scope.newGroup.name + "')"
+                                       ]
+                                    }
+                                 ],
+                                 "Value" : $scope.newGroup["applications"].itemsNONE[i].access
+                              }
+                              data.push(item);
+                           }
+      
+                           for(var i = 0; i < $scope.newGroup["applications"].items.length; i++){
+                              //for application security, blank cells and READ cells are both handled as READ. But on frontend display we want to display READ
+                              if($scope.newGroup["applications"].items[i].access === "READ"){
+                                 $scope.newGroup["applications"].items[i].access = "";
+                              }
+      
+                              var item =  {
+                                 "Cells":[
+                                    {"Tuple@odata.bind": [
+                                       "Dimensions('}ApplicationEntries')/Hierarchies('}ApplicationEntries')/Elements('" + $scope.newGroup["applications"].items[i].name + "')",
+                                       "Dimensions('}Groups')/Hierarchies('}Groups')/Elements('" + $scope.newGroup.name + "')"
+                                       ]
+                                    }
+                                 ],
+                                 "Value" : $scope.newGroup["applications"].items[i].access
+                              }
+                              data.push(item);
+         
+                           }
+                           
+                        }
+               
+                        checkObject.data = data;
+                        deferred.resolve(checkObject);
+
+                     }else{
+                        deferred.resolve(checkObject);
+
+                     }
+
+                     return deferred.promise;
+                  }
+
+                  $scope.applicationSecurityLoadData = function(checkObject){
+                     var deferred = $q.defer();
+
+                     if(checkObject.update){
+                        var url = "/Cubes('}ApplicationSecurity')/tm1.Update";
+
+                        $http.post(encodeURIComponent($scope.instance) + url, checkObject.data).then(function(success){
+                           if(success.status < 400){
+                              deferred.resolve(success);
+            
+                           }else{
+                              deferred.reject(success);
+                           }
+            
+                        });
+                     }else{
+                        deferred.resolve(checkObject);
+                     }
+
+                     return deferred.promise;
+                  }
+
+
+                  $scope.createGroup = function(){
+                     if($scope.newGroup.name!==""){
+                        $scope.addNewGroup($scope.newGroup)
+                           .then($scope.cubeSecurityCheckUpdate)
+                           .then($scope.cubeSecurityCheckExistence)
+                           .then($scope.cubeSecurityCreateCube)
+                           .then($scope.cubeSecurityBuildData)
+                           .then($scope.cubeSecurityLoadData)
+
+                           .then($scope.dimensionSecurityCheckUpdate)
+                           .then($scope.dimensionSecurityCheckExistence)
+                           .then($scope.dimensionSecurityCreateCube)
+                           .then($scope.dimensionSecurityBuildData)
+                           .then($scope.dimensionSecurityLoadData)
+
+                           .then($scope.processSecurityCheckUpdate)
+                           .then($scope.processSecurityCheckExistence)
+                           .then($scope.processSecurityCreateCube)
+                           .then($scope.processSecurityBuildData)
+                           .then($scope.processSecurityLoadData)
+
+                           .then($scope.choreSecurityCheckUpdate)
+                           .then($scope.choreSecurityCheckExistence)
+                           .then($scope.choreSecurityCreateCube)
+                           .then($scope.choreSecurityBuildData)
+                           .then($scope.choreSecurityLoadData)
+
+                           .then($scope.applicationSecurityCheckUpdate)
+                           .then($scope.applicationSecurityCheckExistence)
+                           .then($scope.applicationSecurityCreateCube)
+                           .then($scope.applicationSecurityBuildData)
+                           .then($scope.applicationSecurityLoadData)
+
+                           .then($scope.addSuccess)
+                           .catch($scope.addErrorHandler);
+                     }
+                  }
+
+
+                  $scope.closeThisDialog = function(){
+                     ngDialog.close();
+                  }
+
+               }],
+               data: {
+                  view : $scope.view,
+                  updateGroupsArray : $scope.updateGroupsArray,
+                  load : $scope.load,
+                  groupsArrayToGroupsMDX : $scope.groupsArrayToGroupsMDX,
+                  nextAccess : $scope.nextAccess,
+                  previousAccess : $scope.previousAccess,
+                  addIndividualTm1SectionItemToNewGroup : $scope.addIndividualTm1SectionItemToNewGroup,
+                  removeTm1SectionItemFromNewGroup : $scope.removeTm1SectionItemFromNewGroup,
+                  addCloneGroupsToNewGroupApplications : $scope.addCloneGroupsToNewGroupApplications,
+                  addCloneGroupsToNewGroupCubes : $scope.addCloneGroupsToNewGroupCubes,
+                  addCloneGroupsToNewGroupDimensions : $scope.addCloneGroupsToNewGroupDimensions,
+                  addCloneGroupsToNewGroupProcesses : $scope.addCloneGroupsToNewGroupProcesses,
+                  addCloneGroupsToNewGroupChores : $scope.addCloneGroupsToNewGroupChores,
+                  addCloneGroupsToNewGroupAll : $scope.addCloneGroupsToNewGroupAll,
+                  addNewGroup : $scope.addNewGroup,
+                  updateTm1Section : $scope.updateTm1Section
 
                }
-
-
-               // http parameters
-               var url = "/Cubes('" + tm1Cube +"')/tm1.Update";
-
-               $http.post(encodeURIComponent($scope.instance) + url, data).then(function(success,error){
-                  if(success.status < 400){
-                     deferred.resolve(success);
-
-                  }else{
-                     deferred.reject(success);
-                  }
-
-               });
-
-               return deferred.promise;
-
-            }
-
-
-            $q.all([
-               transformAndPost("applications","}ApplicationEntries","}ApplicationSecurity"),
-               transformAndPost("cubes","}Cubes","}CubeSecurity"),
-               transformAndPost("dimensions","}Dimensions","}DimensionSecurity"),
-               transformAndPost("processes","}Processes","}ProcessSecurity"),
-               transformAndPost("chores","}Chores","}ChoreSecurity")
-            ])
-            .then(function(response){
-               deferred.resolve(response);
-            })
-            .catch(function(response){
-               deferred.reject(response);
             });
 
-
-            return deferred.promise;
-
          }
-
-
 
          $scope.editGroup = function(rowIndex){
             ngDialog.open({
@@ -3199,13 +3986,33 @@ arc.directive("usersGroups", function () {
                   //for application security, blank cells and READ cells are both handled as READ. But on frontend display we want to display READ only
                   //if an application is not displayed on the frontend, then it should have a value of NONE in the application security cube
                   $scope.newGroup = {
-                     name: $scope.ngDialogData.groupsWithUsers[rowIndex].Name,
-                     applications:[],
-                     applicationsNONE:[],
-                     cubes: [],
-                     dimensions:[],
-                     processes:[],
-                     chores:[]
+                     name:$scope.ngDialogData.groupsWithUsers[rowIndex].Name,
+                     applications:{
+                        update:false,
+                        items:[],
+                        itemsNONE:[]
+                     },
+                     cubes: {
+                        update:false,
+                        items:[],
+                        itemsNONE:[]
+                     },
+                     dimensions:{
+                        update:false,
+                        items:[],
+                        itemsNONE:[]
+                     },
+                     processes:{
+                        update:false,
+                        items:[],
+                        itemsNONE:[]
+                     },
+                     chores:{
+                        update:false,
+                        items:[],
+                        itemsNONE:[]
+                     }
+
                   }
 
                   $scope.deleteSelection = function(tm1ItemSelected){
@@ -3213,13 +4020,13 @@ arc.directive("usersGroups", function () {
          
                      function deleteTm1ItemsSelected(){
                         if(tm1ItemSelected==="all"){
-                           $scope.newGroup.applications = [];
-                           $scope.newGroup.cubes = [];
-                           $scope.newGroup.dimensions = [];
-                           $scope.newGroup.processes = [];
-                           $scope.newGroup.chores = [];
+                           $scope.newGroup.applications.items = [];
+                           $scope.newGroup.cubes.items = [];
+                           $scope.newGroup.dimensions.items = [];
+                           $scope.newGroup.processes.items = [];
+                           $scope.newGroup.chores.items = [];
                         }else{
-                           $scope.newGroup[tm1ItemSelected] = [];
+                           $scope.newGroup[tm1ItemSelected].items = [];
                         }
 
                      }
@@ -3281,7 +4088,7 @@ arc.directive("usersGroups", function () {
                                        }
                                        
                                        if(item.access!=="NONE"){
-                                          $scope.newGroup[tm1Item].push(item);
+                                          $scope.newGroup[tm1Item].items.push(item);
                                        }
                                     }
    
@@ -3310,7 +4117,7 @@ arc.directive("usersGroups", function () {
                                           item.access = $scope.cubeSecurityResult.rows[i].cells[j].value;                                 
                                     }
       
-                                    $scope.newGroup[tm1Item].push(item);
+                                    $scope.newGroup[tm1Item].items.push(item);
                                  }
    
                               }
@@ -3364,8 +4171,12 @@ arc.directive("usersGroups", function () {
                         .then($scope.retrieveSecurity("}Processes","}ProcessSecurity","processes"))
                         .then($scope.retrieveSecurity("}Chores","}ChoreSecurity","chores"))
                         .catch($scope.retrieveErrorHandler);
+
+                        //Original retrieved values
+                        $scope.originalGroup = _.clone($scope.newGroup);
                   }
                   $scope.retrieveGroupSecurityAll();
+                  $log.log($scope.originalGroup);
 
 
                   $scope.addSuccess = function(){
@@ -3408,15 +4219,801 @@ arc.directive("usersGroups", function () {
                   }
 
 
+                  //CubeSecurity
+                  $scope.cubeSecurityCheckUpdate = function(){
+                     var deferred = $q.defer();
+
+                     var checkObject = {
+                        update:false,
+                        securityCubeExists:false,
+                        data:{}
+                     }
+
+                     if($scope.newGroup['cubes'].update){
+                        checkObject.update = true;
+                        deferred.resolve(checkObject);
+
+                     }else{
+                        checkObject.update = false;
+                        deferred.resolve(checkObject);
+
+                     }
+                     
+         
+                     return deferred.promise;
+                  }
+
+                  $scope.cubeSecurityCheckExistence = function(checkObject){
+                     var deferred = $q.defer();
+
+                     if(checkObject.update){
+                        var url = "/Cubes('}CubeSecurity')";
+            
+                        $http.get(encodeURIComponent($scope.instance) + url).then(function(success){
+                           if(success.status < 400){
+                              checkObject.securityCubeExists = true;
+                              deferred.resolve(checkObject);
+                           }else{
+                              deferred.resolve(checkObject);
+                           }
+                        });
+
+                     }else{
+                        deferred.resolve(checkObject);
+
+                     }
+
+
+                     return deferred.promise;
+                  }
+
+                  $scope.cubeSecurityCreateCube = function(checkObject){
+                     var deferred = $q.defer();
+
+                     if(checkObject.update){
+                        if(checkObject.securityCubeExists){
+                           deferred.resolve(checkObject);
+   
+                        }else{
+                           var url = "/Cubes";
+                           var data = "{\"Name\": \"}CubeSecurity\", \"Dimensions@odata.bind\":[\"Dimensions('}Cubes')\",\"Dimensions('}Groups')\"]}";
+               
+                           $http.post(encodeURIComponent($scope.instance) + url, data).then(function(success){
+                              if(success.status < 400){
+                                 checkObject.securityCubeExists = true;
+                                 deferred.resolve(checkObject);
+                              }else{
+                                 deferred.reject(success);
+                              }
+                           });
+   
+                        }
+                     }else{
+                        deferred.resolve(checkObject);
+                     }
+
+                     return deferred.promise;
+                  }
+
+                  $scope.cubeSecurityBuildData = function(checkObject){
+                     var deferred = $q.defer();
+
+                     if(checkObject.update){
+                        //build data object, but compare to the original object also
+                        var data = [];
+            
+                        //removed items
+                        for(var i = 0; i < $scope.newGroup['cubes'].itemsNONE.length; i++){
+                           var item =  {
+                              "Cells":[
+                                 {"Tuple@odata.bind": [
+                                    "Dimensions('}Cubes')/Hierarchies('}Cubes')/Elements('" + $scope.newGroup['cubes'].itemsNONE[i].name + "')",
+                                    "Dimensions('}Groups')/Hierarchies('}Groups')/Elements('" + $scope.newGroup.name + "')"
+                                    ]
+                                 }
+                              ],
+                              "Value" : ""
+                           }
+                           data.push(item);
+                        }
+
+                        //normal/changed items
+                        for(var i = 0; i < $scope.newGroup['cubes'].items.length; i++){
+                           var item =  {
+                              "Cells":[
+                                 {"Tuple@odata.bind": [
+                                    "Dimensions('}Cubes')/Hierarchies('}Cubes')/Elements('" + $scope.newGroup['cubes'].items[i].name + "')",
+                                    "Dimensions('}Groups')/Hierarchies('}Groups')/Elements('" + $scope.newGroup.name + "')"
+                                    ]
+                                 }
+                              ],
+                              "Value" : $scope.newGroup['cubes'].items[i].access
+                           }
+                           data.push(item);
+                        }
+               
+                        checkObject.data = data;
+                        deferred.resolve(checkObject);
+
+                     }else{
+                        deferred.resolve(checkObject);
+
+                     }
+
+                     return deferred.promise;
+                  }
+
+                  $scope.cubeSecurityLoadData = function(checkObject){
+                     var deferred = $q.defer();
+
+                     if(checkObject.update){
+                        var url = "/Cubes('}CubeSecurity')/tm1.Update";
+
+                        $http.post(encodeURIComponent($scope.instance) + url, checkObject.data).then(function(success){
+                           if(success.status < 400){
+                              deferred.resolve(success);
+            
+                           }else{
+                              deferred.reject(success);
+                           }
+            
+                        });
+                     }else{
+                        deferred.resolve(checkObject);
+                     }
+
+                     return deferred.promise;
+                  }
+
+                  //DimensionSecurity
+                  $scope.dimensionSecurityCheckUpdate = function(){
+                     var deferred = $q.defer();
+
+                     var checkObject = {
+                        update:false,
+                        securityCubeExists:false,
+                        data:{}
+                     }
+
+                     if($scope.newGroup['dimensions'].update){
+                        checkObject.update = true;
+                        deferred.resolve(checkObject);
+
+                     }else{
+                        checkObject.update = false;
+                        deferred.resolve(checkObject);
+
+                     }
+                     
+         
+                     return deferred.promise;
+                  }
+
+                  $scope.dimensionSecurityCheckExistence = function(checkObject){
+                     var deferred = $q.defer();
+
+                     if(checkObject.update){
+                        var url = "/Cubes('}DimensionSecurity')";
+            
+                        $http.get(encodeURIComponent($scope.instance) + url).then(function(success){
+                           if(success.status < 400){
+                              checkObject.securityCubeExists = true;
+                              deferred.resolve(checkObject);
+                           }else{
+                              deferred.resolve(checkObject);
+                           }
+                        });
+                     }else{
+                        deferred.resolve(checkObject);
+
+                     }
+
+
+                     return deferred.promise;
+                  }
+
+                  $scope.dimensionSecurityCreateCube = function(checkObject){
+                     var deferred = $q.defer();
+
+                     if(checkObject.update){
+                        if(checkObject.securityCubeExists){
+                           deferred.resolve(checkObject);
+   
+                        }else{
+                           var url = "/Cubes";
+                           var data = "{\"Name\": \"}DimensionSecurity\", \"Dimensions@odata.bind\":[\"Dimensions('}Dimensions')\",\"Dimensions('}Groups')\"]}";
+               
+                           $http.post(encodeURIComponent($scope.instance) + url, data).then(function(success){
+                              if(success.status < 400){
+                                 checkObject.securityCubeExists = true;
+                                 deferred.resolve(checkObject);
+                              }else{
+                                 deferred.reject(success);
+                              }
+                           });
+   
+                        }
+                     }else{
+                        deferred.resolve(checkObject);
+                     }
+
+                     return deferred.promise;
+                  }
+
+                  $scope.dimensionSecurityBuildData = function(checkObject){
+                     var deferred = $q.defer();
+
+                     if(checkObject.update){
+                        //build data object
+                        var data = [];
+
+                        //removed items
+                        for(var i = 0; i < $scope.newGroup['dimensions'].itemsNONE.length; i++){
+                           var item =  {
+                              "Cells":[
+                                 {"Tuple@odata.bind": [
+                                    "Dimensions('}Dimensions')/Hierarchies('}Dimensions')/Elements('" + $scope.newGroup['dimensions'].itemsNONE[i].name + "')",
+                                    "Dimensions('}Groups')/Hierarchies('}Groups')/Elements('" + $scope.newGroup.name + "')"
+                                    ]
+                                 }
+                              ],
+                              "Value" : ""
+                           }
+                           data.push(item);
+                        }
+                        //normal/changed items
+                        for(var i = 0; i < $scope.newGroup['dimensions'].items.length; i++){
+                           var item =  {
+                              "Cells":[
+                                 {"Tuple@odata.bind": [
+                                    "Dimensions('}Dimensions')/Hierarchies('}Dimensions')/Elements('" + $scope.newGroup['dimensions'].items[i].name + "')",
+                                    "Dimensions('}Groups')/Hierarchies('}Groups')/Elements('" + $scope.newGroup.name + "')"
+                                    ]
+                                 }
+                              ],
+                              "Value" : $scope.newGroup['dimensions'].items[i].access
+                           }
+                           data.push(item);
+                        }
+               
+                        checkObject.data = data;
+                        deferred.resolve(checkObject);
+
+                     }else{
+                        deferred.resolve(checkObject);
+
+                     }
+
+                     return deferred.promise;
+                  }
+
+                  $scope.dimensionSecurityLoadData = function(checkObject){
+                     var deferred = $q.defer();
+
+                     if(checkObject.update){
+                        var url = "/Cubes('}DimensionSecurity')/tm1.Update";
+
+                        $http.post(encodeURIComponent($scope.instance) + url, checkObject.data).then(function(success){
+                           if(success.status < 400){
+                              deferred.resolve(success);
+            
+                           }else{
+                              deferred.reject(success);
+                           }
+            
+                        });
+                     }else{
+                        deferred.resolve(checkObject);
+                     }
+
+                     return deferred.promise;
+                  }
+
+                  //ProcessSecurity
+                  $scope.processSecurityCheckUpdate = function(){
+                     var deferred = $q.defer();
+
+                     var checkObject = {
+                        update:false,
+                        securityCubeExists:false,
+                        data:{}
+                     }
+
+                     if($scope.newGroup['processes'].update){
+                        checkObject.update = true;
+                        deferred.resolve(checkObject);
+
+                     }else{
+                        checkObject.update = false;
+                        deferred.resolve(checkObject);
+
+                     }
+                     
+         
+                     return deferred.promise;
+                  }
+
+                  $scope.processSecurityCheckExistence = function(checkObject){
+                     var deferred = $q.defer();
+
+                     if(checkObject.update){
+                        var url = "/Cubes('}ProcessSecurity')";
+            
+                        $http.get(encodeURIComponent($scope.instance) + url).then(function(success){
+                           if(success.status < 400){
+                              checkObject.securityCubeExists = true;
+                              deferred.resolve(checkObject);
+                           }else{
+                              deferred.resolve(checkObject);
+                           }
+                        });
+                     }else{
+                        deferred.resolve(checkObject);
+
+                     }
+
+
+                     return deferred.promise;
+                  }
+
+                  $scope.processSecurityCreateCube = function(checkObject){
+                     var deferred = $q.defer();
+
+                     if(checkObject.update){
+                        if(checkObject.securityCubeExists){
+                           deferred.resolve(checkObject);
+   
+                        }else{
+                           var url = "/Cubes";
+                           var data = "{\"Name\": \"}ProcessSecurity\", \"Dimensions@odata.bind\":[\"Dimensions('}Processes')\",\"Dimensions('}Groups')\"]}";
+               
+                           $http.post(encodeURIComponent($scope.instance) + url, data).then(function(success){
+                              if(success.status < 400){
+                                 checkObject.securityCubeExists = true;
+                                 deferred.resolve(checkObject);
+                              }else{
+                                 deferred.reject(success);
+                              }
+                           });
+   
+                        }
+                     }else{
+                        deferred.resolve(checkObject);
+                     }
+
+
+                     return deferred.promise;
+                  }
+
+                  $scope.processSecurityBuildData = function(checkObject){
+                     var deferred = $q.defer();
+
+                     if(checkObject.update){
+                        //build data object
+                        var data = [];
+
+                        //removed items
+                        for(var i = 0; i < $scope.newGroup['processes'].itemsNONE.length; i++){
+                           var item =  {
+                              "Cells":[
+                                 {"Tuple@odata.bind": [
+                                    "Dimensions('}Processes')/Hierarchies('}Processes')/Elements('" + $scope.newGroup['processes'].itemsNONE[i].name + "')",
+                                    "Dimensions('}Groups')/Hierarchies('}Groups')/Elements('" + $scope.newGroup.name + "')"
+                                    ]
+                                 }
+                              ],
+                              "Value" : ""
+                           }
+                           data.push(item);
+                        }
+                        //normal/changed items
+                        for(var i = 0; i < $scope.newGroup['processes'].items.length; i++){
+                           var item =  {
+                              "Cells":[
+                                 {"Tuple@odata.bind": [
+                                    "Dimensions('}Processes')/Hierarchies('}Processes')/Elements('" + $scope.newGroup['processes'].items[i].name + "')",
+                                    "Dimensions('}Groups')/Hierarchies('}Groups')/Elements('" + $scope.newGroup.name + "')"
+                                    ]
+                                 }
+                              ],
+                              "Value" : $scope.newGroup['processes'].items[i].access
+                           }
+                           data.push(item);
+                        }
+               
+                        checkObject.data = data;
+                        deferred.resolve(checkObject);
+
+                     }else{
+                        deferred.resolve(checkObject);
+
+                     }
+
+                     return deferred.promise;
+                  }
+
+                  $scope.processSecurityLoadData = function(checkObject){
+                     var deferred = $q.defer();
+
+                     if(checkObject.update){
+                        var url = "/Cubes('}ProcessSecurity')/tm1.Update";
+
+                        $http.post(encodeURIComponent($scope.instance) + url, checkObject.data).then(function(success){
+                           if(success.status < 400){
+                              deferred.resolve(success);
+            
+                           }else{
+                              deferred.reject(success);
+                           }
+            
+                        });
+                     }else{
+                        deferred.resolve(checkObject);
+                     }
+
+                     return deferred.promise;
+                  }
+
+
+                  //ChoreSecurity
+                  $scope.choreSecurityCheckUpdate = function(){
+                     var deferred = $q.defer();
+
+                     var checkObject = {
+                        update:false,
+                        securityCubeExists:false,
+                        data:{}
+                     }
+
+                     if($scope.newGroup['chores'].update){
+                        checkObject.update = true;
+                        deferred.resolve(checkObject);
+
+                     }else{
+                        checkObject.update = false;
+                        deferred.resolve(checkObject);
+
+                     }
+                     
+         
+                     return deferred.promise;
+                  }
+
+                  $scope.choreSecurityCheckExistence = function(checkObject){
+                     var deferred = $q.defer();
+
+                     if(checkObject.update){
+                        var url = "/Cubes('}ChoreSecurity')";
+            
+                        $http.get(encodeURIComponent($scope.instance) + url).then(function(success){
+                           if(success.status < 400){
+                              checkObject.securityCubeExists = true;
+                              deferred.resolve(checkObject);
+                           }else{
+                              deferred.resolve(checkObject);
+                           }
+                        });
+                     }else{
+                        deferred.resolve(checkObject);
+
+                     }
+
+
+                     return deferred.promise;
+                  }
+
+                  $scope.choreSecurityCreateCube = function(checkObject){
+                     var deferred = $q.defer();
+
+                     if(checkObject.update){
+                        if(checkObject.securityCubeExists){
+                           deferred.resolve(checkObject);
+   
+                        }else{
+                           var url = "/Cubes";
+                           var data = "{\"Name\": \"}ChoreSecurity\", \"Dimensions@odata.bind\":[\"Dimensions('}Chores')\",\"Dimensions('}Groups')\"]}";
+               
+                           $http.post(encodeURIComponent($scope.instance) + url, data).then(function(success){
+                              if(success.status < 400){
+                                 checkObject.securityCubeExists = true;
+                                 deferred.resolve(checkObject);
+                              }else{
+                                 deferred.reject(success);
+                              }
+                           });
+   
+                        }
+
+                     }else{
+                        deferred.resolve(checkObject);
+
+                     }
+
+
+                     return deferred.promise;
+                  }
+
+                  $scope.choreSecurityBuildData = function(checkObject){
+                     var deferred = $q.defer();
+
+                     if(checkObject.update){
+                        //build data object
+                        var data = [];
+
+                        //removed items
+                        for(var i = 0; i < $scope.newGroup['chores'].itemsNONE.length; i++){
+                           var item =  {
+                              "Cells":[
+                                 {"Tuple@odata.bind": [
+                                    "Dimensions('}Chores')/Hierarchies('}Chores')/Elements('" + $scope.newGroup['chores'].itemsNONE[i].name + "')",
+                                    "Dimensions('}Groups')/Hierarchies('}Groups')/Elements('" + $scope.newGroup.name + "')"
+                                    ]
+                                 }
+                              ],
+                              "Value" : ""
+                           }
+                           data.push(item);
+                        }
+
+                        //normal/changed items
+                        for(var i = 0; i < $scope.newGroup['chores'].items.length; i++){
+                           var item =  {
+                              "Cells":[
+                                 {"Tuple@odata.bind": [
+                                    "Dimensions('}Chores')/Hierarchies('}Chores')/Elements('" + $scope.newGroup['chores'].items[i].name + "')",
+                                    "Dimensions('}Groups')/Hierarchies('}Groups')/Elements('" + $scope.newGroup.name + "')"
+                                    ]
+                                 }
+                              ],
+                              "Value" : $scope.newGroup['chores'].items[i].access
+                           }
+                           data.push(item);
+                        }
+               
+                        checkObject.data = data;
+                        deferred.resolve(checkObject);
+
+                     }else{
+                        deferred.resolve(checkObject);
+
+                     }
+
+                     return deferred.promise;
+                  }
+
+                  $scope.choreSecurityLoadData = function(checkObject){
+                     var deferred = $q.defer();
+
+                     if(checkObject.update){
+                        var url = "/Cubes('}ChoreSecurity')/tm1.Update";
+
+                        $http.post(encodeURIComponent($scope.instance) + url, checkObject.data).then(function(success){
+                           if(success.status < 400){
+                              deferred.resolve(success);
+            
+                           }else{
+                              deferred.reject(success);
+                           }
+            
+                        });
+                     }else{
+                        deferred.resolve(checkObject);
+                     }
+
+                     return deferred.promise;
+                  }
+
+
+                  //ApplicationSecurity
+                  $scope.applicationSecurityCheckUpdate = function(){
+                     var deferred = $q.defer();
+
+                     var checkObject = {
+                        update:false,
+                        securityCubeExists:false,
+                        data:{}
+                     }
+
+                     if($scope.newGroup['applications'].update){
+                        checkObject.update = true;
+                        deferred.resolve(checkObject);
+
+                     }else{
+                        checkObject.update = false;
+                        deferred.resolve(checkObject);
+
+                     }
+                     
+         
+                     return deferred.promise;
+                  }
+
+                  $scope.applicationSecurityCheckExistence = function(checkObject){
+                     var deferred = $q.defer();
+
+                     if(checkObject.update){
+                        var url = "/Cubes('}ApplicationSecurity')";
+            
+                        $http.get(encodeURIComponent($scope.instance) + url).then(function(success){
+                           if(success.status < 400){
+                              checkObject.securityCubeExists = true;
+                              deferred.resolve(checkObject);
+                           }else{
+                              deferred.resolve(checkObject);
+                           }
+                        });
+                     }else{
+                        deferred.resolve(checkObject);
+
+                     }
+
+                     return deferred.promise;
+                  }
+
+                  $scope.applicationSecurityCreateCube = function(checkObject){
+                     var deferred = $q.defer();
+
+                     if(checkObject.update){
+                        if(checkObject.securityCubeExists){
+                           deferred.resolve(checkObject);
+   
+                        }else{
+                           var url = "/Cubes";
+                           var data = "{\"Name\": \"}ApplicationSecurity\", \"Dimensions@odata.bind\":[\"Dimensions('}ApplicationEntries')\",\"Dimensions('}Groups')\"]}";
+               
+                           $http.post(encodeURIComponent($scope.instance) + url, data).then(function(success){
+                              if(success.status < 400){
+                                 checkObject.securityCubeExists = true;
+                                 deferred.resolve(checkObject);
+                              }else{
+                                 deferred.reject(success);
+                              }
+                           });
+   
+                        }
+
+                     }else{
+                        deferred.resolve(checkObject);
+
+                     }
+
+                     return deferred.promise;
+                  }
+
+                  $scope.applicationSecurityBuildData = function(checkObject){
+                     var deferred = $q.defer();
+
+                     if(checkObject.update){
+                        //build data object
+                        var data = [];
+            
+                        if($scope.newGroup['applications'].length === 0){
+                           //then load all elements with NONE
+                           for(var i = 0; i < $scope.applicationsList.length; i++){
+                              var item =  {
+                                 "Cells":[
+                                    {"Tuple@odata.bind": [
+                                       "Dimensions('}ApplicationEntries')/Hierarchies('}ApplicationEntries')/Elements('"+ $scope.applicationsList[i].Name +"')",
+                                       "Dimensions('}Groups')/Hierarchies('}Groups')/Elements('" + $scope.newGroup.name + "')"
+                                       ]
+                                    }
+                                 ],
+                                 "Value" : "NONE"
+                              }
+                              data.push(item);
+      
+                           }
+      
+                        }else{
+                           //for application security, NONE is triggered when you remove the item from the UI. These items are pushed to a seperate array
+                           //load this array here
+                           for(var i = 0; i < $scope.newGroup["applications"].itemsNONE.length; i++){
+                              var item =  {
+                                 "Cells":[
+                                    {"Tuple@odata.bind": [
+                                       "Dimensions('}ApplicationEntries')/Hierarchies('}ApplicationEntries')/Elements('" + $scope.newGroup["applications"].itemsNONE[i].name + "')",
+                                       "Dimensions('}Groups')/Hierarchies('}Groups')/Elements('" + $scope.newGroup.name + "')"
+                                       ]
+                                    }
+                                 ],
+                                 "Value" : $scope.newGroup["applications"].itemsNONE[i].access
+                              }
+                              data.push(item);
+                           }
+      
+                           for(var i = 0; i < $scope.newGroup["applications"].items.length; i++){
+                              //for application security, blank cells and READ cells are both handled as READ. But on frontend display we want to display READ
+                              if($scope.newGroup["applications"].items[i].access === "READ"){
+                                 $scope.newGroup["applications"].items[i].access = "";
+                              }
+      
+                              var item =  {
+                                 "Cells":[
+                                    {"Tuple@odata.bind": [
+                                       "Dimensions('}ApplicationEntries')/Hierarchies('}ApplicationEntries')/Elements('" + $scope.newGroup["applications"].items[i].name + "')",
+                                       "Dimensions('}Groups')/Hierarchies('}Groups')/Elements('" + $scope.newGroup.name + "')"
+                                       ]
+                                    }
+                                 ],
+                                 "Value" : $scope.newGroup["applications"].items[i].access
+                              }
+                              data.push(item);
+         
+                           }
+                           
+                        }
+               
+                        checkObject.data = data;
+                        deferred.resolve(checkObject);
+
+                     }else{
+                        deferred.resolve(checkObject);
+
+                     }
+
+                     return deferred.promise;
+                  }
+
+                  $scope.applicationSecurityLoadData = function(checkObject){
+                     var deferred = $q.defer();
+
+                     if(checkObject.update){
+                        var url = "/Cubes('}ApplicationSecurity')/tm1.Update";
+
+                        $http.post(encodeURIComponent($scope.instance) + url, checkObject.data).then(function(success){
+                           if(success.status < 400){
+                              deferred.resolve(success);
+            
+                           }else{
+                              deferred.reject(success);
+                           }
+            
+                        });
+                     }else{
+                        deferred.resolve(checkObject);
+                     }
+
+                     return deferred.promise;
+                  }
+
 
                   $scope.updateGroup = function(){
                      if($scope.newGroup.name!==""){
-                     $scope.updateValues($scope.newGroup)
-                        .then($scope.addSuccess)
-                        .catch($scope.addErrorHandler);
+                        // $scope.addNewGroup($scope.newGroup)
+                        $scope.cubeSecurityCheckUpdate()
+                           .then($scope.cubeSecurityCheckExistence)
+                           .then($scope.cubeSecurityCreateCube)
+                           .then($scope.cubeSecurityBuildData)
+                           .then($scope.cubeSecurityLoadData)
+
+                           .then($scope.dimensionSecurityCheckUpdate)
+                           .then($scope.dimensionSecurityCheckExistence)
+                           .then($scope.dimensionSecurityCreateCube)
+                           .then($scope.dimensionSecurityBuildData)
+                           .then($scope.dimensionSecurityLoadData)
+
+                           .then($scope.processSecurityCheckUpdate)
+                           .then($scope.processSecurityCheckExistence)
+                           .then($scope.processSecurityCreateCube)
+                           .then($scope.processSecurityBuildData)
+                           .then($scope.processSecurityLoadData)
+
+                           .then($scope.choreSecurityCheckUpdate)
+                           .then($scope.choreSecurityCheckExistence)
+                           .then($scope.choreSecurityCreateCube)
+                           .then($scope.choreSecurityBuildData)
+                           .then($scope.choreSecurityLoadData)
+
+                           .then($scope.applicationSecurityCheckUpdate)
+                           .then($scope.applicationSecurityCheckExistence)
+                           .then($scope.applicationSecurityCreateCube)
+                           .then($scope.applicationSecurityBuildData)
+                           .then($scope.applicationSecurityLoadData)
+
+                           .then($scope.addSuccess)
+                           .catch($scope.addErrorHandler);
                      }
                   }
-
 
                }],
                data: {
@@ -3433,136 +5030,12 @@ arc.directive("usersGroups", function () {
                   addCloneGroupsToNewGroupDimensions : $scope.addCloneGroupsToNewGroupDimensions,
                   addCloneGroupsToNewGroupProcesses : $scope.addCloneGroupsToNewGroupProcesses,
                   addCloneGroupsToNewGroupChores : $scope.addCloneGroupsToNewGroupChores,
-                  addNewGroup : $scope.addNewGroup,
-                  updateValues : $scope.updateValues
+                  // addNewGroup : $scope.addNewGroup
 
                }
             });
 
          }
-
-
-         $scope.addGroup = function(){
-            ngDialog.open({
-               template: "__/plugins/users-groups/addGroup.html",
-               className: "ngdialog-theme-default large",
-               scope: $scope,
-               controller: ['$rootScope', '$scope', '$http', '$state', '$tm1','$q','$log', function ($rootScope, $scope, $http, $state, $tm1, $q, $log) {
- 
-                  $scope.view = {
-                     message:"",
-                     messageWarning:false,
-                     messageSuccess:false
-                  }
-
-                  //default objects/arrays
-                  $scope.newGroup = {
-                     name:"",
-                     applications:[],
-                     applicationsNONE:[],
-                     cubes: [],
-                     dimensions:[],
-                     processes:[],
-                     chores:[]
-                  }
-
-                  $scope.deleteSelection = function(tm1ItemSelected){
-                     $dialogs.confirmDelete(tm1ItemSelected, deleteTm1ItemsSelected);
-         
-                     function deleteTm1ItemsSelected(){
-                        if(tm1ItemSelected==="all"){
-                           $scope.newGroup.applications = [];
-                           $scope.newGroup.cubes = [];
-                           $scope.newGroup.dimensions = [];
-                           $scope.newGroup.processes = [];
-                           $scope.newGroup.chores = [];
-                        }else{
-                           $scope.newGroup[tm1ItemSelected] = [];
-                        }
-
-                     }
-                  }
-
-
-                  $scope.addSuccess = function(){
-                     //success to display on page
-                     $scope.view.message = $translate.instant("FUNCTIONADDGROUPSUCCESS");
-                     $scope.view.messageSuccess = true;
-         
-                     $timeout(function(){
-                        $scope.view.message = null;
-                        $scope.view.messageSuccess = false;
-                        $scope.ngDialogData.load();
-                        $scope.closeThisDialog();
-                     }, 1000);
-                  }
-         
-         
-                  $scope.addErrorHandler = function(rejectedObject){
-                     if(rejectedObject.status >=400 ){
-                        // Error to display on page
-                        if(rejectedObject.data && rejectedObject.data.error && rejectedObject.data.error.message){
-                           $scope.view.message = rejectedObject.data.error.message;
-                           $scope.view.messageWarning = true;
-         
-                        }
-                        else {
-                           $scope.view.message = rejectedObject.data;
-                           $scope.view.messageWarning = true;
-                        }
-         
-                     }else{
-                        $scope.view.message = $translate.instant("FUNCTIONADDGROUPERROR");
-                        $scope.view.messageWarning = true;
-                        $log.log(rejectedObject);
-         
-                     }
-                     $timeout(function(){
-                        $scope.view.message = null;
-                        $scope.view.messageWarning = false;
-                     }, 2000);
-                  }
-
-
-                  $scope.createGroup = function(){
-                     if($scope.newGroup.name!==""){
-                        $scope.addNewGroup($scope.newGroup)
-                           .then($scope.updateValues)
-                           .then($scope.addSuccess)
-                           .catch($scope.addErrorHandler);
-                     }
-                  }
-
-
-                  $scope.closeThisDialog = function(){
-                     ngDialog.close();
-                  }
-
-               }],
-               data: {
-                  view : $scope.view,
-                  updateGroupsArray : $scope.updateGroupsArray,
-                  load : $scope.load,
-                  groupsArrayToGroupsMDX : $scope.groupsArrayToGroupsMDX,
-                  nextAccess : $scope.nextAccess,
-                  previousAccess : $scope.previousAccess,
-                  addIndividualTm1SectionItemToNewGroup : $scope.addIndividualTm1SectionItemToNewGroup,
-                  removeTm1SectionItemFromNewGroup : $scope.removeTm1SectionItemFromNewGroup,
-                  addCloneGroupsToNewGroupApplications : $scope.addCloneGroupsToNewGroupApplications,
-                  addCloneGroupsToNewGroupCubes : $scope.addCloneGroupsToNewGroupCubes,
-                  addCloneGroupsToNewGroupDimensions : $scope.addCloneGroupsToNewGroupDimensions,
-                  addCloneGroupsToNewGroupProcesses : $scope.addCloneGroupsToNewGroupProcesses,
-                  addCloneGroupsToNewGroupChores : $scope.addCloneGroupsToNewGroupChores,
-                  addCloneGroupsToNewGroupAll : $scope.addCloneGroupsToNewGroupAll,
-                  addNewGroup : $scope.addNewGroup,
-                  updateValues : $scope.updateValues
-
-               }
-            });
-
-         }
-
-
 
          $scope.deleteGroup = function(group){
             $dialogs.confirmDelete(group, deleteSelectedGroup);

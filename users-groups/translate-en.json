@@ -57,6 +57,7 @@
    "CLEARUAG":"Clear",
    "CREATEUAG":"Create",
    "DELETEUAG":"Delete",
+   "UPDATEUAG":"Update",
    "EDITPASSWORD":"Password",
    "EDITPASSWORDHEADING":"Change Password",
    "EDITPASSWORDCONFIRMMESSAGE":"Change password for ",

@@ -80,7 +80,9 @@
                                     <div class="toolbar">
                                        <div class="btn-toolbar pull-right" >
                                           <div class="btn-group">
-                                             <button class="btn btn-secondary" ng-disabled="!newGroup.applications.length > 0" title="{{'ADDGROUPREMOVEAPPLICATIONS' | translate}}" ng-click="deleteSelection('applications');">
+                                             <button class="btn btn-secondary" ng-disabled="!newGroup.applications.items.length > 0" 
+                                                      title="{{'ADDGROUPREMOVEAPPLICATIONS' | translate}}"
+                                                      ng-click="deleteSelection('applications');">
                                                 <i class="fa fa-trash"></i>
                                              </button>
                                           </div>
@@ -95,13 +97,15 @@
                                     <form>
                                        <div class="form-group row p-2">
                                           <div class="input-group">
-                                             <div ng-repeat="application in newGroup.applications | orderBy:'name'" >
+                                             <div ng-repeat="application in newGroup.applications.items | orderBy:'name'" >
                                                 <div style="float:left;" class="mt-1">
                                                    <div class="input-group">
                                                       <div class="badge m-0 pl-0 pr-0" style="cursor: default; user-select: none;">
                                                          <a><i class="fa fa-fw fa-remove text-danger" ng-click="removeTm1SectionItemFromNewGroup(newGroup, 'applications', application.name)" title="{{'REMOVEAPPLICATION' | translate}}"></i></a>
                                                       </div>
-                                                      <div class="badge" title="{{'ADDGROUPNEXTACCESS' | translate}}" ng-class="securityAccessColourMapping(application.access)" ng-click="nextAccess(newGroup, 'applications', application.name, application.access)" style="cursor: pointer; user-select: none;">{{application.access.substr(0,1)}}</div>
+                                                      <div class="badge" title="{{'ADDGROUPNEXTACCESS' | translate}}" ng-class="securityAccessColourMapping(application.access)"
+                                                                         ng-click="nextAccess(newGroup, 'applications', application.name, application.access)"
+                                                                         style="cursor: pointer; user-select: none;">{{application.access.substr(0,1)}}</div>
                                                       <div class="badge m-0" style="cursor: default; user-select: none;">
                                                          {{application.name}}
                                                       </div>
@@ -141,7 +145,7 @@
                                     <div class="toolbar">
                                        <div class="btn-toolbar pull-right" >
                                           <div class="btn-group">
-                                             <button class="btn btn-secondary" ng-disabled="!newGroup.dimensions.length > 0" title="{{'ADDGROUPREMOVEDIMENSIONS' | translate}}" ng-click="deleteSelection('dimensions');">
+                                             <button class="btn btn-secondary" ng-disabled="!newGroup.dimensions.items.length > 0" title="{{'ADDGROUPREMOVEDIMENSIONS' | translate}}" ng-click="deleteSelection('dimensions');">
                                                 <i class="fa fa-trash"></i>
                                              </button>
                                           </div>
@@ -156,7 +160,7 @@
                                     <form>
                                        <div class="form-group row p-2">
                                           <div class="input-group">
-                                             <div ng-repeat="dimension in newGroup.dimensions | orderBy:'name'" >
+                                             <div ng-repeat="dimension in newGroup.dimensions.items | orderBy:'name'" >
                                                 <div style="float:left;" class="mt-1">
                                                    <div class="input-group" >
                                                       <div class="badge m-0 pl-0 pr-0" style="cursor: default; user-select: none;">
@@ -205,7 +209,7 @@
                                     <div class="toolbar">
                                        <div class="btn-toolbar pull-right" >
                                           <div class="btn-group">
-                                             <button class="btn btn-secondary" ng-disabled="!newGroup.cubes.length > 0" title="{{'ADDGROUPREMOVECUBES' | translate}}" ng-click="deleteSelection('cubes');">
+                                             <button class="btn btn-secondary" ng-disabled="!newGroup.cubes.items.length > 0" title="{{'ADDGROUPREMOVECUBES' | translate}}" ng-click="deleteSelection('cubes');">
                                                 <i class="fa fa-trash"></i>
                                              </button>
                                           </div>
@@ -220,7 +224,7 @@
                                     <form>
                                        <div class="form-group row p-2">
                                           <div class="input-group">
-                                             <div ng-repeat="cube in newGroup.cubes | orderBy:'name'" >
+                                             <div ng-repeat="cube in newGroup.cubes.items | orderBy:'name'" >
                                                 <div style="float:left;" class="mt-1">
                                                    <div class="input-group">
                                                       <div class="badge m-0 pl-0 pr-0" style="cursor: default; user-select: none;">
@@ -267,7 +271,7 @@
                                     <div class="toolbar">
                                        <div class="btn-toolbar pull-right" >
                                           <div class="btn-group">
-                                             <button class="btn btn-secondary" ng-disabled="!newGroup.processes.length > 0" title="{{'ADDGROUPREMOVEPROCESSES' | translate}}" ng-click="deleteSelection('processes');">
+                                             <button class="btn btn-secondary" ng-disabled="!newGroup.processes.items.length > 0" title="{{'ADDGROUPREMOVEPROCESSES' | translate}}" ng-click="deleteSelection('processes');">
                                                 <i class="fa fa-trash"></i>
                                              </button>
                                           </div>
@@ -282,7 +286,7 @@
                                     <form>
                                        <div class="form-group row p-2">
                                           <div class="input-group">
-                                             <div ng-repeat="process in newGroup.processes | orderBy:'name'" >
+                                             <div ng-repeat="process in newGroup.processes.items | orderBy:'name'" >
                                                 <div style="float:left;" class="mt-1">
                                                    <div class="input-group">
                                                       <div class="badge m-0 pl-0 pr-0" style="cursor: default; user-select: none;">
@@ -328,7 +332,7 @@
                                     <div class="toolbar">
                                        <div class="btn-toolbar pull-right" >
                                           <div class="btn-group">
-                                             <button class="btn btn-secondary" ng-disabled="!newGroup.chores.length > 0" title="{{'ADDGROUPREMOVECHORES' | translate}}" ng-click="deleteSelection('chores');">
+                                             <button class="btn btn-secondary" ng-disabled="!newGroup.chores.items.length > 0" title="{{'ADDGROUPREMOVECHORES' | translate}}" ng-click="deleteSelection('chores');">
                                                 <i class="fa fa-trash"></i>
                                              </button>
                                           </div>
@@ -343,7 +347,7 @@
                                     <form>
                                        <div class="form-group row p-2">
                                           <div class="input-group">
-                                             <div ng-repeat="chore in newGroup.chores | orderBy:'name'" >
+                                             <div ng-repeat="chore in newGroup.chores.items | orderBy:'name'" >
                                                 <div style="float:left;" class="mt-1">
                                                    <div class="input-group">
                                                       <div class="badge m-0 pl-0 pr-0" style="cursor: default; user-select: none;">
