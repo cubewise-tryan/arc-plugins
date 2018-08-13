@@ -314,8 +314,8 @@
    <div class="modal-footer">
       <div class="container-fluid">
          <div class="row">
-            <div class="col-md-4">
-               <div class="input-group">
+            <div class="col-md-8" style="white-space: nowrap;">
+               <span style="margin-top: 10px;">
                   <div class="badge" ng-class="securityAccessColourMapping('READ')">R</div>
                   <div class="badge m-0" style="cursor: default; user-select: none;">
                      READ
@@ -336,15 +336,13 @@
                   <div class="badge m-0" style="cursor: default; user-select: none;">
                      ADMIN
                   </div>
-               </div>
-            </div>
-            <div class="col-md-4">
-               <button ng-class="{'btn btn-success':view.messageSuccess,'btn btn-warning':view.messageWarning}" ng-if="view.message">
-                  <span ng-class="{'fa fa-check':view.messageSuccess,'fa fa-warning':view.messageWarning}" class="pr-1" aria-hidden="true"></span><span>{{view.message}}</span>
-               </button>
+               </span>
+               <span class="alert" ng-class="{'alert-success':view.messageSuccess,'alert-warning':view.messageWarning}" ng-if="view.message">
+                 <span class="fa" ng-class="{'fa-check':view.messageSuccess,'fa-warning':view.messageWarning}" class="pr-1" aria-hidden="true"></span> <span>{{view.message}}</span>
+               </span>
             </div>
             <div class="col-md-4 pr-0">
-               <div class="float-right">
+               <div class="text-right">
                   <button class="btn btn-primary action ng-scope" ng-disabled="!newGroup.name.length > 0" ng-click="updateGroup()" translate="UPDATEUAG"></button>                     
                   <button class="btn action ng-scope " ng-click="closeThisDialog()" translate="CANCEL"></button>
                </div>

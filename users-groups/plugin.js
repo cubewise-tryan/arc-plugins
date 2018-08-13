@@ -38,10 +38,10 @@ arc.directive("usersGroups", function () {
          };
 
          //for testing make 2, as test model does not have enough groups. Later make default 20
-         $rootScope.uiPrefs.groupsDisplayNumber = 2;
+         $rootScope.uiPrefs.groupsDisplayNumber = 20;
          
          //for testing make 2, as test model does not have enough groups. Later make default 20
-         $rootScope.uiPrefs.usersDisplayNumber = 2;
+         $rootScope.uiPrefs.usersDisplayNumber = 20;
          
 
          $scope.load = function(){
